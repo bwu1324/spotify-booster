@@ -1,0 +1,59 @@
+{
+  "name": "spotify-booster-backend",
+  "version": "1.0.0",
+  "description": "Backend code for Spotify Booster",
+  "main": "./build/src/index.js",
+  "directories": {},
+  "//": [
+    "lint: run eslint to check code style",
+    "fix: run eslint to check code style and fix fixable errors",
+    "build: run typescript to convert typescript to javascript",
+    "pretest: need to build code before running tests",
+    "test: use mocha to run tests",
+    "posttest: run eslint to check code style after testing",
+    "coverage: run tests with nyc to check code coverage, open `./coverage/index.html` for more details about coverage",
+    "prestart: need to build code before starting",
+    "start: run index.js"
+  ],
+  "scripts": {
+    "lint": "eslint ./**/*.ts",
+    "fix": "eslint ./**/*.ts --fix",
+    "build": "tsc",
+    "pretest": "npm run build",
+    "test": "mocha ./build/**/*test.js",
+    "posttest": "npm run lint",
+    "coverage": "nyc npm test",
+    "prestart": "npm run build",
+    "start": "node ./build/src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/CS222-UIUC/course-project-team-2-1.git"
+  },
+  "author": "CS222 team 2",
+  "license": "GPL-3.0",
+  "bugs": {
+    "url": "https://github.com/CS222-UIUC/course-project-team-2-1/issues"
+  },
+  "devDependencies": {
+    "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@types/chai": "^4.3.4",
+    "@types/mocha": "^10.0.1",
+    "@types/node": "^14.18.36",
+    "@typescript-eslint/eslint-plugin": "^5.52.0",
+    "@typescript-eslint/parser": "^5.52.0",
+    "chai": "^4.3.7",
+    "eslint": "^7.32.0",
+    "eslint-config-google": "^0.14.0",
+    "gts": "^3.1.1",
+    "mocha": "^10.2.0",
+    "nyc": "^15.1.0",
+    "typescript": "~4.7.0"
+  },
+  "dependencies": {
+    "dotenv": "^16.0.3",
+    "express": "^4.18.2",
+    "path": "^0.12.7",
+    "spotify-web-api-node": "^5.0.2"
+  }
+}
