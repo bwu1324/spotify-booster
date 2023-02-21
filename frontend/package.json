@@ -6,8 +6,8 @@
   "homepage": ".",
   "//": [],
   "scripts": {
-    "lint": "eslint ./**/*.ts",
-    "fix": "eslint ./**/*.ts --fix",
+    "lint": "eslint ./**/*.tsx",
+    "fix": "eslint ./**/*.tsx --fix",
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
