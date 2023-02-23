@@ -145,20 +145,31 @@ export default class DatabaseInterface {
       });
 
       // create the tables needed
-      this.db_.serialize(() => {
-        const tables = [
-          'CREATE TABLE tracks (remix_id STRING NOT NULL, track_id STRING NOT NULL)',
-          'CREATE TABLE remixes (remix_id STRING NOT NULL, name STRING NOT NULL)',
-        ];
+      const tables = [
+        {
+          name: 'tracks',
+          cols: '(remix_id STRING NOT NULL, track_id STRING NOT NULL)',
+        },
+        {
+          name: 'remixes',
+          cols: '(remix_id STRING NOT NULL, name STRING NOT NULL)',
+        },
+      ];
 
-        let count = 0;
-        for (let i = 0; i < tables.length; i++) {
-          this.db_.run(tables[i], (error) => {
+      let count = 0;
+      for (let i = 0; i < tables.length; i++) {
+        this.db_.run(
+          `CREATE TABLE ${tables[i].name} ${tables[i].cols}`,
+          (error) => {
             if (error) {
-              this.log_.warn(
-                `OK if the database has already been initialized. Error running command: ${tables[i]}.`,
-                error
-              );
+              // ignore if error is that table already exists
+              if (
+                error.message.includes(`table ${tables[i].name} already exists`)
+              ) {
+                return;
+              }
+
+              this.log_.fatal(`Creating table: ${tables[i].name}.`, error);
             }
 
             // count how many commands have been completed, done initializing once all have been run
@@ -169,9 +180,9 @@ export default class DatabaseInterface {
               });
               resolve();
             }
-          });
-        }
-      });
+          }
+        );
+      }
     });
   }
 
