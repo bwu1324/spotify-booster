@@ -5,7 +5,7 @@ import crypto from 'crypto';
 import Logger from './logger';
 
 export default class DatabaseInterface {
-  // unlilky that 10,000 new remixes will be created every millisecond, so this should guarantee a unique remix_id
+  // unlikey that 10,000 new remixes will be created every millisecond, so this should guarantee a unique remix_id
   private remix_id_gen_ = Date.now() * 10000;
   private log_: Logger;
   private db_: Database;
@@ -49,9 +49,20 @@ export default class DatabaseInterface {
    * setRemixName() - updates the name of a remix
    * @param remix_id - unique remix id
    * @param new_name - new remix name
-   * @returns Promise resolving to nothing (rejected if an error occurs)
+   * @returns Promise resolving to nothing if remix id is valid (rejected if an error occurs)
    */
   setRemixName(remix_id: string, new_name: string): Promise<void> {
+    return new Promise((resolve, reject) => {
+      resolve();
+    });
+  }
+
+  /**
+   * deleteRemix() - deletes a remix
+   * @param remix_id - unique remix id
+   * @returns Promise resolving to nothing if remix id is valid (rejected if an error occurs)
+   */
+  deleteRemix(remix_id: string): Promise<void> {
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -69,10 +80,11 @@ export default class DatabaseInterface {
   }
 
   /**
-   * addTrack() - adds a track from remix
+   * addTrack() - adds a track from remix ensuring no repeats in a remix
+   * Note: Aside from blank track_id, the validity of track_id is not checked! (check with spotify first!)
    * @param remix_id - unique remix id
    * @param track_id - spotify track id of track to add to remix
-   * @returns Promise resolving to nothing (rejected if an error occurs)
+   * @returns Promise resolving to nothing if remix id and track id are valid (rejected if an error occurs)
    */
   addTrack(remix_id: string, track_id: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -84,7 +96,7 @@ export default class DatabaseInterface {
    * removeTrack() - removes a track from remix
    * @param remix_id - unique remix id
    * @param track_id - spotify track id of track to remove from remix
-   * @returns Promise resolving to nothing (rejected if an error occurs)
+   * @returns Promise resolving to nothing if remix id and track id are valid (rejected if an error occurs)
    */
   removeTrack(remix_id: string, track_id: string): Promise<void> {
     return new Promise((resolve, reject) => {
@@ -103,10 +115,10 @@ export default class DatabaseInterface {
   }
 
   /**
-   * trackCount() - gets number of tracks in database
+   * totalTrackCount() - gets number of tracks in database
    * @returns Promise resolving to number of tracks in database (rejected if an error occurs)
    */
-  trackCount(): Promise<number> {
+  totalTrackCount(): Promise<number> {
     return new Promise((resolve, reject) => {
       resolve(0);
     });
@@ -121,13 +133,16 @@ export default class DatabaseInterface {
       const profile = this.log_.profile('Initialize Database');
 
       // load database from file, fatal error if this fails
-      try {
-        this.db_ = new sqlite3.Database(database_path);
-      } catch (error) {
-        this.log_.fatal(`Failed to open database at: ${database_path}`, error);
-        profile.stop();
-        reject(error);
-      }
+      this.db_ = new sqlite3.Database(database_path, (error) => {
+        if (error) {
+          this.log_.fatal(
+            `Failed to open database at: ${database_path}`,
+            error
+          );
+          profile.stop();
+          reject(error);
+        }
+      });
 
       // create the tables needed
       this.db_.serialize(() => {
