@@ -131,39 +131,39 @@ function compare_logs(
   for (let i = 0; i < expected.length; i++) {
     assert(
       log_file[i].level === expected[i].level,
-      `Log level didn't match for: ${JSON.stringify(log_file[i])}`
+      `Log levels match for: ${JSON.stringify(log_file[i])}`
     );
 
     assert(
       log_file[i].message.startsWith(expected[i].message),
-      `Log message didn't match for: ${JSON.stringify(log_file[i])}`
+      `Log messages match for: ${JSON.stringify(log_file[i])}`
     );
 
     assert(
       new Date(log_file[i].timestamp).getTime() >= min_time,
-      `Log timestamp too early for: ${JSON.stringify(log_file[i])}`
+      `Log timestamp is not too early for: ${JSON.stringify(log_file[i])}`
     );
     assert(
       new Date(log_file[i].timestamp).getTime() <= max_time,
-      `Log timestamp too late for: ${JSON.stringify(log_file[i])}`
+      `Log timestamp is not too late for: ${JSON.stringify(log_file[i])}`
     );
 
     if (expected[i].stack) {
       assert(
         log_file[i].stack,
-        `Log error message didn't exist for: ${JSON.stringify(log_file[i])}`
+        `Log error message exists for: ${JSON.stringify(log_file[i])}`
       );
 
       assert(
         log_file[i].stack.startsWith('Error: ' + expected[i].stack),
-        `Log error message didn't match for: ${JSON.stringify(log_file[i])}`
+        `Log error message matches for: ${JSON.stringify(log_file[i])}`
       );
     }
   }
 
   assert(
     log_file.length === expected.length,
-    'Log file had different length than expected'
+    'Log file and expected had same length'
   );
 }
 
@@ -217,7 +217,7 @@ describe('Logger constructor', () => {
           }
         }
 
-        assert(valid, `Expected file not found: ${expected}`);
+        assert(valid, `Expected file found for: ${expected}`);
       }
       done();
     }, 500);
@@ -309,16 +309,13 @@ describe('Profiler', () => {
       const time = p0.stop();
       assert(
         time >= timeout_dur,
-        'Profiler 0 duration was shorter than expected'
+        'Profiler 0 duration is not shorter than expected'
       );
       assert(
         time <= timeout_dur + 100,
-        'Profiler 0 duration was longer than expected'
+        'Profiler 0 duration is not longer than expected'
       );
-      assert(
-        time === p0.stop(),
-        'Calling stop again did not return same duration'
-      );
+      assert(time === p0.stop(), 'Calling stop again returns same duration');
 
       p1.stop({ message: 'with message' });
       p2.stop({ success: false });
