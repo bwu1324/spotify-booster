@@ -212,7 +212,46 @@ export default class DatabaseInterface {
   async deleteRemix(remix_id: string): Promise<void> {
     await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve();
+      const profile = this.log_.profile('Delete Remix');
+      this.log_.debug(`Deleting remix with remix_id ${remix_id}`);
+
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const self = this;
+      // run commands in series
+      this.db_.serialize(() => {
+        this.db_.run(
+          'DELETE FROM remixes WHERE remix_id = $remix_id;',
+          {
+            $remix_id: remix_id,
+          },
+          function (error) {
+            profile.stop({
+              level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+            });
+
+            if (error) {
+              self.log_.error(
+                `Error while deleting remix with remix_id ${remix_id}`,
+                error
+              );
+              reject(error);
+              return;
+            }
+
+            // if no changes are made, assume invalid remix_id
+            if (this.changes === 0) {
+              self.log_.debug(
+                `Deleting remix with remix_id ${remix_id} resulted in no changes, assuming invalid remix_id`
+              );
+              reject(new Error('Invalid Remix Id'));
+              return;
+            }
+
+            self.log_.info(`Deleted remix with remix_id ${remix_id}`);
+            resolve();
+          }
+        );
+      });
     });
   }
 
