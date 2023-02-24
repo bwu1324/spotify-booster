@@ -5,6 +5,11 @@ import fs from 'fs-extra';
 
 import Logger from './logger';
 
+/**
+ * DatabaseInterface()
+ * SQLite Abstraction
+ * Contains methods for Creating/Deleting/Editing User Remixes the tracks they contain
+ */
 export default class DatabaseInterface {
   // unlikely that 10 new remixes will be created every millisecond, so this should guarantee a unique remix_id
   private remix_id_gen_ = Date.now() * 10;

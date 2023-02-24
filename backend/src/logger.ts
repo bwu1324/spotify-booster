@@ -2,7 +2,9 @@ import winston from 'winston';
 import 'winston-daily-rotate-file';
 
 /**
- * Profiler - Tracks running time of a task
+ * Profiler()
+ * Tracks running time of a task starting from creation to when stop() is called
+ * Logs a message once stop() is called
  */
 class Profiler {
   private log_: Logger;
@@ -82,7 +84,8 @@ class Profiler {
 }
 
 /**
- * Logger - logger wrapper for Miku
+ * Logger()
+ * A winston logger wrapper
  */
 export default class Logger {
   private logger_: winston.Logger;
