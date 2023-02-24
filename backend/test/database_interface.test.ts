@@ -62,6 +62,8 @@ describe('New Database Interface Initialization', () => {
 
       assert((await db.remixCount()) === 0, 'Creates empty remix tabe');
       assert((await db.totalTrackCount()) === 0, 'Creates empty track tabe');
+
+      await db.close();
       done();
     }, 500);
   });
@@ -85,6 +87,8 @@ describe('Creating Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix',
       'Database contains new remix 1'
     );
+
+    await db.close();
   });
 
   it('rejects blank remix name when creating remix', async () => {
@@ -111,6 +115,7 @@ describe('Creating Remixes', () => {
     }
 
     assert((await db.remixCount()) === 0, 'Creates exactly 0 remixes');
+    await db.close();
   });
 
   it('rejects promise if getting name of invalid remix id', async () => {
@@ -152,6 +157,7 @@ describe('Creating Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix1',
       'Does not update other remixes'
     );
+    await db.close();
   });
 });
 
@@ -173,6 +179,7 @@ describe('Editing Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix1',
       'Does not update other remixes'
     );
+    await db.close();
   });
 
   it('rejects promise if changing name of with invalid name', async () => {
@@ -209,6 +216,7 @@ describe('Editing Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix1',
       'Does not update other remixes'
     );
+    await db.close();
   });
 
   it('rejects promise if changing name of invalid remix id', async () => {
@@ -250,6 +258,7 @@ describe('Editing Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix1',
       'Does not update other remixes'
     );
+    await db.close();
   });
 });
 
@@ -267,6 +276,7 @@ describe('Deleting Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix1',
       'Does not delete other remixes'
     );
+    await db.close();
   });
 
   it('rejects promise if deleting invalid remix id', async () => {
@@ -308,6 +318,7 @@ describe('Deleting Remixes', () => {
       (await db.getRemixName(id1)) === 'test_remix1',
       'Does not delete other remixes'
     );
+    await db.close();
   });
 });
 
@@ -342,6 +353,7 @@ describe('Creating Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 
   it('rejects promise if creating a track with invalid remix id', async () => {
@@ -397,6 +409,7 @@ describe('Creating Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 
   it('rejects promise if creating a track with blank track id', async () => {
@@ -437,6 +450,7 @@ describe('Creating Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 
   it('rejects promise if creating a track that that is already in the remix', async () => {
@@ -477,6 +491,7 @@ describe('Creating Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 });
 
@@ -515,6 +530,7 @@ describe('Removing Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 
   it('rejects promise if removing track with invalid track id', async () => {
@@ -563,6 +579,7 @@ describe('Removing Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 
   it('rejects promise if removing track with invalid remix id', async () => {
@@ -618,39 +635,47 @@ describe('Removing Tracks', () => {
       arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
       'Remix 1 contains expected tracks'
     );
+    await db.close();
   });
 });
 
 describe('Existing Database Initialization', () => {
   it('opens an existing database and finds existing tracks and remixes', async () => {
-    const db_location = path.join(__dirname, 'database_interface.test.db');
+    const db_location = path.join(
+      __dirname,
+      '..',
+      '..',
+      'test',
+      'database_interface.test.db'
+    );
     const db = new DatabaseInterface(db_location);
 
     const id0 = 'WeWkXbxl7OQXyqAImuOdHBnI+lgKbvr+jI1t0JJ5xTo=';
     const name0 = 'remix_0';
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      'spotify_track_0',
+      'spotify_track_1',
+      'spotify_track_2',
+      'spotify_track_3',
     ];
     const id1 = 'EeaNp8zxcWNhIUSWB11RgmTVFTWKzQWhWbifslF/JCY=';
     const name1 = 'remix_1';
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      'spotify_track_0',
+      'spotify_track_2',
+      'spotify_track_4',
+      'spotify_track_6',
     ];
     const id2 = 'ZDcGdnwaORyeNmrFLeJvhc78pIHNCLSMJOZ5vaBQBjE=';
     const name2 = 'remix_2';
     const remix2_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id3',
-      'some_spotify_id6',
-      'some_spotify_id9',
+      'spotify_track_0',
+      'spotify_track_3',
+      'spotify_track_6',
+      'spotify_track_9',
     ];
 
+    assert((await db.remixCount()) === 3, 'Database contains 3 remixes');
     assert((await db.totalTrackCount()) === 12, 'Database contains 12 tracks');
     assert((await db.getRemixName(id0)) === name0, 'Remix 0 has correct name');
     assert((await db.getRemixName(id1)) === name1, 'Remix 1 has correct name');
@@ -667,5 +692,7 @@ describe('Existing Database Initialization', () => {
       arrays_match_unordered(await db.getRemixTracks(id2), remix2_tracks),
       'Remix 2 contains expected tracks'
     );
+
+    await db.close();
   });
 });

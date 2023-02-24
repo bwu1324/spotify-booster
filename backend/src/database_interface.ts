@@ -1,6 +1,7 @@
 import { Database, verbose } from 'sqlite3';
 const sqlite3 = verbose();
 import crypto from 'crypto';
+import fs from 'fs-extra';
 
 import Logger from './logger';
 
@@ -499,6 +500,24 @@ export default class DatabaseInterface {
   }
 
   /**
+   * close() - releases lock on database after finishing all queued operations
+   * @returns Promise resolving to nothing (rejected if an error occurs)
+   */
+  async close(): Promise<void> {
+    await this.ready_;
+    return new Promise((resolve, reject) => {
+      this.db_.close((error) => {
+        if (error) {
+          this.log_.error('Error while closing database', error);
+          reject(error);
+          return;
+        }
+        resolve();
+      });
+    });
+  }
+
+  /**
    * totalTrackCount() - gets number of tracks in database
    * @returns Promise resolving to number of tracks in database (rejected if an error occurs)
    */
@@ -525,6 +544,7 @@ export default class DatabaseInterface {
   private initializeDatabase_(database_path: string): void {
     this.ready_ = new Promise((resolve, reject) => {
       const profile = this.log_.profile('Initialize Database');
+      const existed = fs.existsSync(database_path);
 
       // load database from file, fatal error if this fails
       this.db_ = new sqlite3.Database(database_path, (error) => {
@@ -535,9 +555,22 @@ export default class DatabaseInterface {
           );
           profile.stop();
           reject(error);
+          return;
         }
       });
 
+      // if database exists, just open it, don't initalize
+      if (existed) {
+        this.log_.debug(
+          `Database at ${database_path} exists, skipping initialization`
+        );
+        resolve();
+        return;
+      }
+
+      this.log_.debug(
+        `Database at ${database_path} did not exist, initializating`
+      );
       // create the tables needed
       const tables = [
         {
@@ -556,13 +589,6 @@ export default class DatabaseInterface {
           `CREATE TABLE ${tables[i].name} ${tables[i].cols}`,
           (error) => {
             if (error) {
-              // ignore if error is that table already exists
-              if (
-                error.message.includes(`table ${tables[i].name} already exists`)
-              ) {
-                return;
-              }
-
               this.log_.fatal(`Creating table: ${tables[i].name}.`, error);
             }
 
