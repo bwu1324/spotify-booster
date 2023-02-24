@@ -4,8 +4,6 @@ dotenv.config({
   path: path.join(__dirname, '..', '..', '.env'),
 });
 
-const DATABASE_PATH = process.env.DATABASE_PATH;
+import StartWebServer from './webserver';
 
-import DatabaseInterface from './database_interface';
-
-const db = new DatabaseInterface(DATABASE_PATH);
+StartWebServer();
