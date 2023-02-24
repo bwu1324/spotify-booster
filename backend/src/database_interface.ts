@@ -418,7 +418,63 @@ export default class DatabaseInterface {
   async removeTrack(remix_id: string, track_id: string): Promise<void> {
     await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve();
+      const profile = this.log_.profile('Remove Remix Track');
+
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const self = this;
+      // check that remix_id is valid
+      this.getRemixName(remix_id)
+        .then(() => {
+          this.log_.debug(
+            `Removing track with track_id ${track_id} for remix with remix_id ${remix_id}`
+          );
+
+          // run commands in series
+          this.db_.serialize(() => {
+            this.db_.run(
+              'DELETE FROM tracks WHERE track_id = $track_id AND remix_id = $remix_id;',
+              {
+                $remix_id: remix_id,
+                $track_id: track_id,
+              },
+              function (error) {
+                profile.stop({
+                  level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+                });
+
+                if (error) {
+                  self.log_.error(
+                    `Error while removing track with track_id ${track_id} for remix with remix_id ${remix_id}`,
+                    error
+                  );
+                  reject(error);
+                  return;
+                }
+
+                // if no changes are made, assume invalid track_id
+                if (this.changes === 0) {
+                  self.log_.debug(
+                    `Deleting track with track_id ${track_id} with remix_id ${remix_id} resulted in no changes, assuming invalid track_id`
+                  );
+                  reject(new Error('Invalid Track Id'));
+                  return;
+                }
+
+                self.log_.info(
+                  `Removed track with track_id ${track_id} for remix with remix_id ${remix_id}`
+                );
+                resolve();
+              }
+            );
+          });
+        })
+        // reject if there was an error fetching name (could be that remix_id is valid or something else, both need to be thrown)
+        .catch((error) => {
+          profile.stop({
+            level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+          });
+          reject(error);
+        });
     });
   }
 

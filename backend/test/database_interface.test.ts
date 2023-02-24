@@ -504,7 +504,7 @@ describe('Removing Tracks', () => {
     await db.removeTrack(id0, 'some_spotify_id0');
     remix0_tracks.splice(0, 1);
     await db.removeTrack(id1, 'some_spotify_id4');
-    remix1_tracks.splice(3, 1);
+    remix1_tracks.splice(2, 1);
 
     assert((await db.totalTrackCount()) === 6, 'Database contains 6 tracks');
     assert(
