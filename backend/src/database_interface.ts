@@ -5,8 +5,8 @@ import crypto from 'crypto';
 import Logger from './logger';
 
 export default class DatabaseInterface {
-  // unlikey that 10,000 new remixes will be created every millisecond, so this should guarantee a unique remix_id
-  private remix_id_gen_ = Date.now() * 10000;
+  // unlikely that 10 new remixes will be created every millisecond, so this should guarantee a unique remix_id
+  private remix_id_gen_ = Date.now() * 10;
   private log_: Logger;
   private db_: Database;
   private ready_: Promise<void>;
@@ -28,9 +28,54 @@ export default class DatabaseInterface {
    * @param name - name of remix
    * @returns Promise resolving to unique remix id (rejected if an error occurs)
    */
-  createRemix(name: string): Promise<string> {
+  async createRemix(name: string): Promise<string> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve('');
+      const profile = this.log_.profile('Create Remix');
+
+      if (this.isEmpty(name)) {
+        this.log_.debug(`name ${name} was empty, refusing to create new remix`);
+        profile.stop({
+          level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+        });
+        reject(new Error('Invalid Remix Name'));
+        return;
+      }
+
+      const remix_id = this.generateRemixId_();
+      this.log_.debug(
+        `Creating new remix with name ${name} and remix_id ${remix_id}`
+      );
+
+      // run commands in series
+      this.db_.serialize(() => {
+        this.db_.run(
+          'INSERT INTO remixes VALUES ($remix_id, $name);',
+          {
+            $remix_id: remix_id,
+            $name: name.trim(), // make sure to trim name
+          },
+          (error) => {
+            profile.stop({
+              level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+            });
+
+            if (error) {
+              this.log_.error(
+                `Error while creating remix with name ${name}`,
+                error
+              );
+              reject(error);
+              return;
+            }
+
+            this.log_.info(
+              `Created new remix with name ${name} and remix_id ${remix_id}`
+            );
+            resolve(remix_id);
+          }
+        );
+      });
     });
   }
 
@@ -39,9 +84,29 @@ export default class DatabaseInterface {
    * @param remix_id - unique remix id
    * @returns Promise resolving to remix name (rejected if an error occurs)
    */
-  getRemixName(remix_id: string): Promise<string> {
+  async getRemixName(remix_id: string): Promise<string> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve('');
+      // run commands in series
+      this.db_.serialize(() => {
+        this.db_.get(
+          'SELECT name FROM remixes WHERE remix_id = $remix_id;',
+          {
+            $remix_id: remix_id,
+          },
+          (error, row) => {
+            if (error) {
+              this.log_.error(
+                `Error while fetching remix with remix_id ${remix_id}`,
+                error
+              );
+              reject(error);
+              return;
+            }
+            resolve(row['name']);
+          }
+        );
+      });
     });
   }
 
@@ -51,7 +116,8 @@ export default class DatabaseInterface {
    * @param new_name - new remix name
    * @returns Promise resolving to nothing if remix id is valid (rejected if an error occurs)
    */
-  setRemixName(remix_id: string, new_name: string): Promise<void> {
+  async setRemixName(remix_id: string, new_name: string): Promise<void> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -62,7 +128,8 @@ export default class DatabaseInterface {
    * @param remix_id - unique remix id
    * @returns Promise resolving to nothing if remix id is valid (rejected if an error occurs)
    */
-  deleteRemix(remix_id: string): Promise<void> {
+  async deleteRemix(remix_id: string): Promise<void> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -73,7 +140,8 @@ export default class DatabaseInterface {
    * @param remix_id - unique remix id
    * @returns Promise resolving to array of spotify track ids (rejected if an error occures)
    */
-  getRemixTracks(remix_id: string): Promise<Array<string>> {
+  async getRemixTracks(remix_id: string): Promise<Array<string>> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
       resolve([]);
     });
@@ -86,7 +154,8 @@ export default class DatabaseInterface {
    * @param track_id - spotify track id of track to add to remix
    * @returns Promise resolving to nothing if remix id and track id are valid (rejected if an error occurs)
    */
-  addTrack(remix_id: string, track_id: string): Promise<void> {
+  async addTrack(remix_id: string, track_id: string): Promise<void> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -98,7 +167,8 @@ export default class DatabaseInterface {
    * @param track_id - spotify track id of track to remove from remix
    * @returns Promise resolving to nothing if remix id and track id are valid (rejected if an error occurs)
    */
-  removeTrack(remix_id: string, track_id: string): Promise<void> {
+  async removeTrack(remix_id: string, track_id: string): Promise<void> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
       resolve();
     });
@@ -108,9 +178,19 @@ export default class DatabaseInterface {
    * remixCount() - gets number of remixes in database
    * @returns Promise resolving to number of remixes in database (rejected if an error occurs)
    */
-  remixCount(): Promise<number> {
+  async remixCount(): Promise<number> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve(0);
+      // run commands in series
+      this.db_.serialize(() => {
+        this.db_.get('SELECT COUNT(1) FROM remixes;', (error, row) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(row['COUNT(1)']);
+        });
+      });
     });
   }
 
@@ -118,9 +198,19 @@ export default class DatabaseInterface {
    * totalTrackCount() - gets number of tracks in database
    * @returns Promise resolving to number of tracks in database (rejected if an error occurs)
    */
-  totalTrackCount(): Promise<number> {
+  async totalTrackCount(): Promise<number> {
+    await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve(0);
+      // run commands in series
+      this.db_.serialize(() => {
+        this.db_.get('SELECT COUNT(1) FROM tracks;', (error, row) => {
+          if (error) {
+            reject(error);
+            return;
+          }
+          resolve(row['COUNT(1)']);
+        });
+      });
     });
   }
 
@@ -196,5 +286,14 @@ export default class DatabaseInterface {
       .createHash('sha256')
       .update(this.remix_id_gen_.toString())
       .digest('base64');
+  }
+
+  /**
+   * isEmpty() - checks if a string is empty or only contains whitespace
+   * @param str - string to check
+   * @returns - if string is empty or not
+   */
+  private isEmpty(str: string): boolean {
+    return str === null || str.match(/^\s*$/) !== null || str === '';
   }
 }

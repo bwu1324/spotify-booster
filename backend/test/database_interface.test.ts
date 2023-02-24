@@ -68,12 +68,12 @@ describe('New Database Interface Initialization', () => {
 });
 
 describe('Creating Remixes', () => {
-  it('creates a new remix with a unique id and given name', async () => {
+  it('creates a new remix with a unique id and given name and trims name', async () => {
     const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
     const db = new DatabaseInterface(db_location);
 
     const id0 = await db.createRemix('test_remix');
-    const id1 = await db.createRemix('test_remix');
+    const id1 = await db.createRemix(' test_remix ');
 
     assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
     assert(id0 !== id1, 'Remix ids are unique');
@@ -91,13 +91,23 @@ describe('Creating Remixes', () => {
     const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
     const db = new DatabaseInterface(db_location);
 
-    try {
-      await db.createRemix('');
-      assert.fail('Blank remix name did not cause error');
-    } catch (error) {
-      assert.throws(() => {
-        throw error;
-      }, 'Invalid Remix Name');
+    const invalid_names = [
+      '', // blank
+      null, // null
+      ' ', // whitespace
+      '\n',
+      '\t',
+      '\r',
+    ];
+    for (const name of invalid_names) {
+      try {
+        await db.createRemix(name);
+        assert.fail('Invalid remix name did not cause error');
+      } catch (error) {
+        assert.throws(() => {
+          throw error;
+        }, 'Invalid Remix Name');
+      }
     }
 
     assert((await db.remixCount()) === 0, 'Creates exactly 0 remixes');
@@ -105,13 +115,13 @@ describe('Creating Remixes', () => {
 });
 
 describe('Editing Remixes', () => {
-  it('updates name of valid remix id', async () => {
+  it('updates name of valid remix id with trimmed name', async () => {
     const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
     const db = new DatabaseInterface(db_location);
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
 
-    await db.setRemixName(id0, 'new_name');
+    await db.setRemixName(id0, ' new_name ');
 
     assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
     assert(
@@ -130,6 +140,42 @@ describe('Editing Remixes', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
 
+    const invalid_names = [
+      '', // blank
+      null, // null
+      ' ', // whitespace
+      '\n',
+      '\t',
+      '\r',
+    ];
+    for (const name of invalid_names) {
+      try {
+        await db.setRemixName(id0, name);
+        assert.fail('Invalid remix name did not cause error');
+      } catch (error) {
+        assert.throws(() => {
+          throw error;
+        }, 'Invalid Remix Name');
+      }
+    }
+
+    assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
+    assert(
+      (await db.getRemixName(id0)) === 'test_remix0',
+      'Does not update remix name with new name'
+    );
+    assert(
+      (await db.getRemixName(id1)) === 'test_remix1',
+      'Does not update other remixes'
+    );
+  });
+
+  it('rejects promise if changing name of with invalid name', async () => {
+    const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
+    const db = new DatabaseInterface(db_location);
+    const id0 = await db.createRemix('test_remix0');
+    const id1 = await db.createRemix('test_remix1');
+
     const invalid_ids = [
       '', // blank
       '\n',
@@ -143,7 +189,7 @@ describe('Editing Remixes', () => {
       id0 + id1,
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
-    for (const invalid in invalid_ids) {
+    for (const invalid of invalid_ids) {
       try {
         await db.setRemixName(invalid, 'new_name');
         assert.fail('Invalid remix id did not cause error');
@@ -201,7 +247,7 @@ describe('Deleting Remixes', () => {
       id0 + id1,
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
-    for (const invalid in invalid_ids) {
+    for (const invalid of invalid_ids) {
       try {
         await db.setRemixName(invalid, 'new_name');
         assert.fail('Invalid remix id did not cause error');
@@ -243,8 +289,8 @@ describe('Creating Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
     assert(
@@ -274,8 +320,8 @@ describe('Creating Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     const invalid_ids = [
       '', // blank
@@ -290,7 +336,7 @@ describe('Creating Tracks', () => {
       id0 + id1,
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
-    for (const invalid in invalid_ids) {
+    for (const invalid of invalid_ids) {
       try {
         await db.addTrack(invalid, 'some_spotify_id10');
         assert.fail('Invalid remix id did not cause error');
@@ -329,8 +375,8 @@ describe('Creating Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     try {
       await db.addTrack(id0, '');
@@ -369,8 +415,8 @@ describe('Creating Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     try {
       await db.addTrack(id0, 'some_spotify_id0');
@@ -411,8 +457,8 @@ describe('Removing Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     await db.removeTrack(id0, 'some_spotify_id0');
     remix0_tracks.splice(0, 1);
@@ -447,8 +493,8 @@ describe('Removing Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     const invalid_ids = [
       '', // blank
@@ -456,7 +502,7 @@ describe('Removing Tracks', () => {
       ' ',
       's0me_spotify_id0', // similar
     ];
-    for (const id in invalid_ids) {
+    for (const id of invalid_ids) {
       try {
         await db.removeTrack(id0, id);
         assert.fail('Invalid track id did not cause error');
@@ -495,8 +541,8 @@ describe('Removing Tracks', () => {
       'some_spotify_id4',
       'some_spotify_id6',
     ];
-    for (const track in remix0_tracks) await db.addTrack(id0, track);
-    for (const track in remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track);
+    for (const track of remix1_tracks) await db.addTrack(id1, track);
 
     const invalid_ids = [
       '', // blank
@@ -511,7 +557,7 @@ describe('Removing Tracks', () => {
       id0 + id1,
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
-    for (const id in invalid_ids) {
+    for (const id of invalid_ids) {
       try {
         await db.removeTrack(id, 'some_spotify_id0');
         assert.fail('Invalid remix id did not cause error');
