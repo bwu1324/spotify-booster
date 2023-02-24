@@ -2,5 +2,6 @@
 /build
 /.nyc_output
 /coverage
+/logs
 
 .env
