@@ -263,7 +263,55 @@ export default class DatabaseInterface {
   async getRemixTracks(remix_id: string): Promise<Array<string>> {
     await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve([]);
+      const profile = this.log_.profile('Get Remix Tracks');
+      this.log_.debug(`Getting tracks for remix with remix_id ${remix_id}`);
+
+      // check that remix_id is valid
+      this.getRemixName(remix_id)
+        .then(() => {
+          // run commands in series
+          this.db_.serialize(() => {
+            this.db_.all(
+              'SELECT track_id FROM tracks WHERE remix_id = $remix_id;',
+              {
+                $remix_id: remix_id,
+              },
+              (error, rows) => {
+                const tracks = [];
+                if (rows) {
+                  for (const row of rows) {
+                    tracks.push(row['track_id']);
+                  }
+                }
+
+                profile.stop({
+                  level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+                });
+
+                if (error) {
+                  this.log_.error(
+                    `Error while getting tracks for remix with remix_id ${remix_id}`,
+                    error
+                  );
+                  reject(error);
+                  return;
+                }
+
+                this.log_.info(
+                  `Got ${tracks.length} tracks for remix with remix_id ${remix_id}`
+                );
+                resolve(tracks);
+              }
+            );
+          });
+        })
+        // reject if there was an error fetching name (could be that remix_id is valid or something else, both need to be thrown)
+        .catch((error) => {
+          profile.stop({
+            level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+          });
+          reject(error);
+        });
     });
   }
 
@@ -277,7 +325,87 @@ export default class DatabaseInterface {
   async addTrack(remix_id: string, track_id: string): Promise<void> {
     await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve();
+      const profile = this.log_.profile('Add Track');
+
+      // check that remix exists first
+      this.getRemixTracks(remix_id)
+        .then((tracks) => {
+          if (this.isEmpty(track_id)) {
+            this.log_.debug(
+              `track_id ${track_id} was empty, refusing to create new track`
+            );
+            profile.stop({
+              level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+            });
+            reject(new Error('Invalid Track Id'));
+            return;
+          }
+
+          if (tracks.includes(track_id)) {
+            this.log_.debug(
+              `track_id ${track_id} exists in remix already, refusing to create new track`
+            );
+            profile.stop({
+              level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+            });
+            reject(new Error('Track Id Exists In Remix'));
+            return;
+          }
+
+          this.log_.debug(
+            `Creating new track with track_id ${track_id} and remix_id ${remix_id}`
+          );
+
+          // eslint-disable-next-line @typescript-eslint/no-this-alias
+          const self = this;
+          // run commands in series
+          this.db_.serialize(() => {
+            this.db_.run(
+              'INSERT INTO tracks VALUES ($remix_id, $track_id);',
+              {
+                $remix_id: remix_id,
+                $track_id: track_id,
+              },
+              function (error) {
+                profile.stop({
+                  level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+                });
+
+                if (error) {
+                  self.log_.error(
+                    `Error while creating track with track_id ${track_id} and remix_id ${remix_id}`,
+                    error
+                  );
+                  reject(error);
+                  return;
+                }
+
+                // if no changes are made, assume creating remix failed
+                if (this.changes === 0) {
+                  self.log_.warn(
+                    `Creating new track with track_id ${track_id} and remix_id ${remix_id} failed because it resulted in no changes`
+                  );
+                  reject(
+                    new Error('Unknown Error: Remix Not Successfully Saved')
+                  );
+                  return;
+                }
+
+                self.log_.info(
+                  `Created new track with track_id ${track_id} and remix_id ${remix_id}`
+                );
+                resolve();
+              }
+            );
+          });
+        })
+        // reject if there was an error fetching name (could be that remix_id is valid or something else, both need to be thrown)
+        .catch((error) => {
+          profile.stop({
+            level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+          });
+          reject(error);
+        });
     });
   }
 
