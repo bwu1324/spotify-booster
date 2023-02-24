@@ -112,6 +112,47 @@ describe('Creating Remixes', () => {
 
     assert((await db.remixCount()) === 0, 'Creates exactly 0 remixes');
   });
+
+  it('rejects promise if getting name of invalid remix id', async () => {
+    const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
+    const db = new DatabaseInterface(db_location);
+    const id0 = await db.createRemix('test_remix0');
+    const id1 = await db.createRemix('test_remix1');
+
+    const invalid_ids = [
+      '', // blank
+      '\n',
+      ' ',
+      '%', // invalid base64 characters
+      '!',
+      '=!',
+      'asdf', // too short
+      id0 + 'a', // similar to existing id
+      'a' + id0,
+      id0 + id1,
+      crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
+    ];
+    for (const invalid of invalid_ids) {
+      try {
+        await db.getRemixName(invalid);
+        assert.fail('Invalid remix id did not cause error');
+      } catch (error) {
+        assert.throws(() => {
+          throw error;
+        }, 'Invalid Remix Id');
+      }
+    }
+
+    assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
+    assert(
+      (await db.getRemixName(id0)) === 'test_remix0',
+      'Does not update other remixes'
+    );
+    assert(
+      (await db.getRemixName(id1)) === 'test_remix1',
+      'Does not update other remixes'
+    );
+  });
 });
 
 describe('Editing Remixes', () => {
@@ -134,7 +175,7 @@ describe('Editing Remixes', () => {
     );
   });
 
-  it('rejects promise if changing name of invalid remix id', async () => {
+  it('rejects promise if changing name of with invalid name', async () => {
     const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
     const db = new DatabaseInterface(db_location);
     const id0 = await db.createRemix('test_remix0');
@@ -170,7 +211,7 @@ describe('Editing Remixes', () => {
     );
   });
 
-  it('rejects promise if changing name of with invalid name', async () => {
+  it('rejects promise if changing name of invalid remix id', async () => {
     const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
     const db = new DatabaseInterface(db_location);
     const id0 = await db.createRemix('test_remix0');
@@ -249,7 +290,7 @@ describe('Deleting Remixes', () => {
     ];
     for (const invalid of invalid_ids) {
       try {
-        await db.setRemixName(invalid, 'new_name');
+        await db.deleteRemix(invalid);
         assert.fail('Invalid remix id did not cause error');
       } catch (error) {
         assert.throws(() => {

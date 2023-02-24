@@ -47,6 +47,8 @@ export default class DatabaseInterface {
         `Creating new remix with name ${name} and remix_id ${remix_id}`
       );
 
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const self = this;
       // run commands in series
       this.db_.serialize(() => {
         this.db_.run(
@@ -55,13 +57,13 @@ export default class DatabaseInterface {
             $remix_id: remix_id,
             $name: name.trim(), // make sure to trim name
           },
-          (error) => {
+          function (error) {
             profile.stop({
               level_thresholds: { debug: 0, warn: 1000, error: 5000 },
             });
 
             if (error) {
-              this.log_.error(
+              self.log_.error(
                 `Error while creating remix with name ${name}`,
                 error
               );
@@ -69,7 +71,16 @@ export default class DatabaseInterface {
               return;
             }
 
-            this.log_.info(
+            // if no changes are made, assume creating remix failed
+            if (this.changes === 0) {
+              self.log_.warn(
+                `Creating new remix with name ${name} and remix_id ${remix_id} failed because it resulted in no changes`
+              );
+              reject(new Error('Unknown Error: Remix Not Successfully Saved'));
+              return;
+            }
+
+            self.log_.info(
               `Created new remix with name ${name} and remix_id ${remix_id}`
             );
             resolve(remix_id);
@@ -87,6 +98,8 @@ export default class DatabaseInterface {
   async getRemixName(remix_id: string): Promise<string> {
     await this.ready_;
     return new Promise((resolve, reject) => {
+      const profile = this.log_.profile('Get Remix Name');
+
       // run commands in series
       this.db_.serialize(() => {
         this.db_.get(
@@ -95,6 +108,10 @@ export default class DatabaseInterface {
             $remix_id: remix_id,
           },
           (error, row) => {
+            profile.stop({
+              level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+            });
+
             if (error) {
               this.log_.error(
                 `Error while fetching remix with remix_id ${remix_id}`,
@@ -103,6 +120,16 @@ export default class DatabaseInterface {
               reject(error);
               return;
             }
+
+            // reject if no remixes found
+            if (!row) {
+              this.log_.warn(
+                `Remix with remix_id ${remix_id} not found, assuming invalid remix_id`
+              );
+              reject(new Error('Invalid Remix Id'));
+              return;
+            }
+
             resolve(row['name']);
           }
         );
@@ -119,7 +146,61 @@ export default class DatabaseInterface {
   async setRemixName(remix_id: string, new_name: string): Promise<void> {
     await this.ready_;
     return new Promise((resolve, reject) => {
-      resolve();
+      const profile = this.log_.profile('Set Remix Name');
+
+      if (this.isEmpty(new_name)) {
+        this.log_.debug(`name ${new_name} was empty, refusing to update remix`);
+        profile.stop({
+          level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+        });
+        reject(new Error('Invalid Remix Name'));
+        return;
+      }
+
+      this.log_.debug(
+        `Updating remix with remix_id ${remix_id} with name ${new_name}`
+      );
+
+      // eslint-disable-next-line @typescript-eslint/no-this-alias
+      const self = this;
+      // run commands in series
+      this.db_.serialize(() => {
+        this.db_.run(
+          'UPDATE remixes SET name = $name WHERE remix_id = $remix_id;',
+          {
+            $remix_id: remix_id,
+            $name: new_name.trim(), // make sure to trim name
+          },
+          function (error) {
+            profile.stop({
+              level_thresholds: { debug: 0, warn: 1000, error: 5000 },
+            });
+
+            if (error) {
+              self.log_.error(
+                `Error while updating remix with remix_id ${remix_id} with name ${new_name}`,
+                error
+              );
+              reject(error);
+              return;
+            }
+
+            // if no changes are made, assume invalid remix_id
+            if (this.changes === 0) {
+              self.log_.debug(
+                `Updating remix with remix_id ${remix_id} with name ${new_name} resulted in no changes, assuming invalid remix_id`
+              );
+              reject(new Error('Invalid Remix Id'));
+              return;
+            }
+
+            self.log_.info(
+              `Updated remix with remix_id ${remix_id} with name ${new_name}`
+            );
+            resolve();
+          }
+        );
+      });
     });
   }
 
