@@ -15,10 +15,6 @@ before(async () => {
   } catch {
     /* */
   }
-
-  // set env variables
-  process.env.LOG_FILE = 'false';
-  process.env.LOG_CONSOLE = 'true';
 });
 
 // delete temporary directory after running tests

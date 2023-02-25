@@ -70,10 +70,12 @@ function createExpressApp(webserver: http.Server | https.Server, log: Logger) {
   webserver.on('listening', () => {
     log.info(`Webserver listening on port: ${WEB_PORT}`);
   });
+
+  return webserver;
 }
 
 export default function StartWebServer() {
   const webserver = createHTTPServer();
   const logger = new Logger('Webserver');
-  createExpressApp(webserver, logger);
+  return createExpressApp(webserver, logger);
 }
