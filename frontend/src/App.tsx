@@ -1,6 +1,7 @@
 import React from 'react';
 import './App.scss';
 import Header from './components/header/Header';
+import Finder from './components/finder/Finder';
 import { ThemeProvider } from '@mui/material/styles';
 import { theme } from './theme';
 import GlobalStyles from '@mui/material/GlobalStyles';
@@ -14,6 +15,7 @@ function App() {
         }}
       ></GlobalStyles>
       <Header />
+      <Finder />
     </ThemeProvider>
   );
 }

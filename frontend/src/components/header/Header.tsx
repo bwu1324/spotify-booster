@@ -3,7 +3,7 @@ import { AppBar, Toolbar, Button } from '@mui/material';
 
 function Header() {
   return (
-    <AppBar>
+    <AppBar position="sticky">
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         Spotify Booster
         <Button variant="contained" color="secondary">
