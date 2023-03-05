@@ -1,7 +1,7 @@
 // Component for the header of the finder. Either a search bar or the title of
 // the current mashup.
 
-import React from 'react';
+import React, { ReactElement, ReactNode } from 'react';
 import {
   Divider,
   IconButton,
@@ -14,6 +14,90 @@ import { FinderView } from './Finder';
 import CloseIcon from '@mui/icons-material/Close';
 import Search from '@mui/icons-material/Search';
 import { useTheme } from '@mui/material/styles';
+
+function SideButton({
+  icon,
+  onClick,
+  title,
+  ariaLabel,
+}: {
+  icon: ReactElement;
+  onClick: () => void;
+  title: string;
+  ariaLabel?: string;
+}) {
+  return (
+    <Tooltip title={title} placement="top">
+      <IconButton
+        onClick={onClick}
+        edge="end"
+        color="secondary"
+        aria-label={ariaLabel}
+      >
+        {icon}
+      </IconButton>
+    </Tooltip>
+  );
+}
+
+function SearchBar({ handleViewChange }: { handleViewChange: () => void }) {
+  return (
+    <div style={{ padding: '6px' }}>
+      <TextField
+        label="Search Spotify"
+        fullWidth={true}
+        InputProps={{
+          endAdornment: (
+            <InputAdornment position="end">
+              <SideButton
+                icon={<CloseIcon />}
+                onClick={handleViewChange}
+                title="Close search"
+                aria-label="close"
+              />
+            </InputAdornment>
+          ),
+        }}
+      />
+    </div>
+  );
+}
+
+function MashupHeader({
+  mashupID,
+  handleViewChange,
+}: {
+  mashupID: string;
+  handleViewChange: () => void;
+}) {
+  const theme = useTheme();
+  return (
+    <>
+      <div
+        style={{
+          display: 'inline-flex',
+          alignItems: 'center', // vertical alignment
+          justifyContent: 'space-between', // put the search icon right
+          margin: '13.5px', // line up with search view
+        }}
+      >
+        <Typography
+          aria-label="mashup title"
+          color={theme.palette.secondary.main}
+        >
+          {mashupID}
+        </Typography>
+        <SideButton
+          icon={<Search />}
+          onClick={handleViewChange}
+          title="Search"
+          aria-label="search"
+        />
+      </div>
+      <Divider />
+    </>
+  );
+}
 
 function SearchHeader({
   view,
@@ -28,59 +112,16 @@ function SearchHeader({
   switch (view) {
     case FinderView.SEARCH:
       return (
-        <div style={{ padding: '6px' }}>
-          <TextField
-            label="Search Spotify"
-            fullWidth={true}
-            InputProps={{
-              endAdornment: (
-                <InputAdornment position="end">
-                  <Tooltip title="Close search" placement="top">
-                    <IconButton
-                      onClick={() => handleViewChange(FinderView.MASHUP)}
-                      edge="end"
-                      color="secondary"
-                      aria-label="close"
-                    >
-                      <CloseIcon />
-                    </IconButton>
-                  </Tooltip>
-                </InputAdornment>
-              ),
-            }}
-          />
-        </div>
+        <SearchBar
+          handleViewChange={() => handleViewChange(FinderView.MASHUP)}
+        />
       );
     case FinderView.MASHUP:
       return (
-        <>
-          <div
-            style={{
-              display: 'inline-flex',
-              alignItems: 'center', // vertical alignment
-              justifyContent: 'space-between', // put the search icon right
-              margin: '13.5px', // line up with search view
-            }}
-          >
-            <Typography
-              aria-label="mashup title"
-              color={theme.palette.secondary.main}
-            >
-              {mashupID}
-            </Typography>
-            <Tooltip title="Search" placement="top">
-              <IconButton
-                onClick={() => handleViewChange(FinderView.SEARCH)}
-                edge="end"
-                color="secondary"
-                aria-label="search"
-              >
-                <Search />
-              </IconButton>
-            </Tooltip>
-          </div>
-          <Divider />
-        </>
+        <MashupHeader
+          mashupID={mashupID}
+          handleViewChange={() => handleViewChange(FinderView.SEARCH)}
+        />
       );
     default:
       return <></>;
