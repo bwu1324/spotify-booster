@@ -53,7 +53,7 @@ function SearchBar({ handleViewChange }: { handleViewChange: () => void }) {
                 icon={<CloseIcon />}
                 onClick={handleViewChange}
                 title="Close search"
-                aria-label="close"
+                ariaLabel="close"
               />
             </InputAdornment>
           ),
@@ -91,7 +91,7 @@ function MashupHeader({
           icon={<Search />}
           onClick={handleViewChange}
           title="Search"
-          aria-label="search"
+          ariaLabel="search"
         />
       </div>
       <Divider />
