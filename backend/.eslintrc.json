@@ -25,7 +25,8 @@
             "error",
             {
                 "allowModules": [
-                    "chai"
+                    "chai",
+                    "supertest"
                 ]
             }
         ]

@@ -1,23 +1,18 @@
 import React from 'react';
-import './App.scss';
-import Header from './components/header/Header';
-import Finder from './components/finder/Finder';
-import { ThemeProvider } from '@mui/material/styles';
-import { theme } from './theme';
-import GlobalStyles from '@mui/material/GlobalStyles';
 
-function App() {
+import './App.scss';
+import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+
+import Home from './components/Home';
+import Callback from './components/login/Callback';
+
+export default function App() {
   return (
-    <ThemeProvider theme={theme}>
-      <GlobalStyles
-        styles={{
-          body: { backgroundColor: theme.palette.background.default },
-        }}
-      ></GlobalStyles>
-      <Header />
-      <Finder />
-    </ThemeProvider>
+    <Router>
+      <Routes>
+        <Route path="/" element={<Home />} />
+        <Route path="/callback" element={<Callback />} />
+      </Routes>
+    </Router>
   );
 }
-
-export default App;

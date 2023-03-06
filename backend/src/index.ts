@@ -1,11 +1,14 @@
 import path from 'path';
 import dotenv from 'dotenv';
 dotenv.config({
-  path: path.join(__dirname, '..', '..', '.env'),
+  path: path.join(__dirname, '..', '.env'),
 });
 
 const DATABASE_PATH = process.env.DATABASE_PATH;
+const WEB_PORT = parseInt(process.env.WEB_PORT);
+const WEB_STATIC_PATH = process.env.WEB_STATIC_PATH;
+const WEB_INDEX_PATH = process.env.WEB_INDEX_PATH;
 
-import DatabaseInterface from './database_interface';
+import StartWebServer from './webserver/webserver';
 
-const db = new DatabaseInterface(DATABASE_PATH);
+StartWebServer(DATABASE_PATH, WEB_STATIC_PATH, WEB_INDEX_PATH, WEB_PORT);

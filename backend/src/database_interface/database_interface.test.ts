@@ -3,7 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 import crypto from 'crypto';
 
-import DatabaseInterface from '../src/database_interface';
+import DatabaseInterface from './database_interface';
 
 const TEMP_FILE_DIRECTORY = path.join(__dirname, 'test_databases');
 
@@ -15,10 +15,6 @@ before(async () => {
   } catch {
     /* */
   }
-
-  // set env variables
-  process.env.LOG_FILE = 'false';
-  process.env.LOG_CONSOLE = 'true';
 });
 
 // delete temporary directory after running tests
@@ -645,7 +641,8 @@ describe('Existing Database Initialization', () => {
       __dirname,
       '..',
       '..',
-      'test',
+      'src',
+      'database_interface',
       'database_interface.test.db'
     );
     const db = new DatabaseInterface(db_location);

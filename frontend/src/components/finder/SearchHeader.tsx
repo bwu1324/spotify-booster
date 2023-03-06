@@ -1,7 +1,7 @@
 // Component for the header of the finder. Either a search bar or the title of
 // the current mashup.
 
-import React, { ReactElement, ReactNode } from 'react';
+import React, { ReactElement } from 'react';
 import {
   Divider,
   IconButton,
@@ -108,7 +108,6 @@ function SearchHeader({
   handleViewChange: Function;
   mashupID: string;
 }) {
-  const theme = useTheme();
   switch (view) {
     case FinderView.SEARCH:
       return (
