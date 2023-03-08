@@ -5,6 +5,8 @@ import { Result, ResultType } from './util';
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.
 export async function searchSpotifyFor(query: string) {
+  // This happens when you type in a search query, then delete it all. You are
+  // searching for nothing.
   if (query.length === 0) {
     return [];
   }
@@ -13,6 +15,7 @@ export async function searchSpotifyFor(query: string) {
   try {
     return await axios
       .get('https://api.spotify.com/v1/search', {
+        // Get limit number of results of each given type.
         params: { q: query, type: 'track,artist,album,playlist', limit: 5 },
         // Give Spotify our access token.
         headers: {
@@ -30,6 +33,8 @@ export async function searchSpotifyFor(query: string) {
 // to manange.
 function convertSpotifyResults(item: any): Array<Result> {
   const results: Array<Result> = [];
+  // Each object returned from Spotify needs to be handled uniqely, so each of
+  // these must be separately handled.
   item.tracks.items.map((track: any) => {
     results.push(convertSpotifyItem(ResultType.TRACK, track));
   });

@@ -10,7 +10,7 @@
     "fix": "eslint ./**/*.tsx --fix",
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test",
+    "test": "react-scripts test --transformIgnorePatterns \"node_modules/(?!@codemirror)/\"",
     "eject": "react-scripts eject"
   },
   "repository": {
