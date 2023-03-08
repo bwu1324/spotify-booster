@@ -40,12 +40,19 @@ function SideButton({
   );
 }
 
-function SearchBar({ handleViewChange }: { handleViewChange: () => void }) {
+function SearchBar({
+  handleViewChange,
+  searchSpotifyCallback,
+}: {
+  handleViewChange: () => void;
+  searchSpotifyCallback: Function;
+}) {
   return (
     <div style={{ padding: '6px' }}>
       <TextField
         label="Search Spotify"
         fullWidth={true}
+        onChange={(event) => searchSpotifyCallback(event.target.value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -102,10 +109,12 @@ function MashupHeader({
 function SearchHeader({
   view,
   handleViewChange,
+  searchSpotifyCallback,
   mashupID,
 }: {
   view: number;
   handleViewChange: Function;
+  searchSpotifyCallback: Function;
   mashupID: string;
 }) {
   switch (view) {
@@ -113,6 +122,7 @@ function SearchHeader({
       return (
         <SearchBar
           handleViewChange={() => handleViewChange(FinderView.MASHUP)}
+          searchSpotifyCallback={searchSpotifyCallback}
         />
       );
     case FinderView.MASHUP:

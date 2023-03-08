@@ -7,6 +7,8 @@ import React, { useState } from 'react';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
 import { useTheme } from '@mui/material/styles';
+import { searchSpotifyFor } from './SpotifySearch';
+import { ResultType } from './util';
 
 // Possible values for what the Finder can display.
 export enum FinderView {
@@ -14,25 +16,11 @@ export enum FinderView {
   MASHUP, // Display songs in the current mashup.
 }
 
-// Different types of things that appear in the search results, that need to be
-// rendered differently.
-export enum ResultType {
-  SONG, // Render a song. (song name, album, etc.)
-  MASHUP, // Render a mashup. (mashup name, length, etc.)
-}
-
-// Type that represents a result displayed in the finder list.
-export type Result = {
-  resultType: ResultType;
-  name: string;
-  // TODO: add more information to display when we add that feature.
-};
-
 // TODO: remove. These are only for proof-of-concept while in development.
 const testSearchResults = [
-  { resultType: ResultType.SONG, name: 'Example Song 1' },
-  { resultType: ResultType.SONG, name: 'Example Song 2' },
-  { resultType: ResultType.SONG, name: 'Example Song 3' },
+  { resultType: ResultType.TRACK, name: 'Example Song 1' },
+  { resultType: ResultType.TRACK, name: 'Example Song 2' },
+  { resultType: ResultType.TRACK, name: 'Example Song 3' },
 ];
 const testMashupResults = [
   { resultType: ResultType.MASHUP, name: 'Example Mashup Song 1' },
@@ -74,6 +62,7 @@ function Finder() {
       <SearchHeader
         view={view}
         handleViewChange={handleViewChange}
+        searchSpotifyCallback={searchSpotifyFor}
         mashupID={mashupID}
       />
       <ResultList results={results} />

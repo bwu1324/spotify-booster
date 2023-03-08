@@ -2,14 +2,14 @@
 
 import { List, ListItem, ListItemText } from '@mui/material';
 import React from 'react';
-import { Result, ResultType } from './Finder';
+import { Result, ResultType } from './util';
 
 // Used for rendering each result.
 function renderResult(result: Result): JSX.Element {
   return (
     <ListItem
       key={
-        (result.resultType == ResultType.SONG ? 'song' : 'mashup') +
+        (result.resultType == ResultType.TRACK ? 'song' : 'mashup') +
         `-${result.name}`
       }
     >
