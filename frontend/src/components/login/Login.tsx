@@ -1,7 +1,7 @@
 import React from 'react';
 
 import { useState, useEffect } from 'react';
-import { Button } from '@mui/material';
+import { Button, Typography } from '@mui/material';
 import { getCookie, setCookie } from './Cookie';
 
 import SpotifyWebApi from 'spotify-web-api-js';
@@ -73,9 +73,11 @@ const SpotifyLogin: React.FC = () => {
 
   /* Detects whether user has logged in or not */
   return (
-    <div>
+    <div style={{ display: 'inline-flex', alignItems: 'center' }}>
       {user && token && (
-        <Button variant="contained">Welcome, {userName}!</Button>
+        <Typography style={{ marginRight: 15 }}>
+          Welcome, {userName}!
+        </Typography>
       )}
       {!token && (
         <Button variant="contained" color="secondary" onClick={handleLogin}>

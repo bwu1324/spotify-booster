@@ -1,13 +1,14 @@
 import React from 'react';
 
 import '../App.scss';
-import { theme } from '../theme';
-import { ThemeProvider } from '@mui/material/styles';
-import GlobalStyles from '@mui/material/GlobalStyles';
 
 import Header from './Header';
+import Finder from './finder/Finder';
+import { ThemeProvider } from '@mui/material/styles';
+import { theme } from '../theme';
+import GlobalStyles from '@mui/material/GlobalStyles';
 
-export default function Home() {
+function Home() {
   return (
     <ThemeProvider theme={theme}>
       <GlobalStyles
@@ -16,6 +17,9 @@ export default function Home() {
         }}
       ></GlobalStyles>
       <Header />
+      <Finder />
     </ThemeProvider>
   );
 }
+
+export default Home;

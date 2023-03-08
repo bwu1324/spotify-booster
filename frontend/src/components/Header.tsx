@@ -5,7 +5,7 @@ import { AppBar, Link, Toolbar } from '@mui/material';
 
 export default function Header() {
   return (
-    <AppBar>
+    <AppBar position="sticky">
       <Toolbar sx={{ display: 'flex', justifyContent: 'space-between' }}>
         <Link href="/" underline="none" color="secondary">
           <b>Spotify Booster</b>
