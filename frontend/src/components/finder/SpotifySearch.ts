@@ -1,20 +1,23 @@
 import axios from 'axios';
-import SpotifyWebApi from 'spotify-web-api-js';
 import { getCookie } from '../login/Cookie';
 import { Result, ResultType } from './util';
 
+// Given some search string, query the Spotify API for tracks, artists, albums,
+// and playlists.
 export async function searchSpotifyFor(query: string) {
-  const http = axios.create({
-    baseURL: 'https://api.spotify.com/',
-    headers: {
-      Authorization: `Bearer ${getCookie('spotify_access_token')}`,
-    },
-  });
+  if (query.length === 0) {
+    return [];
+  }
 
+  // Catch any errors with authentication, or the API request.
   try {
-    return await http
-      .get('/v1/search', {
-        params: { q: query, type: 'track,artist,album,playlist' },
+    return await axios
+      .get('https://api.spotify.com/v1/search', {
+        params: { q: query, type: 'track,artist,album,playlist', limit: 5 },
+        // Give Spotify our access token.
+        headers: {
+          Authorization: `Bearer ${getCookie('spotify_access_token')}`,
+        },
       })
       .then((response) => convertSpotifyResults(response.data));
   } catch (error) {
@@ -23,6 +26,8 @@ export async function searchSpotifyFor(query: string) {
   }
 }
 
+// Convert a given Spotify API response to a list of Results so they are easier
+// to manange.
 function convertSpotifyResults(item: any): Array<Result> {
   const results: Array<Result> = [];
   item.tracks.items.map((track: any) => {
@@ -41,6 +46,7 @@ function convertSpotifyResults(item: any): Array<Result> {
   return results;
 }
 
+// Given a Spotify API item, and its type, convert it to a Result.
 function convertSpotifyItem(type: ResultType, item: any): Result {
-  return { resultType: type, name: item.name };
+  return { resultType: type, name: item.name, id: item.id };
 }
