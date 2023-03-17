@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
 import { useTheme } from '@mui/material/styles';
+import { ResultType } from './util';
 
 // Possible values for what the Finder can display.
 export enum FinderView {
@@ -14,46 +15,25 @@ export enum FinderView {
   MASHUP, // Display songs in the current mashup.
 }
 
-// Different types of things that appear in the search results, that need to be
-// rendered differently.
-export enum ResultType {
-  SONG, // Render a song. (song name, album, etc.)
-  MASHUP, // Render a mashup. (mashup name, length, etc.)
-}
-
-// Type that represents a result displayed in the finder list.
-export type Result = {
-  resultType: ResultType;
-  name: string;
-  // TODO: add more information to display when we add that feature.
-};
-
-// TODO: remove. These are only for proof-of-concept while in development.
-const testSearchResults = [
-  { resultType: ResultType.SONG, name: 'Example Song 1' },
-  { resultType: ResultType.SONG, name: 'Example Song 2' },
-  { resultType: ResultType.SONG, name: 'Example Song 3' },
-];
-const testMashupResults = [
-  { resultType: ResultType.MASHUP, name: 'Example Mashup Song 1' },
-  { resultType: ResultType.MASHUP, name: 'Example Mashup Song 2' },
-  { resultType: ResultType.MASHUP, name: 'Example Mashup Song 3' },
-];
-
 function Finder() {
   const [view, setView] = useState(FinderView.SEARCH);
   const mashupID = 'Example Mashup Title';
-  const [results, setResults] = useState(testSearchResults);
+  const [results, setResults] = useState([
+    { resultType: ResultType.NONE, name: 'Not Found', id: 'N/A' },
+  ]);
   const theme = useTheme();
 
   function handleViewChange(newView: FinderView) {
     setView(newView);
     switch (newView) {
       case FinderView.SEARCH:
-        setResults(testSearchResults);
+        setResults([]);
         break;
       case FinderView.MASHUP:
-        setResults(testMashupResults);
+        setResults([
+          // TODO: this is a placeholder while we don't have mashups integrated.
+          { resultType: ResultType.NONE, name: 'Not Found', id: 'N/A' },
+        ]);
         break;
       default:
     }
@@ -63,8 +43,8 @@ function Finder() {
     <Paper
       color={theme.palette.background.paper}
       sx={{
-        width: '25%',
-        maxHeight: 200,
+        width: '35%',
+        maxHeight: 600,
         display: 'flex', // Prevent the list from overflowing.
         flexDirection: 'column',
         margin: 2,
@@ -74,6 +54,7 @@ function Finder() {
       <SearchHeader
         view={view}
         handleViewChange={handleViewChange}
+        updateResultsCallback={setResults}
         mashupID={mashupID}
       />
       <ResultList results={results} />

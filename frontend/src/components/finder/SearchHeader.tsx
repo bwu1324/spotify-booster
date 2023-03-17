@@ -14,6 +14,7 @@ import { FinderView } from './Finder';
 import CloseIcon from '@mui/icons-material/Close';
 import Search from '@mui/icons-material/Search';
 import { useTheme } from '@mui/material/styles';
+import { searchSpotifyFor } from './SpotifySearch';
 
 function SideButton({
   icon,
@@ -40,12 +41,21 @@ function SideButton({
   );
 }
 
-function SearchBar({ handleViewChange }: { handleViewChange: () => void }) {
+function SearchBar({
+  handleViewChange,
+  updateResultsCallback,
+}: {
+  handleViewChange: () => void;
+  updateResultsCallback: Function;
+}) {
   return (
     <div style={{ padding: '6px' }}>
       <TextField
         label="Search Spotify"
         fullWidth={true}
+        onChange={async (event) =>
+          updateResultsCallback(await searchSpotifyFor(event.target.value))
+        }
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -102,10 +112,12 @@ function MashupHeader({
 function SearchHeader({
   view,
   handleViewChange,
+  updateResultsCallback,
   mashupID,
 }: {
   view: number;
   handleViewChange: Function;
+  updateResultsCallback: Function;
   mashupID: string;
 }) {
   switch (view) {
@@ -113,6 +125,7 @@ function SearchHeader({
       return (
         <SearchBar
           handleViewChange={() => handleViewChange(FinderView.MASHUP)}
+          updateResultsCallback={updateResultsCallback}
         />
       );
     case FinderView.MASHUP:
