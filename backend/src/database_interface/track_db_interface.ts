@@ -1,27 +1,53 @@
 import RemixDBInterface from './remix_db_interface';
 
+export type TrackInfo = {
+  track_id: string; // spotify track_id
+  start_ms: number; // start time of track in milliseconds
+  end_ms: number; // end time of track in milliseconds (-1 indicates playing to end)
+};
+
 /**
  * TrackDBInterface() - Partial definition of DatabaseInterface
  * Handles adding/removing/fetching tracks
  */
 export default class TrackDBInterface extends RemixDBInterface {
   /**
+   * remixIncludesTrack() - check if a remix includes a track
+   * @param remix_id - remix_id to check
+   * @param track_id - track_id to check
+   * @returns Promise resolving to if remix includes track or not
+   */
+  private async remixIncludesTrack(
+    remix_id: string,
+    track_id: string
+  ): Promise<boolean> {
+    const results = (await this.dbAll(
+      'SELECT COUNT(1) FROM tracks WHERE remix_id = $remix_id AND track_id = $track_id',
+      {
+        $remix_id: remix_id,
+        $track_id: track_id,
+      }
+    )) as Array<{ 'COUNT(1)': number }>;
+
+    return results[0]['COUNT(1)'] > 0;
+  }
+
+  /**
    * getRemixTracks() - gets all tracks of a remix
    * @param remix_id - unique remix id
    * @returns Promise resolving to array of spotify track ids (rejected if an error occures)
    */
-  async getRemixTracks(remix_id: string): Promise<Array<string>> {
+  async getRemixTracks(remix_id: string): Promise<Array<TrackInfo>> {
     await this.remixExists(remix_id);
 
     const rows = (await this.dbAll(
-      'SELECT track_id FROM tracks WHERE remix_id = $remix_id;',
+      'SELECT track_id, start_ms, end_ms FROM tracks WHERE remix_id = $remix_id;',
       {
         $remix_id: remix_id,
       }
-    )) as Array<{ track_id: string; remix_id: string }>;
+    )) as Array<TrackInfo>;
 
-    const result = rows.map((a) => a.track_id);
-    return result;
+    return rows;
   }
 
   /**
@@ -40,21 +66,42 @@ export default class TrackDBInterface extends RemixDBInterface {
       return Promise.reject(new Error('Invalid Track Id'));
     }
 
-    // get remixes tracks (also makes sure remix exists)
-    const tracks = await this.getRemixTracks(remix_id);
-
     // check that track_id is not already in remix
-    if (tracks.includes(track_id)) {
+    await this.remixExists(remix_id);
+    if (await this.remixIncludesTrack(remix_id, track_id)) {
       this.log_.debug(
         `track_id ${track_id} exists in remix already, refusing to create new track`
       );
       return Promise.reject(new Error('Track Id Exists In Remix'));
     }
 
-    await this.dbRun('INSERT INTO tracks VALUES ($remix_id, $track_id);', {
-      $remix_id: remix_id,
-      $track_id: track_id,
-    });
+    await this.dbRun(
+      'INSERT INTO tracks VALUES ($remix_id, $track_id, 0, -1);',
+      {
+        $remix_id: remix_id,
+        $track_id: track_id,
+      }
+    );
+  }
+
+  /**
+   * setStartMS() - sets the start_ms property of a track in a remix
+   * @param remix_id - unique remix id
+   * @param track_id - spotify track id of track to update
+   * @param start_ms - new start_ms value
+   */
+  async setStartMS(remix_id: string, track_id: string, start_ms: number) {
+    if (start_ms < 0) throw new Error('start_ms cannot be negative');
+  }
+
+  /**
+   * setEndMS() - sets the end_ms property of a track in a remix
+   * @param remix_id - unique remix id
+   * @param track_id - spotify track id of track to update
+   * @param end_ms - new end_ms value
+   */
+  async setEndMS(remix_id: string, track_id: string, end_ms: number) {
+    //
   }
 
   /**
@@ -68,11 +115,9 @@ export default class TrackDBInterface extends RemixDBInterface {
       `Removing track with track_id ${track_id} for remix with remix_id ${remix_id}`
     );
 
-    // get remixes tracks (also makes sure remix exists)
-    const tracks = await this.getRemixTracks(remix_id);
-
     // check that track_id is not already in remix
-    if (!tracks.includes(track_id)) {
+    await this.remixExists(remix_id);
+    if (!(await this.remixIncludesTrack(remix_id, track_id))) {
       return Promise.reject(new Error('Invalid Track Id'));
     }
 

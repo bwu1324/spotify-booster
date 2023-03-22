@@ -4,6 +4,7 @@ import path from 'path';
 import express from 'express';
 
 import createRemixRouter from './remix_api';
+import { arrays_match_unordered } from '../database_interface/track_db_interface.test';
 import Logger from '../logger/logger';
 
 const DB_LOCATION = path.join(__dirname, 'test.db');
@@ -23,30 +24,18 @@ async function createRemix() {
   return { remix_id: response.body.remix_id, app };
 }
 
-// Compares 2 arrays and returns true if they contain the same elements in any order
-function arrays_match_unordered(a: Array<unknown>, b: Array<unknown>): boolean {
-  for (let i = 0; i < a.length; i++) {
-    let found = false;
-    for (let j = 0; j < b.length; j++) {
-      if (a[i] === b[j]) found = true;
-    }
-    if (!found) return false;
-  }
-  return a.length === b.length;
-}
-
 describe('Remix API Add Track', () => {
   it('adds track with valid remix_id', async () => {
     const { remix_id, app } = await createRemix();
 
     const tracks = [
-      '6wmcrRId5aeo7hiEqHAtEO',
-      '5OtpvLAq1uUQ6YmgxbI98H',
-      '3mjqoMavGRKBfLiiKuV267',
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
     ];
     for (let i = 0; i < tracks.length; i++) {
       const response1 = await request(app).put(
-        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i]}`
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
       );
       assert(response1.statusCode === 200, 'Responds with success status code');
     }
@@ -98,18 +87,18 @@ describe('Remix API Delete Track', () => {
   it('deletes track with valid remix_id', async () => {
     const { remix_id, app } = await createRemix();
     const tracks = [
-      '6wmcrRId5aeo7hiEqHAtEO',
-      '5OtpvLAq1uUQ6YmgxbI98H',
-      '3mjqoMavGRKBfLiiKuV267',
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
     ];
     for (let i = 0; i < tracks.length; i++) {
       await request(app).put(
-        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i]}`
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
       );
     }
 
     const response2 = await request(app).delete(
-      `/remixapi/removeTrack?remix_id=${remix_id}&track_id=${tracks[0]}`
+      `/remixapi/removeTrack?remix_id=${remix_id}&track_id=${tracks[0].track_id}`
     );
     tracks.splice(0, 1);
 
@@ -127,13 +116,13 @@ describe('Remix API Delete Track', () => {
   it('refuses to add track with invalid remix_id', async () => {
     const { remix_id, app } = await createRemix();
     const tracks = [
-      '6wmcrRId5aeo7hiEqHAtEO',
-      '5OtpvLAq1uUQ6YmgxbI98H',
-      '3mjqoMavGRKBfLiiKuV267',
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
     ];
     for (let i = 0; i < tracks.length; i++) {
       await request(app).put(
-        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i]}`
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
       );
     }
 
@@ -160,13 +149,13 @@ describe('Remix API Delete Track', () => {
   it('refuses to delete track with invalid track_id', async () => {
     const { remix_id, app } = await createRemix();
     const tracks = [
-      '6wmcrRId5aeo7hiEqHAtEO',
-      '5OtpvLAq1uUQ6YmgxbI98H',
-      '3mjqoMavGRKBfLiiKuV267',
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
     ];
     for (let i = 0; i < tracks.length; i++) {
       await request(app).put(
-        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i]}`
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
       );
     }
 
@@ -195,13 +184,13 @@ describe('Remix API Get Tracks', () => {
   it('refuses to get tracks with invalid remix_id', async () => {
     const { remix_id, app } = await createRemix();
     const tracks = [
-      '6wmcrRId5aeo7hiEqHAtEO',
-      '5OtpvLAq1uUQ6YmgxbI98H',
-      '3mjqoMavGRKBfLiiKuV267',
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
     ];
     for (let i = 0; i < tracks.length; i++) {
       await request(app).put(
-        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i]}`
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
       );
     }
 
