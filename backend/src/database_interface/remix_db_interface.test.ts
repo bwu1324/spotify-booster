@@ -66,14 +66,7 @@ describe('Creating Remixes', () => {
       '\r',
     ];
     for (const name of invalid_names) {
-      try {
-        await db.createRemix(name);
-        assert.fail('Invalid remix name did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Name');
-      }
+      await assert.isRejected(db.createRemix(name), 'Invalid Remix Name');
     }
 
     assert((await db.remixCount()) === 0, 'Creates exactly 0 remixes');
@@ -100,14 +93,7 @@ describe('Creating Remixes', () => {
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
     for (const invalid of invalid_ids) {
-      try {
-        await db.getRemixName(invalid);
-        assert.fail('Invalid remix id did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Id');
-      }
+      await assert.isRejected(db.getRemixName(invalid), 'Invalid Remix Id');
     }
 
     assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
@@ -159,14 +145,7 @@ describe('Editing Remixes', () => {
       '\r',
     ];
     for (const name of invalid_names) {
-      try {
-        await db.setRemixName(id0, name);
-        assert.fail('Invalid remix name did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Name');
-      }
+      await assert.isRejected(db.setRemixName(id0, name), 'Invalid Remix Name');
     }
 
     assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
@@ -201,14 +180,10 @@ describe('Editing Remixes', () => {
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
     for (const invalid of invalid_ids) {
-      try {
-        await db.setRemixName(invalid, 'new_name');
-        assert.fail('Invalid remix id did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Id');
-      }
+      await assert.isRejected(
+        db.setRemixName(invalid, 'new_name'),
+        'Invalid Remix Id'
+      );
     }
 
     assert((await db.remixCount()) === 2, 'Creates exactly 2 remixes');
@@ -261,14 +236,7 @@ describe('Deleting Remixes', () => {
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
     for (const invalid of invalid_ids) {
-      try {
-        await db.deleteRemix(invalid);
-        assert.fail('Invalid remix id did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Id');
-      }
+      await assert.isRejected(db.deleteRemix(invalid), 'Invalid Remix Id');
     }
 
     assert((await db.remixCount()) === 2, 'Exactly 2 remixes remains');

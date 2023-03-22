@@ -90,8 +90,27 @@ export default class TrackDBInterface extends RemixDBInterface {
    * @param track_id - spotify track id of track to update
    * @param start_ms - new start_ms value
    */
-  async setStartMS(remix_id: string, track_id: string, start_ms: number) {
+  async setStartMS(
+    remix_id: string,
+    track_id: string,
+    start_ms: number
+  ): Promise<void> {
     if (start_ms < 0) throw new Error('start_ms cannot be negative');
+
+    // check that track_id is in remix
+    await this.remixExists(remix_id);
+    if (!(await this.remixIncludesTrack(remix_id, track_id))) {
+      return Promise.reject(new Error('Invalid Track Id'));
+    }
+
+    await this.dbRun(
+      'UPDATE tracks SET start_ms = $start_ms WHERE remix_id = $remix_id AND track_id = $track_id',
+      {
+        $start_ms: start_ms,
+        $remix_id: remix_id,
+        $track_id: track_id,
+      }
+    );
   }
 
   /**
@@ -100,10 +119,27 @@ export default class TrackDBInterface extends RemixDBInterface {
    * @param track_id - spotify track id of track to update
    * @param end_ms - new end_ms value
    */
-  async setEndMS(remix_id: string, track_id: string, end_ms: number) {
-    //
-  }
+  async setEndMS(
+    remix_id: string,
+    track_id: string,
+    end_ms: number
+  ): Promise<void> {
+    if (end_ms < -1) throw new Error('end_ms cannot be less than -1');
+    // check that track_id is in remix
+    await this.remixExists(remix_id);
+    if (!(await this.remixIncludesTrack(remix_id, track_id))) {
+      return Promise.reject(new Error('Invalid Track Id'));
+    }
 
+    await this.dbRun(
+      'UPDATE tracks SET end_ms = $end_ms WHERE remix_id = $remix_id AND track_id = $track_id',
+      {
+        $end_ms: end_ms,
+        $remix_id: remix_id,
+        $track_id: track_id,
+      }
+    );
+  }
   /**
    * removeTrack() - removes a track from remix
    * @param remix_id - unique remix id
@@ -115,7 +151,7 @@ export default class TrackDBInterface extends RemixDBInterface {
       `Removing track with track_id ${track_id} for remix with remix_id ${remix_id}`
     );
 
-    // check that track_id is not already in remix
+    // check that track_id is in remix
     await this.remixExists(remix_id);
     if (!(await this.remixIncludesTrack(remix_id, track_id))) {
       return Promise.reject(new Error('Invalid Track Id'));

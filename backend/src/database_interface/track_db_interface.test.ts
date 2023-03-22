@@ -1,4 +1,6 @@
-import { assert } from 'chai';
+import chai, { assert } from 'chai';
+import chaiAsPromised from 'chai-as-promised';
+chai.use(chaiAsPromised);
 import fs from 'fs-extra';
 import path from 'path';
 import crypto from 'crypto';
@@ -122,14 +124,10 @@ describe('Creating Tracks', () => {
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
     for (const invalid of invalid_ids) {
-      try {
-        await db.addTrack(invalid, 'some_spotify_id10');
-        assert.fail(`Invalid remix id ${invalid} did not cause error`);
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Id');
-      }
+      await assert.isRejected(
+        db.addTrack(invalid, 'some_spotify_id10'),
+        'Invalid Remix Id'
+      );
     }
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
@@ -164,14 +162,7 @@ describe('Creating Tracks', () => {
     for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
     for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
-    try {
-      await db.addTrack(id0, '');
-      assert.fail('Invalid remix id did not cause error');
-    } catch (error) {
-      assert.throws(() => {
-        throw error;
-      }, 'Invalid Track Id');
-    }
+    await assert.isRejected(db.addTrack(id0, ''), 'Invalid Track Id');
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
     assert(
@@ -205,14 +196,10 @@ describe('Creating Tracks', () => {
     for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
     for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
-    try {
-      await db.addTrack(id0, 'some_spotify_id0');
-      assert.fail('Invalid remix id did not cause error');
-    } catch (error) {
-      assert.throws(() => {
-        throw error;
-      }, 'Track Id Exists In Remix');
-    }
+    await assert.isRejected(
+      db.addTrack(id0, 'some_spotify_id0'),
+      'Track Id Exists In Remix'
+    );
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
     assert(
@@ -292,14 +279,7 @@ describe('Removing Tracks', () => {
       's0me_spotify_id0', // similar
     ];
     for (const id of invalid_ids) {
-      try {
-        await db.removeTrack(id0, id);
-        assert.fail('Invalid track id did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Track Id');
-      }
+      await assert.isRejected(db.removeTrack(id0, id), 'Invalid Track Id');
     }
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
@@ -348,15 +328,174 @@ describe('Removing Tracks', () => {
       crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
     ];
     for (const id of invalid_ids) {
-      try {
-        await db.removeTrack(id, 'some_spotify_id0');
-        assert.fail('Invalid remix id did not cause error');
-      } catch (error) {
-        assert.throws(() => {
-          throw error;
-        }, 'Invalid Remix Id');
-      }
+      await assert.isRejected(
+        db.removeTrack(id, 'some_spotify_id0'),
+        'Invalid Remix Id'
+      );
     }
+
+    assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
+    assert(
+      arrays_match_unordered(await db.getRemixTracks(id0), remix0_tracks),
+      'Remix 0 contains expected tracks'
+    );
+    assert(
+      arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
+      'Remix 1 contains expected tracks'
+    );
+    await db.close();
+  });
+});
+
+describe('Track start/stop Data', () => {
+  it('Sets correct default start and stop time', async () => {
+    const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
+    const db = new DatabaseInterface(db_location);
+    const id0 = await db.createRemix('test_remix0');
+
+    const expected = { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 };
+    await db.addTrack(id0, expected.track_id);
+
+    assert.deepEqual(
+      await db.getRemixTracks(id0),
+      [expected],
+      'Sets correct defaults'
+    );
+
+    await db.close();
+  });
+
+  it('Updates start and end data', async () => {
+    const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
+    const db = new DatabaseInterface(db_location);
+    const id0 = await db.createRemix('test_remix0');
+    const id1 = await db.createRemix('test_remix1');
+    const remix0_tracks = [
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 10, end_ms: 0 },
+      { track_id: 'some_spotify_id2', start_ms: 20, end_ms: 19 },
+      { track_id: 'some_spotify_id3', start_ms: 100, end_ms: 100 },
+    ];
+    const remix1_tracks = [
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
+    ];
+    for (const track of remix0_tracks) {
+      await db.addTrack(id0, track.track_id);
+      await db.setStartMS(id0, track.track_id, track.start_ms);
+      await db.setEndMS(id0, track.track_id, track.end_ms);
+    }
+
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
+
+    assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
+    assert(
+      arrays_match_unordered(await db.getRemixTracks(id0), remix0_tracks),
+      'Remix 0 contains expected tracks'
+    );
+    assert(
+      arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
+      'Remix 1 contains expected tracks'
+    );
+    await db.close();
+  });
+
+  it('rejects invalid start and end data', async () => {
+    const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
+    const db = new DatabaseInterface(db_location);
+    const id0 = await db.createRemix('test_remix0');
+    const id1 = await db.createRemix('test_remix1');
+    const remix0_tracks = [
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
+    ];
+    const remix1_tracks = [
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
+    ];
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
+
+    await assert.isRejected(
+      db.setStartMS(id0, remix0_tracks[0].track_id, -1),
+      'start_ms cannot be negative'
+    );
+    await assert.isRejected(
+      db.setStartMS(id0, remix0_tracks[0].track_id, -10),
+      'start_ms cannot be negative'
+    );
+    await assert.isRejected(
+      db.setStartMS(id0, remix0_tracks[0].track_id, -20),
+      'start_ms cannot be negative'
+    );
+    await assert.isRejected(
+      db.setEndMS(id0, remix0_tracks[0].track_id, -2),
+      'end_ms cannot be less than -1'
+    );
+    await assert.isRejected(
+      db.setEndMS(id0, remix0_tracks[0].track_id, -10),
+      'end_ms cannot be less than -1'
+    );
+    await assert.isRejected(
+      db.setEndMS(id0, remix0_tracks[0].track_id, -20),
+      'end_ms cannot be less than -1'
+    );
+
+    assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
+    assert(
+      arrays_match_unordered(await db.getRemixTracks(id0), remix0_tracks),
+      'Remix 0 contains expected tracks'
+    );
+    assert(
+      arrays_match_unordered(await db.getRemixTracks(id1), remix1_tracks),
+      'Remix 1 contains expected tracks'
+    );
+    await db.close();
+  });
+
+  it('rejects invalid track or remix id when setting start of stop data', async () => {
+    const db_location = path.join(TEMP_FILE_DIRECTORY, unique_database_name());
+    const db = new DatabaseInterface(db_location);
+    const id0 = await db.createRemix('test_remix0');
+    const id1 = await db.createRemix('test_remix1');
+    const remix0_tracks = [
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
+    ];
+    const remix1_tracks = [
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
+    ];
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
+
+    const unknown_remix = 'some_remix';
+    await assert.isRejected(
+      db.setStartMS(unknown_remix, remix0_tracks[0].track_id, 0),
+      'Invalid Remix Id'
+    );
+    await assert.isRejected(
+      db.setEndMS(unknown_remix, remix0_tracks[0].track_id, 0),
+      'Invalid Remix Id'
+    );
+    await assert.isRejected(
+      db.setStartMS(id0, remix1_tracks[3].track_id, 0),
+      'Invalid Track Id'
+    );
+    await assert.isRejected(
+      db.setEndMS(id0, remix1_tracks[3].track_id, 0),
+      'Invalid Track Id'
+    );
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
     assert(
