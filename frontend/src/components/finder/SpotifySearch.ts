@@ -1,6 +1,6 @@
 import axios from 'axios';
 import { getCookie } from '../login/Cookie';
-import { Result, ResultType, resultTypeToString } from './util';
+import { Result, ResultType } from './util';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.
@@ -18,7 +18,7 @@ export async function searchSpotifyFor(query: string, type: ResultType) {
         // Get limit number of results of each given type.
         params: {
           q: query,
-          type: resultTypeToString(type).toLowerCase(),
+          type: ResultType[type].toLowerCase(),
           limit: 10,
         },
         // Give Spotify our access token.

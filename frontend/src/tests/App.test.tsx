@@ -11,7 +11,7 @@ test('renders login button', () => {
 
 test('renders search bar, and search bar buttons work', () => {
   render(<App />);
-  const searchBox = screen.getByLabelText('Search Spotify');
+  const searchBox = screen.getByLabelText('Search');
   expect(searchBox).toBeInTheDocument();
   const closeSearchButton = screen.getByLabelText('close');
   expect(closeSearchButton).toBeInTheDocument();

@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FinderView } from './Finder';
-import { ResultType, resultTypeToString } from './util';
+import { ResultType } from './util';
 
 // Reusable button component for the side of the search bar, etc.
 function SideButton({
@@ -70,7 +70,7 @@ function SearchFilter({
     <div style={{ padding: '6px' }}>
       <FormControl>
         <RadioGroup
-          value={resultTypeToString(searchType).toLowerCase()}
+          value={ResultType[searchType].toLowerCase()}
           row
           aria-label="search-filter-buttons"
           name="search-filter-radio-buttons-group"
