@@ -26,7 +26,8 @@
             {
                 "allowModules": [
                     "chai",
-                    "supertest"
+                    "supertest",
+                    "chai-as-promised"
                 ]
             }
         ]
