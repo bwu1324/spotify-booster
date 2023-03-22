@@ -206,3 +206,136 @@ describe('Remix API Get Tracks', () => {
     );
   });
 });
+
+describe('Remix API Set Start/End Data', () => {
+  it('sets start and end data correctly', async () => {
+    const { remix_id, app } = await createRemix();
+    const tracks = [
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 10, end_ms: 0 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 20, end_ms: 20 },
+    ];
+    for (let i = 0; i < tracks.length; i++) {
+      await request(app).put(
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
+      );
+      const response0 = await request(app).put(
+        `/remixapi/setStartMs?remix_id=${remix_id}&track_id=${tracks[i].track_id}&start_ms=${tracks[i].start_ms}`
+      );
+      const response1 = await request(app).put(
+        `/remixapi/setEndMs?remix_id=${remix_id}&track_id=${tracks[i].track_id}&end_ms=${tracks[i].end_ms}`
+      );
+
+      assert(
+        response0.statusCode === 200,
+        'Responds with success request code'
+      );
+      assert(
+        response1.statusCode === 200,
+        'Responds with success request code'
+      );
+    }
+
+    const response2 = await request(app).get(
+      `/remixapi/getRemixTracks?remix_id=${remix_id}`
+    );
+    assert(
+      arrays_match_unordered(response2.body.tracks, tracks),
+      'Tracks were updated correctly'
+    );
+  });
+
+  it('refuses to set invalid start data', async () => {
+    const { remix_id, app } = await createRemix();
+    const tracks = [
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
+    ];
+    for (let i = 0; i < tracks.length; i++) {
+      await request(app).put(
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
+      );
+    }
+
+    const invalid_remix_id = 'invalid';
+    const invalid_track_id = 'invalid;';
+    const track_id = tracks[0].track_id;
+    const response0 = await request(app).put(
+      `/remixapi/setStartMs?remix_id=${remix_id}&track_id=${track_id}&start_ms=${-1}`
+    );
+    const response1 = await request(app).put(
+      `/remixapi/setStartMs?remix_id=${remix_id}&track_id=${invalid_track_id}&start_ms=${0}`
+    );
+    const response2 = await request(app).put(
+      `/remixapi/setStartMs?remix_id=${invalid_remix_id}&track_id=${track_id}&start_ms=${0}`
+    );
+    const response3 = await request(app).put(
+      `/remixapi/setStartMs?remix_id=${invalid_remix_id}&track_id=${track_id}&start_ms=asdf`
+    );
+
+    assert(response0.statusCode === 400, 'Responds with bad request code');
+    assert(
+      response0.body.error_message === 'start_ms cannot be negative',
+      'Responds with error message'
+    );
+    assert(response1.statusCode === 400, 'Responds with bad request code');
+    assert(
+      response1.body.error_message === 'Invalid Track Id',
+      'Responds with error message'
+    );
+    assert(response2.statusCode === 400, 'Responds with bad request code');
+    assert(
+      response2.body.error_message === 'Invalid Remix Id',
+      'Responds with error message'
+    );
+    assert(response3.statusCode === 400, 'Responds with bad request code');
+  });
+
+  it('refuses to set invalid end data', async () => {
+    const { remix_id, app } = await createRemix();
+    const tracks = [
+      { track_id: '6wmcrRId5aeo7hiEqHAtEO', start_ms: 0, end_ms: -1 },
+      { track_id: '5OtpvLAq1uUQ6YmgxbI98H', start_ms: 0, end_ms: -1 },
+      { track_id: '3mjqoMavGRKBfLiiKuV267', start_ms: 0, end_ms: -1 },
+    ];
+    for (let i = 0; i < tracks.length; i++) {
+      await request(app).put(
+        `/remixapi/addTrack?remix_id=${remix_id}&track_id=${tracks[i].track_id}`
+      );
+    }
+
+    const invalid_remix_id = 'invalid';
+    const invalid_track_id = 'invalid;';
+    const track_id = tracks[0].track_id;
+    const response0 = await request(app).put(
+      `/remixapi/setEndMs?remix_id=${remix_id}&track_id=${track_id}&end_ms=${-2}`
+    );
+    const response1 = await request(app).put(
+      `/remixapi/setEndMs?remix_id=${remix_id}&track_id=${invalid_track_id}&end_ms=${-1}`
+    );
+    const response2 = await request(app).put(
+      `/remixapi/setEndMs?remix_id=${invalid_remix_id}&track_id=${track_id}&end_ms=${-1}`
+    );
+    const response3 = await request(app).put(
+      `/remixapi/setEndMs?remix_id=${invalid_remix_id}&track_id=${track_id}&end_ms=asdf`
+    );
+
+    assert(response0.statusCode === 400, 'Responds with bad request code');
+    assert(
+      response0.body.error_message === 'end_ms cannot be less than -1',
+      'Responds with error message'
+    );
+    assert(response1.statusCode === 400, 'Responds with bad request code');
+    assert(
+      response1.body.error_message === 'Invalid Track Id',
+      'Responds with error message'
+    );
+    assert(response2.statusCode === 400, 'Responds with bad request code');
+    assert(
+      response2.body.error_message === 'Invalid Remix Id',
+      'Responds with error message'
+    );
+    assert(response3.statusCode === 400, 'Responds with bad request code');
+  });
+});
