@@ -16,6 +16,7 @@ POST: /remixapi/createRemix?name=remix_name
 }
 ```
 `"remix_id"` is the unique remix id of the remix that was just created
+
 `"error_message"` contains an error message if there was an error
 
 ### Status Codes
@@ -43,6 +44,7 @@ Get: /remixapi/getRemixName?remix_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNzYxMjA
 }
 ```
 `"name"` is the name of the remix
+
 `"error_message"` contains an error message if there was an error
 
 ### Status Codes
@@ -112,12 +114,25 @@ Get: /remixapi/getRemixTracks?remix_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNzYxM
 
 ### Response
 ```js
+type TrackInfo = {
+  track_id: string,
+  start_ms: number,
+  end_ms: number,
+};
+
 {
-  "tracks": Array<string>,
+  "tracks": Array<TrackInfo>,
   "error_message": string
 }
 ```
-`"tracks"` is an array of spotify track_ids 
+`"tracks"` is an array of TrackInfo objects 
+
+`"TrackInfo.track_id"` is the Spotify track id of song
+
+`"TrackInfo.start_ms"` is the start time of song in milliseconds
+
+`"TrackInfo.end_ms"` is the end time of song in milliseconds
+
 `"error_message"` contains an error message if there was an error
 
 ### Status Codes
@@ -137,6 +152,61 @@ PUT: /remixapi/addTrack?track_id=6wmcrRId5aeo7hiEqHAtEO&remix_id=MTUxODVkMzFmZDc
 | :--- | :--- | :--- |
 | track_id | `string` | Spotify track_id of song |
 | remix_id | `string` | Unique remix_id of the remix to add to |
+
+### Response
+```js
+{
+  "error_message": string
+}
+```
+`"error_message"` contains an error message if there was an error
+
+### Status Codes
+| Code | Description |
+| :--- | :--- |
+| 200 | OK |
+| 400 | BAD REQUEST (remix_id was probably invalid) |
+| 404 | NOT FOUND |
+| 500 | INTERNAL SERVER ERROR |
+
+## Set Track Start MS
+Sets start time of track
+```http
+PUT: /remixapi/setStartMs?track_id=6wmcrRId5aeo7hiEqHAtEO&remix_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNzYxMjAzNjJmYjc5NTU4ZTg4MGVhODBiOGE4NDAwYmNlM2FjZg&start_ms=123
+```
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| track_id | `string` | Spotify track_id of song |
+| remix_id | `string` | Unique remix_id of the remix to add to |
+| start_ms | `integer` | Time in milliseconds of start of track (must be >= 0) |
+
+### Response
+```js
+{
+  "error_message": string
+}
+```
+`"error_message"` contains an error message if there was an error
+
+### Status Codes
+| Code | Description |
+| :--- | :--- |
+| 200 | OK |
+| 400 | BAD REQUEST (remix_id was probably invalid) |
+| 404 | NOT FOUND |
+| 500 | INTERNAL SERVER ERROR |
+
+
+## Set Track End MS
+Sets end time of track
+```http
+PUT: /remixapi/setEndMs?track_id=6wmcrRId5aeo7hiEqHAtEO&remix_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNzYxMjAzNjJmYjc5NTU4ZTg4MGVhODBiOGE4NDAwYmNlM2FjZg&end_ms=123
+```
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| track_id | `string` | Spotify track_id of song |
+| remix_id | `string` | Unique remix_id of the remix to add to |
+| start_ms | `integer` | Time in milliseconds of end of track (must be >= -1 where -1 indicates end of track)|
 
 ### Response
 ```js
