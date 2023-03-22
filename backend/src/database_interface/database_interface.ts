@@ -5,7 +5,7 @@ import TrackDBInterface from './track_db_interface';
 const TABLES = [
   {
     name: 'tracks',
-    cols: '(remix_id STRING NOT NULL, track_id STRING NOT NULL)',
+    cols: '(remix_id STRING NOT NULL, track_id STRING NOT NULL, start_ms INT, end_ms INT)',
   },
   {
     name: 'remixes',

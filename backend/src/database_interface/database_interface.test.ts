@@ -3,6 +3,7 @@ import fs from 'fs-extra';
 import path from 'path';
 
 import DatabaseInterface from './database_interface';
+import { arrays_match_unordered } from './track_db_interface.test';
 
 const TEMP_FILE_DIRECTORY = path.join(__dirname, 'test_databases');
 
@@ -28,18 +29,6 @@ after(async () => {
 // Returns a unique string each time to be used as a database name
 function unique_database_name() {
   return `Database-Test-${Date.now()}.db`;
-}
-
-// Compares 2 arrays and returns true if they contain the same elements in any order
-function arrays_match_unordered(a: Array<unknown>, b: Array<unknown>): boolean {
-  for (let i = 0; i < a.length; i++) {
-    let found = false;
-    for (let j = 0; j < b.length; j++) {
-      if (a[i] === b[j]) found = true;
-    }
-    if (!found) return false;
-  }
-  return a.length === b.length;
 }
 
 describe('New Database Interface Initialization', () => {
@@ -78,26 +67,26 @@ describe('Existing Database Initialization', () => {
     const id0 = 'WeWkXbxl7OQXyqAImuOdHBnI+lgKbvr+jI1t0JJ5xTo=';
     const name0 = 'remix_0';
     const remix0_tracks = [
-      'spotify_track_0',
-      'spotify_track_1',
-      'spotify_track_2',
-      'spotify_track_3',
+      { track_id: 'spotify_track_0', start_ms: 11, end_ms: 22 },
+      { track_id: 'spotify_track_1', start_ms: 10, end_ms: 20 },
+      { track_id: 'spotify_track_2', start_ms: 9, end_ms: 18 },
+      { track_id: 'spotify_track_3', start_ms: 8, end_ms: 16 },
     ];
     const id1 = 'EeaNp8zxcWNhIUSWB11RgmTVFTWKzQWhWbifslF/JCY=';
     const name1 = 'remix_1';
     const remix1_tracks = [
-      'spotify_track_0',
-      'spotify_track_2',
-      'spotify_track_4',
-      'spotify_track_6',
+      { track_id: 'spotify_track_0', start_ms: 7, end_ms: 14 },
+      { track_id: 'spotify_track_2', start_ms: 6, end_ms: 12 },
+      { track_id: 'spotify_track_4', start_ms: 5, end_ms: 10 },
+      { track_id: 'spotify_track_6', start_ms: 4, end_ms: 8 },
     ];
     const id2 = 'ZDcGdnwaORyeNmrFLeJvhc78pIHNCLSMJOZ5vaBQBjE=';
     const name2 = 'remix_2';
     const remix2_tracks = [
-      'spotify_track_0',
-      'spotify_track_3',
-      'spotify_track_6',
-      'spotify_track_9',
+      { track_id: 'spotify_track_0', start_ms: 3, end_ms: 6 },
+      { track_id: 'spotify_track_3', start_ms: 2, end_ms: 4 },
+      { track_id: 'spotify_track_6', start_ms: 1, end_ms: 2 },
+      { track_id: 'spotify_track_9', start_ms: 0, end_ms: -1 },
     ];
 
     assert((await db.remixCount()) === 3, 'Database contains 3 remixes');

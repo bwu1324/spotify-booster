@@ -4,6 +4,7 @@ import path from 'path';
 import crypto from 'crypto';
 
 import DatabaseInterface from './database_interface';
+import { TrackInfo } from './track_db_interface';
 
 const TEMP_FILE_DIRECTORY = path.join(__dirname, 'test_databases');
 
@@ -31,13 +32,23 @@ function unique_database_name() {
   return `Database-Test-${Date.now()}.db`;
 }
 
-// Compares 2 arrays and returns true if they contain the same elements in any order
-function arrays_match_unordered(a: Array<unknown>, b: Array<unknown>): boolean {
+// Compares 2 arrays of tracks and returns true if they contain the same elements in any order
+export function arrays_match_unordered(
+  a: Array<TrackInfo>,
+  b: Array<TrackInfo>
+): boolean {
   for (let i = 0; i < a.length; i++) {
     let found = false;
     for (let j = 0; j < b.length; j++) {
-      if (a[i] === b[j]) found = true;
+      if (
+        a[i].track_id === b[j].track_id &&
+        a[i].start_ms === b[j].start_ms &&
+        a[i].end_ms === b[j].end_ms
+      ) {
+        found = true;
+      }
     }
+
     if (!found) return false;
   }
   return a.length === b.length;
@@ -51,19 +62,19 @@ describe('Creating Tracks', () => {
     const id1 = await db.createRemix('test_remix1');
 
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     assert((await db.totalTrackCount()) === 8, 'Database contains 8 tracks');
     assert(
@@ -83,19 +94,19 @@ describe('Creating Tracks', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     const invalid_ids = [
       '', // blank
@@ -113,7 +124,7 @@ describe('Creating Tracks', () => {
     for (const invalid of invalid_ids) {
       try {
         await db.addTrack(invalid, 'some_spotify_id10');
-        assert.fail('Invalid remix id did not cause error');
+        assert.fail(`Invalid remix id ${invalid} did not cause error`);
       } catch (error) {
         assert.throws(() => {
           throw error;
@@ -139,19 +150,19 @@ describe('Creating Tracks', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     try {
       await db.addTrack(id0, '');
@@ -180,19 +191,19 @@ describe('Creating Tracks', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     try {
       await db.addTrack(id0, 'some_spotify_id0');
@@ -223,19 +234,19 @@ describe('Removing Tracks', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     await db.removeTrack(id0, 'some_spotify_id0');
     remix0_tracks.splice(0, 1);
@@ -260,19 +271,19 @@ describe('Removing Tracks', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     const invalid_ids = [
       '', // blank
@@ -309,19 +320,19 @@ describe('Removing Tracks', () => {
     const id0 = await db.createRemix('test_remix0');
     const id1 = await db.createRemix('test_remix1');
     const remix0_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id1',
-      'some_spotify_id2',
-      'some_spotify_id3',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id1', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id3', start_ms: 0, end_ms: -1 },
     ];
     const remix1_tracks = [
-      'some_spotify_id0',
-      'some_spotify_id2',
-      'some_spotify_id4',
-      'some_spotify_id6',
+      { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id2', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id4', start_ms: 0, end_ms: -1 },
+      { track_id: 'some_spotify_id6', start_ms: 0, end_ms: -1 },
     ];
-    for (const track of remix0_tracks) await db.addTrack(id0, track);
-    for (const track of remix1_tracks) await db.addTrack(id1, track);
+    for (const track of remix0_tracks) await db.addTrack(id0, track.track_id);
+    for (const track of remix1_tracks) await db.addTrack(id1, track.track_id);
 
     const invalid_ids = [
       '', // blank
