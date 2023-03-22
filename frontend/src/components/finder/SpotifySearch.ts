@@ -41,19 +41,19 @@ function convertSpotifyResults(item: any): Array<Result> {
   // these must be separately handled.
   if (item.tracks)
     item.tracks.items.map((track: any) => {
-      results.push(convertSpotifyItem(ResultType.TRACK, track));
+      results.push(convertSpotifyItem(ResultType.Track, track));
     });
   if (item.artists)
     item.artists.items.map((artist: any) => {
-      results.push(convertSpotifyItem(ResultType.ARTIST, artist));
+      results.push(convertSpotifyItem(ResultType.Artist, artist));
     });
   if (item.albums)
     item.albums.items.map((album: any) => {
-      results.push(convertSpotifyItem(ResultType.ALBUM, album));
+      results.push(convertSpotifyItem(ResultType.Album, album));
     });
   if (item.playlists)
     item.playlists.items.map((playlist: any) => {
-      results.push(convertSpotifyItem(ResultType.PLAYLIST, playlist));
+      results.push(convertSpotifyItem(ResultType.Playlist, playlist));
     });
 
   return results;

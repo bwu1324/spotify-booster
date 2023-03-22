@@ -1,12 +1,12 @@
 // Different types of things that appear in the search results, that need to be
 // rendered differently.
 export enum ResultType {
-  TRACK,
-  ARTIST,
-  ALBUM,
-  PLAYLIST,
-  MASHUP,
-  NONE,
+  Track,
+  Artist,
+  Album,
+  Playlist,
+  Mashup,
+  None,
 }
 
 // Type that represents a result displayed in the finder list.
@@ -19,17 +19,34 @@ export type Result = {
 
 export function resultTypeToString(resultType: ResultType): string {
   switch (resultType) {
-    case ResultType.TRACK:
+    case ResultType.Track:
       return 'Track';
-    case ResultType.ARTIST:
+    case ResultType.Artist:
       return 'Artist';
-    case ResultType.ALBUM:
+    case ResultType.Album:
       return 'Album';
-    case ResultType.PLAYLIST:
+    case ResultType.Playlist:
       return 'Playlist';
-    case ResultType.MASHUP:
+    case ResultType.Mashup:
       return 'Mashup';
-    case ResultType.NONE:
+    case ResultType.None:
       return 'None';
+  }
+}
+
+export function stringToResultType(s: string): ResultType {
+  switch (s) {
+    case 'track':
+      return ResultType.Track;
+    case 'artist':
+      return ResultType.Artist;
+    case 'album':
+      return ResultType.Album;
+    case 'playlist':
+      return ResultType.Playlist;
+    case 'mashup':
+      return ResultType.Mashup;
+    default:
+      return ResultType.None;
   }
 }

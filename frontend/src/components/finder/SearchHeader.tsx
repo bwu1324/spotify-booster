@@ -20,7 +20,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Search from '@mui/icons-material/Search';
 import { useTheme } from '@mui/material/styles';
 import { searchSpotifyFor } from './SpotifySearch';
-import { ResultType, resultTypeToString } from './util';
+import { Result, ResultType, resultTypeToString } from './util';
 
 function SideButton({
   icon,
@@ -47,53 +47,46 @@ function SideButton({
   );
 }
 
-function FilterButton({
-  type,
-  updateSearchType,
-}: {
-  type: ResultType;
-  updateSearchType: Function;
-}) {
+function getFilterButton(type: ResultType, updateSearchType: Function) {
   return (
     <FormControlLabel
-      value={resultTypeToString(type).toLowerCase()}
+      value={ResultType[type].toLowerCase()}
+      key={ResultType[type].toLowerCase()}
       control={<Radio />}
-      label={resultTypeToString(type)}
+      label={ResultType[type]}
       onClick={() => updateSearchType(type)}
     />
   );
 }
 
-function SearchFilter({ updateSearchType }: { updateSearchType: Function }) {
+function SearchFilter({
+  query,
+  searchType,
+  updateSearchType,
+  updateResults,
+}: {
+  query: string;
+  searchType: ResultType;
+  updateSearchType: Function;
+  updateResults: Function;
+}) {
   return (
     <div style={{ padding: '6px' }}>
       <FormControl>
         <RadioGroup
-          defaultValue="track"
+          value={resultTypeToString(searchType).toLowerCase()}
           row
           aria-label="search-filter-buttons"
           name="search-filter-radio-buttons-group"
+          // onChange={async (newType) => {
+          //   console.log(newType);
+          //   await updateSearchType(newType);
+          //   updateResults(await searchSpotifyFor(query, newType));
+          // }}
         >
-          <FilterButton
-            type={ResultType.TRACK}
-            updateSearchType={updateSearchType}
-          />
-          <FilterButton
-            type={ResultType.ARTIST}
-            updateSearchType={updateSearchType}
-          />
-          <FilterButton
-            type={ResultType.ALBUM}
-            updateSearchType={updateSearchType}
-          />
-          <FilterButton
-            type={ResultType.PLAYLIST}
-            updateSearchType={updateSearchType}
-          />
-          <FilterButton
-            type={ResultType.MASHUP}
-            updateSearchType={updateSearchType}
-          />
+          {Array.from(Array(5).keys()).map((searchType) =>
+            getFilterButton(searchType, updateSearchType)
+          )}
         </RadioGroup>
       </FormControl>
     </div>
@@ -101,47 +94,39 @@ function SearchFilter({ updateSearchType }: { updateSearchType: Function }) {
 }
 
 function SearchBar({
+  query,
+  searchType,
   handleViewChange,
-  updateResultsCallback,
+  updateQuery,
+  updateResults,
 }: {
+  query: string;
+  searchType: ResultType;
   handleViewChange: () => void;
-  updateResultsCallback: Function;
+  updateQuery: Function;
+  updateResults: Function;
 }) {
-  const [searchType, setSearchType] = useState(ResultType.TRACK);
-  const [query, setQuery] = useState('');
-
-  useEffect(() => {
-    updateResultsCallback([]);
-    const updateAsync = async () => {
-      updateResultsCallback(await searchSpotifyFor(query, searchType));
-    };
-
-    updateAsync().catch(console.error);
-  }),
-    [query, searchType];
-
   return (
-    <div style={{ padding: '6px' }}>
-      <TextField
-        label="Search"
-        fullWidth={true}
-        onChange={async (event) => setQuery(event.target.value)}
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <SideButton
-                icon={<CloseIcon />}
-                onClick={handleViewChange}
-                title="Close search"
-                ariaLabel="close"
-              />
-            </InputAdornment>
-          ),
-        }}
-      />
-      <SearchFilter updateSearchType={setSearchType} />
-      <Divider />
-    </div>
+    <TextField
+      label="Search"
+      value={query}
+      fullWidth={true}
+      onChange={(event) => {
+        updateQuery(event.target.value);
+      }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <SideButton
+              icon={<CloseIcon />}
+              onClick={handleViewChange}
+              title="Close search"
+              ariaLabel="close"
+            />
+          </InputAdornment>
+        ),
+      }}
+    />
   );
 }
 
@@ -176,29 +161,47 @@ function MashupHeader({
           ariaLabel="search"
         />
       </div>
-      <Divider />
     </>
   );
 }
 
 function SearchHeader({
   view,
+  query,
+  searchType,
   handleViewChange,
-  updateResultsCallback,
+  updateQuery,
+  updateSearchType,
+  updateResults,
   mashupID,
 }: {
   view: number;
+  query: string;
+  searchType: ResultType;
   handleViewChange: Function;
-  updateResultsCallback: Function;
+  updateQuery: Function;
+  updateSearchType: Function;
+  updateResults: Function;
   mashupID: string;
 }) {
   switch (view) {
     case FinderView.SEARCH:
       return (
-        <SearchBar
-          handleViewChange={() => handleViewChange(FinderView.MASHUP)}
-          updateResultsCallback={updateResultsCallback}
-        />
+        <div style={{ padding: '6px' }}>
+          <SearchBar
+            query={query}
+            searchType={searchType}
+            handleViewChange={() => handleViewChange(FinderView.MASHUP)}
+            updateQuery={updateQuery}
+            updateResults={updateResults}
+          />
+          <SearchFilter
+            query={query}
+            searchType={searchType}
+            updateSearchType={updateSearchType}
+            updateResults={updateResults}
+          />
+        </div>
       );
     case FinderView.MASHUP:
       return (
