@@ -16,3 +16,20 @@ export type Result = {
   id: string; // If the Result is from Spotify, this is the Spotify ID.
   // TODO: add more information to display when we add that feature.
 };
+
+export function resultTypeToString(resultType: ResultType): string {
+  switch (resultType) {
+    case ResultType.TRACK:
+      return 'Track';
+    case ResultType.ARTIST:
+      return 'Artist';
+    case ResultType.ALBUM:
+      return 'Album';
+    case ResultType.PLAYLIST:
+      return 'Playlist';
+    case ResultType.MASHUP:
+      return 'Mashup';
+    case ResultType.NONE:
+      return 'None';
+  }
+}

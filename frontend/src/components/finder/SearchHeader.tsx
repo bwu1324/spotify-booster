@@ -1,11 +1,16 @@
 // Component for the header of the finder. Either a search bar or the title of
 // the current mashup.
 
-import React, { ReactElement } from 'react';
+import React, { ReactElement, useEffect, useState } from 'react';
 import {
   Divider,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
   IconButton,
   InputAdornment,
+  Radio,
+  RadioGroup,
   TextField,
   Tooltip,
   Typography,
@@ -15,6 +20,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Search from '@mui/icons-material/Search';
 import { useTheme } from '@mui/material/styles';
 import { searchSpotifyFor } from './SpotifySearch';
+import { ResultType, resultTypeToString } from './util';
 
 function SideButton({
   icon,
@@ -41,6 +47,59 @@ function SideButton({
   );
 }
 
+function FilterButton({
+  type,
+  updateSearchType,
+}: {
+  type: ResultType;
+  updateSearchType: Function;
+}) {
+  return (
+    <FormControlLabel
+      value={resultTypeToString(type).toLowerCase()}
+      control={<Radio />}
+      label={resultTypeToString(type)}
+      onClick={() => updateSearchType(type)}
+    />
+  );
+}
+
+function SearchFilter({ updateSearchType }: { updateSearchType: Function }) {
+  return (
+    <div style={{ padding: '6px' }}>
+      <FormControl>
+        <RadioGroup
+          defaultValue="track"
+          row
+          aria-label="search-filter-buttons"
+          name="search-filter-radio-buttons-group"
+        >
+          <FilterButton
+            type={ResultType.TRACK}
+            updateSearchType={updateSearchType}
+          />
+          <FilterButton
+            type={ResultType.ARTIST}
+            updateSearchType={updateSearchType}
+          />
+          <FilterButton
+            type={ResultType.ALBUM}
+            updateSearchType={updateSearchType}
+          />
+          <FilterButton
+            type={ResultType.PLAYLIST}
+            updateSearchType={updateSearchType}
+          />
+          <FilterButton
+            type={ResultType.MASHUP}
+            updateSearchType={updateSearchType}
+          />
+        </RadioGroup>
+      </FormControl>
+    </div>
+  );
+}
+
 function SearchBar({
   handleViewChange,
   updateResultsCallback,
@@ -48,14 +107,25 @@ function SearchBar({
   handleViewChange: () => void;
   updateResultsCallback: Function;
 }) {
+  const [searchType, setSearchType] = useState(ResultType.TRACK);
+  const [query, setQuery] = useState('');
+
+  useEffect(() => {
+    updateResultsCallback([]);
+    const updateAsync = async () => {
+      updateResultsCallback(await searchSpotifyFor(query, searchType));
+    };
+
+    updateAsync().catch(console.error);
+  }),
+    [query, searchType];
+
   return (
     <div style={{ padding: '6px' }}>
       <TextField
-        label="Search Spotify"
+        label="Search"
         fullWidth={true}
-        onChange={async (event) =>
-          updateResultsCallback(await searchSpotifyFor(event.target.value))
-        }
+        onChange={async (event) => setQuery(event.target.value)}
         InputProps={{
           endAdornment: (
             <InputAdornment position="end">
@@ -69,6 +139,8 @@ function SearchBar({
           ),
         }}
       />
+      <SearchFilter updateSearchType={setSearchType} />
+      <Divider />
     </div>
   );
 }

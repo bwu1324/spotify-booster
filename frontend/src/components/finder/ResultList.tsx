@@ -14,6 +14,7 @@ function renderResult(result: Result): JSX.Element {
 }
 
 function ResultList({ results }: { results: Array<Result> }) {
+  console.log('Results: ', results);
   return (
     <div
       style={{

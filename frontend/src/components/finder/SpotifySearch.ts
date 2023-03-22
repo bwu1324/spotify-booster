@@ -1,10 +1,10 @@
 import axios from 'axios';
 import { getCookie } from '../login/Cookie';
-import { Result, ResultType } from './util';
+import { Result, ResultType, resultTypeToString } from './util';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.
-export async function searchSpotifyFor(query: string) {
+export async function searchSpotifyFor(query: string, type: ResultType) {
   // This happens when you type in a search query, then delete it all. You are
   // searching for nothing.
   if (query.length === 0) {
@@ -16,7 +16,11 @@ export async function searchSpotifyFor(query: string) {
     return await axios
       .get('https://api.spotify.com/v1/search', {
         // Get limit number of results of each given type.
-        params: { q: query, type: 'track,artist,album,playlist', limit: 5 },
+        params: {
+          q: query,
+          type: resultTypeToString(type).toLowerCase(),
+          limit: 10,
+        },
         // Give Spotify our access token.
         headers: {
           Authorization: `Bearer ${getCookie('spotify_access_token')}`,
@@ -35,18 +39,22 @@ function convertSpotifyResults(item: any): Array<Result> {
   const results: Array<Result> = [];
   // Each object returned from Spotify needs to be handled uniqely, so each of
   // these must be separately handled.
-  item.tracks.items.map((track: any) => {
-    results.push(convertSpotifyItem(ResultType.TRACK, track));
-  });
-  item.artists.items.map((artist: any) => {
-    results.push(convertSpotifyItem(ResultType.ARTIST, artist));
-  });
-  item.albums.items.map((album: any) => {
-    results.push(convertSpotifyItem(ResultType.ALBUM, album));
-  });
-  item.playlists.items.map((playlist: any) => {
-    results.push(convertSpotifyItem(ResultType.PLAYLIST, playlist));
-  });
+  if (item.tracks)
+    item.tracks.items.map((track: any) => {
+      results.push(convertSpotifyItem(ResultType.TRACK, track));
+    });
+  if (item.artists)
+    item.artists.items.map((artist: any) => {
+      results.push(convertSpotifyItem(ResultType.ARTIST, artist));
+    });
+  if (item.albums)
+    item.albums.items.map((album: any) => {
+      results.push(convertSpotifyItem(ResultType.ALBUM, album));
+    });
+  if (item.playlists)
+    item.playlists.items.map((playlist: any) => {
+      results.push(convertSpotifyItem(ResultType.PLAYLIST, playlist));
+    });
 
   return results;
 }
