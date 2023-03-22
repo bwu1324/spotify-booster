@@ -1,7 +1,7 @@
 // Component for the list shown in the finder.
 
-import { List, ListItem, ListItemText } from '@mui/material';
 import React from 'react';
+import { List, ListItem, ListItemText } from '@mui/material';
 import { Result } from './util';
 
 // Used for rendering each result.

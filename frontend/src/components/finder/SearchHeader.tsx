@@ -1,12 +1,13 @@
 // Component for the header of the finder. Either a search bar or the title of
 // the current mashup.
 
-import React, { ReactElement, useEffect, useState } from 'react';
+import React, { ReactElement } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import Search from '@mui/icons-material/Search';
+import { useTheme } from '@mui/material/styles';
 import {
-  Divider,
   FormControl,
   FormControlLabel,
-  FormLabel,
   IconButton,
   InputAdornment,
   Radio,
@@ -16,12 +17,9 @@ import {
   Typography,
 } from '@mui/material';
 import { FinderView } from './Finder';
-import CloseIcon from '@mui/icons-material/Close';
-import Search from '@mui/icons-material/Search';
-import { useTheme } from '@mui/material/styles';
-import { searchSpotifyFor } from './SpotifySearch';
-import { Result, ResultType, resultTypeToString } from './util';
+import { ResultType, resultTypeToString } from './util';
 
+// Reusable button component for the side of the search bar, etc.
 function SideButton({
   icon,
   onClick,
@@ -47,6 +45,7 @@ function SideButton({
   );
 }
 
+// Return a radio button for filtering search results.
 function getFilterButton(type: ResultType, updateSearchType: Function) {
   return (
     <FormControlLabel
@@ -59,16 +58,13 @@ function getFilterButton(type: ResultType, updateSearchType: Function) {
   );
 }
 
+// Button group of radio button search filters.
 function SearchFilter({
-  query,
   searchType,
   updateSearchType,
-  updateResults,
 }: {
-  query: string;
   searchType: ResultType;
   updateSearchType: Function;
-  updateResults: Function;
 }) {
   return (
     <div style={{ padding: '6px' }}>
@@ -78,15 +74,13 @@ function SearchFilter({
           row
           aria-label="search-filter-buttons"
           name="search-filter-radio-buttons-group"
-          // onChange={async (newType) => {
-          //   console.log(newType);
-          //   await updateSearchType(newType);
-          //   updateResults(await searchSpotifyFor(query, newType));
-          // }}
         >
-          {Array.from(Array(5).keys()).map((searchType) =>
-            getFilterButton(searchType, updateSearchType)
-          )}
+          {
+            // Radio button for each of the first 5 SearchType variants.
+            Array.from(Array(5).keys()).map((searchType) =>
+              getFilterButton(searchType, updateSearchType)
+            )
+          }
         </RadioGroup>
       </FormControl>
     </div>
@@ -95,16 +89,12 @@ function SearchFilter({
 
 function SearchBar({
   query,
-  searchType,
   handleViewChange,
   updateQuery,
-  updateResults,
 }: {
   query: string;
-  searchType: ResultType;
   handleViewChange: () => void;
   updateQuery: Function;
-  updateResults: Function;
 }) {
   return (
     <TextField
@@ -172,7 +162,6 @@ function SearchHeader({
   handleViewChange,
   updateQuery,
   updateSearchType,
-  updateResults,
   mashupID,
 }: {
   view: number;
@@ -181,7 +170,6 @@ function SearchHeader({
   handleViewChange: Function;
   updateQuery: Function;
   updateSearchType: Function;
-  updateResults: Function;
   mashupID: string;
 }) {
   switch (view) {
@@ -190,16 +178,12 @@ function SearchHeader({
         <div style={{ padding: '6px' }}>
           <SearchBar
             query={query}
-            searchType={searchType}
             handleViewChange={() => handleViewChange(FinderView.MASHUP)}
             updateQuery={updateQuery}
-            updateResults={updateResults}
           />
           <SearchFilter
-            query={query}
             searchType={searchType}
             updateSearchType={updateSearchType}
-            updateResults={updateResults}
           />
         </div>
       );

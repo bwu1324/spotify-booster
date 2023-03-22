@@ -2,13 +2,13 @@
 // either the search bar and search results, or the current mashup and all the
 // songs in the mashup.
 
+import React, { useState } from 'react';
 import { Divider, Paper } from '@mui/material';
-import React, { useEffect, useState } from 'react';
+import { useTheme } from '@mui/material/styles';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
-import { useTheme } from '@mui/material/styles';
-import { ResultType } from './util';
 import { searchSpotifyFor } from './SpotifySearch';
+import { ResultType } from './util';
 
 // Possible values for what the Finder can display.
 export enum FinderView {
@@ -17,8 +17,11 @@ export enum FinderView {
 }
 
 function Finder() {
+  // What screen the Finder should display.
   const [view, setView] = useState(FinderView.SEARCH);
+  // Current query for the search bar.
   const [query, setQuery] = useState('');
+  // Current search filter.
   const [searchType, setSearchType] = useState(ResultType.Track);
   const mashupID = 'Example Mashup Title';
   const [results, setResults] = useState([
@@ -30,6 +33,8 @@ function Finder() {
     setView(newView);
     switch (newView) {
       case FinderView.SEARCH:
+        // Prevent incorrect results from being displayed while waiting for a
+        // response from Spotify.
         setResults([]);
         setResults(await searchSpotifyFor(query, searchType));
         break;
@@ -70,7 +75,6 @@ function Finder() {
           setSearchType(searchType);
           setResults(await searchSpotifyFor(query, searchType));
         }}
-        updateResults={setResults}
         mashupID={mashupID}
       />
       <Divider />
