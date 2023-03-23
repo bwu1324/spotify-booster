@@ -157,9 +157,6 @@ export default class Logger {
       );
     }
 
-    // Done here if logging to console is not needed
-    if (!LOG_CONSOLE) return;
-
     // Add some colors to console output
     winston.addColors({
       debug: 'blue',
@@ -169,6 +166,7 @@ export default class Logger {
     });
     this.logger_.add(
       new winston.transports.Console({
+        silent: !LOG_CONSOLE,
         format: winston.format.combine(
           winston.format.errors({ stack: true }),
           winston.format.colorize(),
