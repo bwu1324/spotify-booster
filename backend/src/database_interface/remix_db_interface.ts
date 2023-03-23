@@ -1,6 +1,6 @@
 import crypto from 'crypto';
 
-import SQLiteInterface from './sqlite_interface';
+import SQLiteInterface from '../sqlite_interface/sqlite_interface';
 
 /**
  * RemixDBInterface() - Partial definition of DatabaseInterface
