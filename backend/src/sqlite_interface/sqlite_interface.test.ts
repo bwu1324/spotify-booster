@@ -138,7 +138,6 @@ describe('SQLite Interface', () => {
     );
 
     const rows = await sqlite_interface.dbAll('SELECT * FROM test_table0', {});
-    console.log(rows);
     const expected_rows = [{ col1: 'some string', col2: 0 }];
     assert(
       arraysMatchUnordered(
