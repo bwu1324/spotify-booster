@@ -3,7 +3,7 @@
 // songs in the mashup.
 
 import React, { useState } from 'react';
-import { Divider, Paper } from '@mui/material';
+import { Paper } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
