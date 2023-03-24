@@ -8,6 +8,7 @@
     "lint: run eslint to check code style",
     "fix: run eslint to check code style and fix fixable errors",
     "build: run typescript to convert typescript to javascript",
+    "clean: have typescript cleanup old .js files in build directory",
     "pretest: need to build code before running tests",
     "test: use mocha to run tests",
     "posttest: run eslint to check code style after testing",
@@ -18,7 +19,8 @@
   "scripts": {
     "lint": "eslint ./**/*.ts",
     "fix": "eslint ./**/*.ts --fix",
-    "build": "tsc",
+    "build": "tsc --build",
+    "clean": "tsc --build --clean",
     "pretest": "npm run build",
     "test": "mocha --require source-map-support/register ./build/**/*test.js",
     "posttest": "npm run lint",
@@ -43,6 +45,7 @@
     "@types/fs-extra": "^11.0.1",
     "@types/mocha": "^10.0.1",
     "@types/node": "^14.18.36",
+    "@types/sinon": "^10.0.13",
     "@types/sqlite3": "^3.1.8",
     "@types/supertest": "^2.0.12",
     "@types/winston": "^2.4.4",
@@ -55,6 +58,7 @@
     "gts": "^3.1.1",
     "mocha": "^10.2.0",
     "nyc": "^15.1.0",
+    "sinon": "^15.0.2",
     "source-map-support": "^0.5.21",
     "supertest": "^6.3.3",
     "typescript": "~4.7.0"

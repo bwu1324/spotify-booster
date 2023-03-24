@@ -2,6 +2,11 @@ import { assert } from 'chai';
 import request from 'supertest';
 import fs from 'fs-extra';
 import path from 'path';
+import sinon from 'sinon';
+import express from 'express';
+
+import * as createRemixRouter from '../remix_api/remix_api';
+import * as Logger from '../logger/logger';
 
 const TEMP_FILE_DIRECTORY = path.join(__dirname, 'test_webserver');
 
@@ -55,6 +60,10 @@ before(async () => {
   } catch {
     /* */
   }
+});
+
+afterEach(() => {
+  sinon.restore();
 });
 
 // delete temporary directory after running tests
@@ -133,5 +142,53 @@ describe('Basic Web Server', () => {
         resolve();
       });
     });
+  });
+});
+
+describe('Web Logger', () => {
+  it('logs error when express encounters an error', async () => {
+    sinon.stub(createRemixRouter, 'default').callsFake(() => {
+      const router = express.Router();
+      router.get('/error', () => {
+        throw new Error('Some Error');
+      });
+      return router;
+    });
+
+    const spy = sinon.spy();
+    sinon.stub(Logger, 'default').callsFake(() => {
+      return {
+        error: spy,
+        debug: () => {
+          return;
+        },
+        info: () => {
+          return;
+        },
+        warn: () => {
+          return;
+        },
+        fatal: () => {
+          return;
+        },
+      };
+    });
+
+    const server = StartWebServer(
+      DB_LOCATION,
+      WEB_STATIC_PATH,
+      WEB_INDEX_PATH,
+      WEB_PORT
+    );
+
+    const req = request(TEST_URL);
+    await req.get('/error');
+
+    assert.equal(spy.callCount, 1, 'Calls error logger once');
+    assert.throws(() => {
+      throw spy.getCall(0).args[1];
+    }, 'Some Error');
+
+    server.close();
   });
 });

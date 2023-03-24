@@ -27,7 +27,8 @@
                 "allowModules": [
                     "chai",
                     "supertest",
-                    "chai-as-promised"
+                    "chai-as-promised",
+                    "sinon"
                 ]
             }
         ]

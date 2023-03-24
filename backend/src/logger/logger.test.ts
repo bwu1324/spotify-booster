@@ -24,6 +24,7 @@ before(async () => {
   process.env.ZIP_LOGS = 'false';
   process.env.LOG_MAX_SIZE = '20m';
   process.env.LOG_MAX_FILES = '5';
+  process.env.NODE_ENV = 'test';
 });
 
 // delete temporary log directory after running tests
