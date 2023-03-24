@@ -17,6 +17,13 @@ const NO_RESULTS: Result[] = [
     id: 'N/A',
   },
 ];
+const LOADING_RESULTS: Result[] = [
+  {
+    resultType: ResultType.None,
+    name: 'Loading...',
+    id: 'N/A',
+  },
+];
 
 // Possible values for what the Finder can display.
 export enum FinderView {
@@ -55,10 +62,15 @@ function Finder() {
   }
 
   async function updateResults(query: string, searchType: ResultType) {
-    setResults([]);
-    if (searchType === ResultType.Mashup) {
+    setResults(LOADING_RESULTS);
+    if (query === '') {
+      // Don't search for anything if there is no query.
+      setResults([]);
+    } else if (searchType === ResultType.Mashup) {
+      // Don't search Spotify for mashups.
       setResults(NO_RESULTS);
     } else {
+      // Search Spotify given params.
       const response = await searchSpotifyFor(query, searchType);
       if (response.length === 0) setResults(NO_RESULTS);
       else setResults(response);
@@ -92,7 +104,7 @@ function Finder() {
         }}
         mashupID={mashupID}
       />
-      <Divider />
+
       <ResultList results={results} />
     </Paper>
   );

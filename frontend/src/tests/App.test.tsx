@@ -13,15 +13,20 @@ test('renders search bar, and search bar buttons work', () => {
   render(<App />);
   const searchBox = screen.getByLabelText('Search');
   expect(searchBox).toBeInTheDocument();
-  const closeSearchButton = screen.getByLabelText('close');
-  expect(closeSearchButton).toBeInTheDocument();
-  fireEvent.click(closeSearchButton);
-  expect(searchBox).not.toBeInTheDocument();
+  const clearSearchButton = screen.getByLabelText('clear');
+  expect(clearSearchButton).toBeInTheDocument();
+});
 
-  const searchButton = screen.getByLabelText('search');
-  expect(searchButton).toBeInTheDocument();
-  const mashupTitle = screen.getByLabelText('mashup title');
-  expect(mashupTitle).toBeInTheDocument();
-  fireEvent.click(searchButton);
-  expect(mashupTitle).not.toBeInTheDocument();
+test('renders filter buttons', () => {
+  render(<App />);
+  const track = screen.getByLabelText('Track');
+  const artist = screen.getByLabelText('Artist');
+  const album = screen.getByLabelText('Album');
+  const playist = screen.getByLabelText('Playlist');
+  const mashup = screen.getByLabelText('Mashup');
+  expect(track).toBeInTheDocument();
+  expect(artist).toBeInTheDocument();
+  expect(album).toBeInTheDocument();
+  expect(playist).toBeInTheDocument();
+  expect(mashup).toBeInTheDocument();
 });

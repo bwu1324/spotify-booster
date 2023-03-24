@@ -89,11 +89,9 @@ function SearchFilter({
 
 function SearchBar({
   query,
-  handleViewChange,
   updateQuery,
 }: {
   query: string;
-  handleViewChange: () => void;
   updateQuery: Function;
 }) {
   return (
@@ -109,9 +107,9 @@ function SearchBar({
           <InputAdornment position="end">
             <SideButton
               icon={<CloseIcon />}
-              onClick={handleViewChange}
-              title="Close search"
-              ariaLabel="close"
+              onClick={() => updateQuery('')}
+              title="Clear search"
+              ariaLabel="clear"
             />
           </InputAdornment>
         ),
@@ -176,11 +174,7 @@ function SearchHeader({
     case FinderView.SEARCH:
       return (
         <div style={{ padding: '6px' }}>
-          <SearchBar
-            query={query}
-            handleViewChange={() => handleViewChange(FinderView.MASHUP)}
-            updateQuery={updateQuery}
-          />
+          <SearchBar query={query} updateQuery={updateQuery} />
           <SearchFilter
             searchType={searchType}
             updateSearchType={updateSearchType}
