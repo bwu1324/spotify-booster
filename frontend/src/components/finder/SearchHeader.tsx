@@ -2,20 +2,24 @@
 // the current mashup.
 
 import React, { ReactElement } from 'react';
+import CloseIcon from '@mui/icons-material/Close';
+import Search from '@mui/icons-material/Search';
+import { useTheme } from '@mui/material/styles';
 import {
-  Divider,
+  FormControl,
+  FormControlLabel,
   IconButton,
   InputAdornment,
+  Radio,
+  RadioGroup,
   TextField,
   Tooltip,
   Typography,
 } from '@mui/material';
 import { FinderView } from './Finder';
-import CloseIcon from '@mui/icons-material/Close';
-import Search from '@mui/icons-material/Search';
-import { useTheme } from '@mui/material/styles';
-import { searchSpotifyFor } from './SpotifySearch';
+import { ResultType } from './util';
 
+// Reusable button component for the side of the search bar, etc.
 function SideButton({
   icon,
   onClick,
@@ -41,35 +45,76 @@ function SideButton({
   );
 }
 
-function SearchBar({
-  handleViewChange,
-  updateResultsCallback,
+// Return a radio button for filtering search results.
+function getFilterButton(type: ResultType, updateSearchType: Function) {
+  return (
+    <FormControlLabel
+      value={ResultType[type].toLowerCase()}
+      key={ResultType[type].toLowerCase()}
+      control={<Radio />}
+      label={ResultType[type]}
+      onClick={() => updateSearchType(type)}
+    />
+  );
+}
+
+// Button group of radio button search filters.
+function SearchFilter({
+  searchType,
+  updateSearchType,
 }: {
-  handleViewChange: () => void;
-  updateResultsCallback: Function;
+  searchType: ResultType;
+  updateSearchType: Function;
 }) {
   return (
     <div style={{ padding: '6px' }}>
-      <TextField
-        label="Search Spotify"
-        fullWidth={true}
-        onChange={async (event) =>
-          updateResultsCallback(await searchSpotifyFor(event.target.value))
-        }
-        InputProps={{
-          endAdornment: (
-            <InputAdornment position="end">
-              <SideButton
-                icon={<CloseIcon />}
-                onClick={handleViewChange}
-                title="Close search"
-                ariaLabel="close"
-              />
-            </InputAdornment>
-          ),
-        }}
-      />
+      <FormControl>
+        <RadioGroup
+          value={ResultType[searchType].toLowerCase()}
+          row
+          aria-label="search-filter-buttons"
+          name="search-filter-radio-buttons-group"
+        >
+          {
+            // Radio button for each of the first 5 SearchType variants.
+            Array.from(Array(5).keys()).map((searchType) =>
+              getFilterButton(searchType, updateSearchType)
+            )
+          }
+        </RadioGroup>
+      </FormControl>
     </div>
+  );
+}
+
+function SearchBar({
+  query,
+  updateQuery,
+}: {
+  query: string;
+  updateQuery: Function;
+}) {
+  return (
+    <TextField
+      label="Search"
+      value={query}
+      fullWidth={true}
+      onChange={(event) => {
+        updateQuery(event.target.value);
+      }}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            <SideButton
+              icon={<CloseIcon />}
+              onClick={() => updateQuery('')}
+              title="Clear search"
+              ariaLabel="clear"
+            />
+          </InputAdornment>
+        ),
+      }}
+    />
   );
 }
 
@@ -104,29 +149,37 @@ function MashupHeader({
           ariaLabel="search"
         />
       </div>
-      <Divider />
     </>
   );
 }
 
 function SearchHeader({
   view,
+  query,
+  searchType,
   handleViewChange,
-  updateResultsCallback,
+  updateQuery,
+  updateSearchType,
   mashupID,
 }: {
   view: number;
+  query: string;
+  searchType: ResultType;
   handleViewChange: Function;
-  updateResultsCallback: Function;
+  updateQuery: Function;
+  updateSearchType: Function;
   mashupID: string;
 }) {
   switch (view) {
     case FinderView.SEARCH:
       return (
-        <SearchBar
-          handleViewChange={() => handleViewChange(FinderView.MASHUP)}
-          updateResultsCallback={updateResultsCallback}
-        />
+        <div style={{ padding: '6px' }}>
+          <SearchBar query={query} updateQuery={updateQuery} />
+          <SearchFilter
+            searchType={searchType}
+            updateSearchType={updateSearchType}
+          />
+        </div>
       );
     case FinderView.MASHUP:
       return (

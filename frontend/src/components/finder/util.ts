@@ -1,12 +1,12 @@
 // Different types of things that appear in the search results, that need to be
 // rendered differently.
 export enum ResultType {
-  TRACK,
-  ARTIST,
-  ALBUM,
-  PLAYLIST,
-  MASHUP,
-  NONE,
+  Track,
+  Artist,
+  Album,
+  Playlist,
+  Mashup,
+  None,
 }
 
 // Type that represents a result displayed in the finder list.
