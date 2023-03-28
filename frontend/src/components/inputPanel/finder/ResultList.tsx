@@ -2,7 +2,7 @@
 
 import React from 'react';
 import { Divider, List, ListItem, ListItemText, useTheme } from '@mui/material';
-import { Result, ResultType } from './util';
+import { Result, ResultType } from '../util';
 
 // Used for rendering each result.
 function renderResult(result: Result): JSX.Element {

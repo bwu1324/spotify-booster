@@ -1,6 +1,6 @@
 import axios from 'axios';
-import { getCookie } from '../login/Cookie';
-import { Result, ResultType } from './util';
+import { getCookie } from '../../login/Cookie';
+import { Result, ResultType } from '../util';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.

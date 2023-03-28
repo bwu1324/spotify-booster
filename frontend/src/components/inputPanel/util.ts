@@ -16,3 +16,9 @@ export type Result = {
   id: string; // If the Result is from Spotify, this is the Spotify ID.
   // TODO: add more information to display when we add that feature.
 };
+
+export const EmptyResult = {
+  resultType: ResultType.None,
+  name: '',
+  id: '',
+};

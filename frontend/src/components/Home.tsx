@@ -12,10 +12,11 @@ import '../App.scss';
 
 // Components import
 import Header from './Header';
-import Finder from './finder/Finder';
+import Finder from './inputPanel/finder/Finder';
 import Splash from './splash/Splash';
 import Player from './player/Player';
 import { getCookie } from '../components/login/Cookie';
+import InputPanel from './inputPanel/InputPanel';
 
 const styles = {
   parentGrid: {
@@ -48,7 +49,7 @@ function Home() {
         <>
           <Grid container style={styles.parentGrid}>
             <Grid item xs={4} sx={{ padding: 2 }} style={styles.childGrid}>
-              <Finder />
+              <InputPanel />
             </Grid>
             <Grid
               item
