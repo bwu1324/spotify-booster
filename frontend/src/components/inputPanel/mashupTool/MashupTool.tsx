@@ -13,52 +13,63 @@ const MashupInCreation: Result = {
   name: 'Mashup under Construction',
 };
 
-function MashupTool() {
+function MashupToolContent({
+  startSong,
+  songRepo,
+}: {
+  startSong: Result;
+  songRepo: Result;
+}) {
   // Current mashup ID. '...' if a mashup is being created.
   const [mashup, setMashup] = React.useState<Result>(EmptyResult);
-  const [view, setView] = React.useState(
-    <NoMashup handleCreateNew={setCreateView} />
-  );
 
-  function createMashup(startSong: Result, songRepo: Result) {
+  async function createMashup() {
     // TODO
     // Make sure we have a start song (track) and a song repo (playlist/album).
     // if (startSong.resultType !== ResultType.Track) {
     //   throw new Error('Start song must be a track.');
     // }
     // if (
-    //   songRepo.resultType !== ResultType.Playlist ||
+    //   songRepo.resultType !== ResultType.Playlist &&
     //   songRepo.resultType !== ResultType.Album
     // ) {
     //   throw new Error('Song repository must be a playlist or album.');
     // }
     // Create new mashup with the API.
     // Set the mashup ID to rerender correctly.
-
     const newMashup = {
       resultType: ResultType.Mashup,
       id: '123',
       name: 'Mashup 123',
     };
     setMashup(newMashup);
-    setView(<MashupInfo mashup={newMashup} handleClose={setNoMashupView} />);
   }
 
-  function setNoMashupView() {
-    setMashup(EmptyResult);
-    setView(<NoMashup handleCreateNew={setCreateView} />);
-  }
-
-  function setCreateView() {
-    setMashup(MashupInCreation);
-    setView(
+  if (mashup === EmptyResult) {
+    return <NoMashup handleCreateNew={() => setMashup(MashupInCreation)} />;
+  } else if (mashup === MashupInCreation) {
+    return (
       <MashupCreator
-        handleCancel={setNoMashupView}
+        startSong={startSong}
+        songRepo={songRepo}
+        handleCancel={() => setMashup(EmptyResult)}
         handleCreate={createMashup}
       />
     );
+  } else {
+    return (
+      <MashupInfo mashup={mashup} handleClose={() => setMashup(EmptyResult)} />
+    );
   }
+}
 
+function MashupTool({
+  startSong,
+  songRepo,
+}: {
+  startSong: Result;
+  songRepo: Result;
+}) {
   return (
     <Paper
       color={theme.palette.background.paper}
@@ -70,7 +81,7 @@ function MashupTool() {
       }}
       // elevation={5}
     >
-      {view}
+      <MashupToolContent startSong={startSong} songRepo={songRepo} />
     </Paper>
   );
 }

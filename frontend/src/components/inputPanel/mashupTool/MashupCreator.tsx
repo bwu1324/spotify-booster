@@ -3,15 +3,16 @@ import React from 'react';
 import { EmptyResult, Result, ResultType } from '../util';
 
 function MashupCreator({
+  startSong,
+  songRepo,
   handleCancel,
   handleCreate,
 }: {
+  startSong: Result;
+  songRepo: Result;
   handleCancel: Function;
   handleCreate: Function;
 }) {
-  const [startSong, setStartSong] = React.useState<Result>(EmptyResult);
-  const [songRepo, setSongRepo] = React.useState<Result>(EmptyResult);
-
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       {startSong === EmptyResult ? (
@@ -43,7 +44,7 @@ function MashupCreator({
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => handleCreate(startSong, songRepo)}
+          onClick={() => handleCreate()}
           sx={{ width: '50%' }}
         >
           Create

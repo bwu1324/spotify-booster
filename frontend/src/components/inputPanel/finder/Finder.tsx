@@ -32,7 +32,7 @@ export enum FinderView {
   MASHUP, // Display songs in the current mashup.
 }
 
-function Finder() {
+function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
   // What screen the Finder should display.
   const [view, setView] = useState(FinderView.SEARCH);
   // Current query for the search bar.
@@ -104,7 +104,7 @@ function Finder() {
         mashupID={mashupID}
       />
 
-      <ResultList results={results} />
+      <ResultList results={results} updateMashupParam={updateMashupParam} />
     </Paper>
   );
 }
