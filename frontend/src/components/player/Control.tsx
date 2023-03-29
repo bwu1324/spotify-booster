@@ -12,6 +12,7 @@ import { useState, useEffect, useRef } from 'react';
 
 import { Typography, Grid } from '@mui/material';
 import { ControllerContainer, AlbumArt } from '../../theme';
+import PlaybackBar from './Playback';
 
 export default function Control() {
   // outerHeight and outerWidth are the height and width of the ControllerPaper container
@@ -73,6 +74,8 @@ export default function Control() {
         >
           <Typography variant="h6">Song Title</Typography>
           <Typography variant="subtitle1">Artist Name</Typography>
+
+          <PlaybackBar />
         </Grid>
       </Grid>
     </ControllerContainer>
