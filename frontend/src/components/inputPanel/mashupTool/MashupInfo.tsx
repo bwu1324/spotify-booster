@@ -11,7 +11,10 @@ function MashupInfo({
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
-      <Typography>{mashup.name}</Typography>
+      <Typography>
+        <b>Mashup: </b>
+        {mashup.name}
+      </Typography>
       <Divider />
       <Button
         variant="outlined"

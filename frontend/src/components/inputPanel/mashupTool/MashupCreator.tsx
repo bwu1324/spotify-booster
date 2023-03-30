@@ -1,6 +1,6 @@
 import { Button, Divider, TextField, Typography } from '@mui/material';
 import React from 'react';
-import { EmptyResult, Result, ResultType } from '../util';
+import { EmptyResult, Result } from '../util';
 
 function getMashupNameError(name: string | null) {
   if (name === null) return '';
@@ -64,19 +64,23 @@ function MashupCreator({
       {startSong === EmptyResult ? (
         <Typography>Choose a song with the search box.</Typography>
       ) : (
-        <Typography>Start song: {startSong.name}</Typography>
+        <Typography>
+          <b>Start song: </b>
+          {startSong.name}
+        </Typography>
       )}
       {songRepo === EmptyResult ? (
         <Typography>Choose a playlist/album with the search box.</Typography>
       ) : (
-        <Typography>Song Repository: {songRepo.name}</Typography>
+        <Typography>
+          <b>Song Repository: </b>
+          {songRepo.name}
+        </Typography>
       )}
-      {/* <Typography>Create a name for your mashup:</Typography> */}
       <Divider />
       <div
         style={{
           display: 'flex',
-          // flexDirection: 'row',
           gap: 10,
         }}
       >

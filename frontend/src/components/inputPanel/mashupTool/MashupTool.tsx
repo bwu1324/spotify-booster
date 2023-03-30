@@ -26,7 +26,6 @@ function MashupToolContent({
   const [mashup, setMashup] = React.useState<Result>(EmptyResult);
 
   async function createMashup(name: string) {
-    // TODO
     // Make sure we have a start song (track) and a song repo (playlist/album).
     if (startSong.resultType !== ResultType.Track) {
       throw new Error('Start song must be a track.');
@@ -37,17 +36,26 @@ function MashupToolContent({
     ) {
       throw new Error('Song repository must be a playlist or album.');
     }
+
     // Create new mashup with the API.
-
-    // axios.post(backend_config.base_url + 'remixapi/createRemix', {name: });
-
-    // Set the mashup ID to rerender correctly.
-    const newMashup = {
-      resultType: ResultType.Mashup,
-      id: '123',
-      name: name,
-    };
-    setMashup(newMashup);
+    try {
+      axios
+        .post(backend_config.base_url + 'remixapi/createRemix', null, {
+          params: { name: name },
+        })
+        .then((response) => {
+          // console.log(response);
+          const newMashup = {
+            resultType: ResultType.Mashup,
+            id: response.data.remix_id,
+            name: name,
+          };
+          // Set the mashup ID to rerender correctly.
+          setMashup(newMashup);
+        });
+    } catch (error) {
+      console.error(error);
+    }
   }
 
   if (mashup === EmptyResult) {
