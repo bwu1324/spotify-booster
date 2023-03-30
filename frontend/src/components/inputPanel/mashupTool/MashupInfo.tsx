@@ -1,5 +1,10 @@
-import { Button, Divider, Typography } from '@mui/material';
+/**
+ * This file contains the MashupInfo component, which is shown when the user has
+ * selected a mashup. It shows details about the mashup, like its name.
+ */
+
 import React from 'react';
+import { Button, Divider, Typography } from '@mui/material';
 import { Result } from '../util';
 
 function MashupInfo({

@@ -1,7 +1,15 @@
-import { Button, Divider, TextField, Typography } from '@mui/material';
 import React from 'react';
+import { Button, Divider, TextField, Typography } from '@mui/material';
 import { EmptyResult, Result } from '../util';
 
+/**
+ * This function validates the name of a mashup. We can't just use an array of
+ * invalid characters, because different name issues should give different error
+ * text.
+ *
+ * @param name Current mashup name.
+ * @returns Error message if there is an error, empty string otherwise.
+ */
 function getMashupNameError(name: string | null) {
   if (name === null) return '';
   if (name.length === 0) return 'Name cannot be empty.';
@@ -37,6 +45,28 @@ function getMashupNameError(name: string | null) {
   return '';
 }
 
+/**
+ * Show the currently selcted mashup setting (start song or song repo).
+ * Separate function to prevent code duplication.
+ *
+ * @param setting The currently selected mashup setting.
+ * @param unset_str The string to display if the setting is not yet set.
+ * @param set_str The string to display if the setting is set.
+ */
+function getMashupSetting(
+  setting: Result,
+  unset_str: string,
+  set_str: string
+): JSX.Element {
+  if (setting === EmptyResult) return <Typography>{unset_str}</Typography>;
+  return (
+    <Typography>
+      <b>{set_str}</b>
+      {setting.name}
+    </Typography>
+  );
+}
+
 function MashupCreator({
   startSong,
   songRepo,
@@ -48,7 +78,9 @@ function MashupCreator({
   handleCancel: Function;
   handleCreate: Function;
 }) {
+  // The currently set mashup name.
   const [name, setName] = React.useState<string | null>(null);
+  // If the name is invalid, this will contain the error message.
   const nameError = getMashupNameError(name);
 
   return (
@@ -61,21 +93,15 @@ function MashupCreator({
         error={nameError.length !== 0}
         helperText={nameError ? nameError : ''}
       />
-      {startSong === EmptyResult ? (
-        <Typography>Choose a song with the search box.</Typography>
-      ) : (
-        <Typography>
-          <b>Start song: </b>
-          {startSong.name}
-        </Typography>
+      {getMashupSetting(
+        startSong,
+        'Choose a song with the search box.',
+        'Start song: '
       )}
-      {songRepo === EmptyResult ? (
-        <Typography>Choose a playlist/album with the search box.</Typography>
-      ) : (
-        <Typography>
-          <b>Song Repository: </b>
-          {songRepo.name}
-        </Typography>
+      {getMashupSetting(
+        songRepo,
+        'Choose a song repository with the search box.',
+        'Song repository: '
       )}
       <Divider />
       <div

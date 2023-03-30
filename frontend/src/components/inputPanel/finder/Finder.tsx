@@ -86,7 +86,6 @@ function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
         display: 'flex', // Prevent the list from overflowing.
         flexDirection: 'column',
       }}
-      // elevation={5}
     >
       <SearchHeader
         view={view}
