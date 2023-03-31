@@ -57,9 +57,13 @@ function MashupToolContent({
     // Create new mashup with the API.
     try {
       axios
-        .post(backend_config.base_url + 'remixapi/createRemix', null, {
-          params: { name: name },
-        })
+        .post(
+          backend_config.base_url + 'remixapi/createRemix',
+          { headers: { Cookie: 'spotify_access_token=abc;' } },
+          {
+            params: { name: name },
+          }
+        )
         .then((response) => {
           // console.log(response);
           const newMashup = {
