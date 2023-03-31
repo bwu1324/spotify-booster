@@ -42,6 +42,13 @@ function MashupToolContent({
   // Current mashup ID. '...' if a mashup is in the creation process.
   const [mashup, setMashup] = React.useState<Result>(EmptyResult);
 
+  // We need axios instance because we need to send cookies in the OPTIONS
+  // request, so we need to specify `withCredentials: true` generally.
+  const axiosInstance = axios.create({
+    baseURL: backend_config.base_url,
+    withCredentials: true,
+  });
+
   async function createMashup(name: string) {
     // Make sure we have a start song (track) and a song repo (playlist/album).
     if (startSong.resultType !== ResultType.Track) {
@@ -56,14 +63,8 @@ function MashupToolContent({
 
     // Create new mashup with the API.
     try {
-      axios
-        .post(
-          backend_config.base_url + 'remixapi/createRemix',
-          { headers: { Cookie: 'spotify_access_token=abc;' } },
-          {
-            params: { name: name },
-          }
-        )
+      axiosInstance
+        .post('remixapi/createRemix', null, { params: { name: name } })
         .then((response) => {
           // console.log(response);
           const newMashup = {
