@@ -5,17 +5,17 @@ import TrackDBInterface from './track_db_interface';
 const TABLES = [
   {
     name: 'tracks',
-    cols: '(remix_id STRING NOT NULL, track_id STRING NOT NULL, start_ms INT, end_ms INT)',
+    cols: '(mashup_id STRING NOT NULL, track_id STRING NOT NULL, start_ms INT, end_ms INT)',
   },
   {
-    name: 'remixes',
-    cols: '(remix_id STRING NOT NULL, name STRING NOT NULL)',
+    name: 'mashups',
+    cols: '(mashup_id STRING NOT NULL, name STRING NOT NULL)',
   },
 ];
 
 /**
- * DatabaseInterface() - SQLite Abstraction for saving user remixes
- * Contains methods for Creating/Deleting/Editing User Remixes the tracks they contain
+ * DatabaseInterface() - SQLite Abstraction for saving user mashups
+ * Contains methods for Creating/Deleting/Editing User Mashpes the tracks they contain
  */
 export default class DatabaseInterface extends TrackDBInterface {
   /**

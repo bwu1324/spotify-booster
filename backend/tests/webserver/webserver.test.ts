@@ -4,7 +4,7 @@ import path from 'path';
 import sinon from 'sinon';
 import express from 'express';
 
-import * as createRemixRouter from '../../src/remix_api/remix_api';
+import * as createMashupRouter from '../../src/mashup_api/mashup_api';
 import * as cors from '../../src/webserver/cors_import';
 
 import StartWebServer from '../../src/webserver/webserver';
@@ -92,12 +92,12 @@ describe('Web Server', () => {
 
   describe('Web Logger', () => {
     it('logs error when express encounters an error', async function () {
-      sinon.stub(createRemixRouter, 'default').callsFake(async () => {
-        const remix_api = express.Router();
-        remix_api.get('/error', () => {
+      sinon.stub(createMashupRouter, 'default').callsFake(async () => {
+        const mashup_api = express.Router();
+        mashup_api.get('/error', () => {
           throw new Error('Some Error');
         });
-        return { remix_api, db: undefined };
+        return { mashup_api, db: undefined };
       });
 
       const server = await StartWebServer();

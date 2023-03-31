@@ -7,9 +7,9 @@ import { createDirectory, removeDirectory } from '../test_utils/hooks/create_tes
 import { stubLogger } from '../test_utils/stubs/stub_logger.test';
 import uniqueID from '../test_utils/unique_id.test';
 
-const TEST_DB_DIRECTORY = path.join(__dirname, 'test_remix_db_interface');
+const TEST_DB_DIRECTORY = path.join(__dirname, 'test_mashup_db_interface');
 
-describe('Remix DB Interface', () => {
+describe('Mashup DB Interface', () => {
   before(() => {
     createDirectory(TEST_DB_DIRECTORY);
   });
@@ -28,18 +28,18 @@ describe('Remix DB Interface', () => {
     removeDirectory(TEST_DB_DIRECTORY);
   });
 
-  describe('Creating Remixes', () => {
-    it('creates a new remix with a unique id and given name and trims name', async function () {
-      const id0 = await this.db.createRemix('test_remix');
-      const id1 = await this.db.createRemix(' test_remix ');
+  describe('Creating Mashpes', () => {
+    it('creates a new mashup with a unique id and given name and trims name', async function () {
+      const id0 = await this.db.createMashup('test_mashup');
+      const id1 = await this.db.createMashup(' test_mashup ');
 
-      assert.equal(await this.db.remixCount(), 2, 'Creates exactly 2 remixes');
-      assert.notEqual(id0, id1, 'Remix ids are unique');
-      assert.equal(await this.db.getRemixName(id0), 'test_remix', 'Database contains new remix 0');
-      assert.equal(await this.db.getRemixName(id1), 'test_remix', 'Database contains new remix 1');
+      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.notEqual(id0, id1, 'Mashup ids are unique');
+      assert.equal(await this.db.getMashupName(id0), 'test_mashup', 'Database contains new mashup 0');
+      assert.equal(await this.db.getMashupName(id1), 'test_mashup', 'Database contains new mashup 1');
     });
 
-    it('rejects blank remix name when creating remix', async function () {
+    it('rejects blank mashup name when creating mashup', async function () {
       const invalid_names = [
         '', // blank
         null, // null
@@ -49,15 +49,15 @@ describe('Remix DB Interface', () => {
         '\r',
       ];
       for (const name of invalid_names) {
-        await assert.isRejected(this.db.createRemix(name), 'Invalid Remix Name');
+        await assert.isRejected(this.db.createMashup(name), 'Invalid Mashup Name');
       }
 
-      assert.equal(await this.db.remixCount(), 0, 'Creates exactly 0 remixes');
+      assert.equal(await this.db.mashupCount(), 0, 'Creates exactly 0 mashups');
     });
 
-    it('rejects promise if getting name of invalid remix id', async function () {
-      const id0 = await this.db.createRemix('test_remix0');
-      const id1 = await this.db.createRemix('test_remix1');
+    it('rejects promise if getting name of invalid mashup id', async function () {
+      const id0 = await this.db.createMashup('test_mashup0');
+      const id1 = await this.db.createMashup('test_mashup1');
 
       const invalid_ids = [
         '', // blank
@@ -73,27 +73,27 @@ describe('Remix DB Interface', () => {
         crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
       ];
       for (const invalid of invalid_ids) {
-        await assert.isRejected(this.db.getRemixName(invalid), 'Invalid Remix Id');
+        await assert.isRejected(this.db.getMashupName(invalid), 'Invalid Mashup Id');
       }
 
-      assert.equal(await this.db.remixCount(), 2, 'Creates exactly 2 remixes');
-      assert.equal(await this.db.getRemixName(id0), 'test_remix0', 'Does not update other remixes');
-      assert.equal(await this.db.getRemixName(id1), 'test_remix1', 'Does not update other remixes');
+      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.getMashupName(id0), 'test_mashup0', 'Does not update other mashups');
+      assert.equal(await this.db.getMashupName(id1), 'test_mashup1', 'Does not update other mashups');
     });
   });
 
-  describe('Editing Remixes', () => {
+  describe('Editing Mashpes', () => {
     beforeEach(async function () {
-      this.id0 = await this.db.createRemix('test_remix0');
-      this.id1 = await this.db.createRemix('test_remix1');
+      this.id0 = await this.db.createMashup('test_mashup0');
+      this.id1 = await this.db.createMashup('test_mashup1');
     });
 
-    it('updates name of valid remix id with trimmed name', async function () {
-      await this.db.setRemixName(this.id0, ' new_name ');
+    it('updates name of valid mashup id with trimmed name', async function () {
+      await this.db.setMashupName(this.id0, ' new_name ');
 
-      assert.equal(await this.db.remixCount(), 2, 'Creates exactly 2 remixes');
-      assert.equal(await this.db.getRemixName(this.id0), 'new_name', 'Updates remix name with new name');
-      assert.equal(await this.db.getRemixName(this.id1), 'test_remix1', 'Does not update other remixes');
+      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.getMashupName(this.id0), 'new_name', 'Updates mashup name with new name');
+      assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
 
     it('rejects promise if changing name of with invalid name', async function () {
@@ -106,15 +106,15 @@ describe('Remix DB Interface', () => {
         '\r',
       ];
       for (const name of invalid_names) {
-        await assert.isRejected(this.db.setRemixName(this.id0, name), 'Invalid Remix Name');
+        await assert.isRejected(this.db.setMashupName(this.id0, name), 'Invalid Mashup Name');
       }
 
-      assert.equal(await this.db.remixCount(), 2, 'Creates exactly 2 remixes');
-      assert.equal(await this.db.getRemixName(this.id0), 'test_remix0', 'Does not update remix name with new name');
-      assert.equal(await this.db.getRemixName(this.id1), 'test_remix1', 'Does not update other remixes');
+      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not update mashup name with new name');
+      assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
 
-    it('rejects promise if changing name of invalid remix id', async function () {
+    it('rejects promise if changing name of invalid mashup id', async function () {
       const invalid_ids = [
         '', // blank
         '\n',
@@ -129,29 +129,29 @@ describe('Remix DB Interface', () => {
         crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
       ];
       for (const invalid of invalid_ids) {
-        await assert.isRejected(this.db.setRemixName(invalid, 'new_name'), 'Invalid Remix Id');
+        await assert.isRejected(this.db.setMashupName(invalid, 'new_name'), 'Invalid Mashup Id');
       }
 
-      assert.equal(await this.db.remixCount(), 2, 'Creates exactly 2 remixes');
-      assert.equal(await this.db.getRemixName(this.id0), 'test_remix0', 'Does not update remix name with new name');
-      assert.equal(await this.db.getRemixName(this.id1), 'test_remix1', 'Does not update other remixes');
+      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not update mashup name with new name');
+      assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
   });
 
-  describe('Deleting Remixes', () => {
+  describe('Deleting Mashpes', () => {
     beforeEach(async function () {
-      this.id0 = await this.db.createRemix('test_remix0');
-      this.id1 = await this.db.createRemix('test_remix1');
+      this.id0 = await this.db.createMashup('test_mashup0');
+      this.id1 = await this.db.createMashup('test_mashup1');
     });
 
-    it('deletes a valid remix id', async function () {
-      await this.db.deleteRemix(this.id0);
+    it('deletes a valid mashup id', async function () {
+      await this.db.deleteMashup(this.id0);
 
-      assert.equal(await this.db.remixCount(), 1, 'Exactly 1 remix remains');
-      assert.equal(await this.db.getRemixName(this.id1), 'test_remix1', 'Does not delete other remixes');
+      assert.equal(await this.db.mashupCount(), 1, 'Exactly 1 mashup remains');
+      assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not delete other mashups');
     });
 
-    it('rejects promise if deleting invalid remix id', async function () {
+    it('rejects promise if deleting invalid mashup id', async function () {
       const invalid_ids = [
         '', // blank
         '\n',
@@ -166,12 +166,12 @@ describe('Remix DB Interface', () => {
         crypto.createHash('sha256').update((100).toString()).digest('base64'), // correct format but non existing id
       ];
       for (const invalid of invalid_ids) {
-        await assert.isRejected(this.db.deleteRemix(invalid), 'Invalid Remix Id');
+        await assert.isRejected(this.db.deleteMashup(invalid), 'Invalid Mashup Id');
       }
 
-      assert.equal(await this.db.remixCount(), 2, 'Exactly 2 remixes remains');
-      assert.equal(await this.db.getRemixName(this.id0), 'test_remix0', 'Does not delete other remixes');
-      assert.equal(await this.db.getRemixName(this.id1), 'test_remix1', 'Does not delete other remixes');
+      assert.equal(await this.db.mashupCount(), 2, 'Exactly 2 mashups remains');
+      assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not delete other mashups');
+      assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not delete other mashups');
     });
   });
 });

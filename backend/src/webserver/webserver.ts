@@ -1,12 +1,11 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
-import cors from 'cors';
 
 import { env_config, web_server_config } from '../config/config';
 import Logger from '../logger/logger';
 import createWebLogger from './web_logger';
-import createRemixRouter from '../remix_api/remix_api';
+import createMashupRouter from '../mashup_api/mashup_api';
 import { CORS } from './cors_import';
 
 /**
@@ -31,7 +30,7 @@ function createHTTPServer(log: Logger) {
  * @returns express webserver
  */
 async function createExpressApp(webserver: http.Server, log: Logger) {
-  const { db, remix_api } = await createRemixRouter(log);
+  const { db, mashup_api } = await createMashupRouter(log);
   const { webLogError, webLogger } = createWebLogger(log);
 
   const app = express();
@@ -42,7 +41,7 @@ async function createExpressApp(webserver: http.Server, log: Logger) {
 
   app.use(express.static(web_server_config.static_path)); // setup static directory for webapp
   app.use(webLogger);
-  app.use(remix_api);
+  app.use(mashup_api);
 
   // serve homepage
   app.get('/', (res, req) => {
