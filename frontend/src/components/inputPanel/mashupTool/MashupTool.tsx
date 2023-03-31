@@ -64,12 +64,12 @@ function MashupToolContent({
     // Create new mashup with the API.
     try {
       axiosInstance
-        .post('remixapi/createRemix', null, { params: { name: name } })
+        .post('mashupapi/createMashup', null, { params: { name: name } })
         .then((response) => {
           // console.log(response);
           const newMashup = {
             resultType: ResultType.Mashup,
-            id: response.data.remix_id,
+            id: response.data.mashup_id,
             name: name,
           };
           // Set the mashup ID to rerender correctly.

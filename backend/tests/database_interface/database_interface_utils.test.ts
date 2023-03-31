@@ -16,10 +16,10 @@ export function matchTracks(a: TrackInfo, b: TrackInfo): boolean {
 /**
  * checkTrackDB() - Checks that track database contains the expected data
  * @param db - database to check
- * @param id0 - remix id of remix0
- * @param id1 - remix id of remix1
- * @param expected0 - expected tracks in remix0
- * @param expected1 - rexpected tracks in remix1
+ * @param id0 - mashup id of mashup0
+ * @param id1 - mashup id of mashup1
+ * @param expected0 - expected tracks in mashup0
+ * @param expected1 - rexpected tracks in mashup1
  * @param total_tracks - total tracks expected in database
  */
 export async function checkTrackDB(
@@ -31,6 +31,6 @@ export async function checkTrackDB(
   total_tracks: number
 ) {
   assert.equal(await db.totalTrackCount(), total_tracks, `Database contains ${total_tracks} tracks`);
-  arraysMatchUnordered(await db.getRemixTracks(id0), expected0, matchTracks, 'Remix 0 Tracks');
-  arraysMatchUnordered(await db.getRemixTracks(id1), expected1, matchTracks, 'Remix 1 Tracks');
+  arraysMatchUnordered(await db.getMashupTracks(id0), expected0, matchTracks, 'Mashup 0 Tracks');
+  arraysMatchUnordered(await db.getMashupTracks(id1), expected1, matchTracks, 'Mashup 1 Tracks');
 }
