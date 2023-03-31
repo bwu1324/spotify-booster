@@ -7,16 +7,12 @@ import SQLiteInterface from '../sqlite_interface/sqlite_interface';
  * Handles creating/editing/deleting mashups
  */
 export default class MashupDBInterface extends SQLiteInterface {
-  // unlikely that 10 new mashups will be created every millisecond, so this should guarantee a unique mashup_id
-  private mashup_id_gen_ = Date.now() * 10;
-
   /**
    * generateMashupId_() - generates a unique mashup id each time it is called
    * @returns - a unique mashup id
    */
   private generateMashupId_(): string {
-    this.mashup_id_gen_++;
-    return crypto.createHash('sha256').update(this.mashup_id_gen_.toString()).digest('base64url');
+    return crypto.randomUUID();
   }
 
   /**
