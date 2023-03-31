@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material/styles';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
 import { searchSpotifyFor } from './SpotifySearch';
-import { Result, ResultType } from './util';
+import { Result, ResultType } from '../util';
 
 const NO_RESULTS: Result[] = [
   {
@@ -32,7 +32,7 @@ export enum FinderView {
   MASHUP, // Display songs in the current mashup.
 }
 
-function Finder() {
+function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
   // What screen the Finder should display.
   const [view, setView] = useState(FinderView.SEARCH);
   // Current query for the search bar.
@@ -82,12 +82,10 @@ function Finder() {
     <Paper
       color={theme.palette.background.paper}
       sx={{
-        width: '100%',
         maxHeight: '100%',
         display: 'flex', // Prevent the list from overflowing.
         flexDirection: 'column',
       }}
-      elevation={5}
     >
       <SearchHeader
         view={view}
@@ -105,7 +103,7 @@ function Finder() {
         mashupID={mashupID}
       />
 
-      <ResultList results={results} />
+      <ResultList results={results} updateMashupParam={updateMashupParam} />
     </Paper>
   );
 }

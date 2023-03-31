@@ -1,6 +1,7 @@
 import express from 'express';
 import http from 'http';
 import path from 'path';
+import cors from 'cors';
 
 import { env_config, web_server_config } from '../config/config';
 import Logger from '../logger/logger';
