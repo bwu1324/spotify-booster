@@ -27,12 +27,26 @@ export default class TrackDBInterface extends MashupDBInterface {
   }
 
   /**
+   * assertTrackExists() - checks if mashup exists, track_id is not empty, and mashup includes the track, throws error otherwise
+   * @param mashup_id - mashup_id to check
+   * @param track_id - track_id to check
+   * @returns Promise that resolves once checked
+   */
+  protected async assertTrackExists(mashup_id: string, track_id: string): Promise<void> {
+    await this.assertMashupExists(mashup_id);
+    if (this.isEmpty(track_id)) return Promise.reject('Invalid Track Id');
+    if (!(await this.mashupIncludesTrack(mashup_id, track_id))) {
+      return Promise.reject(new Error('Track Does Not Exist In Mashup'));
+    }
+  }
+
+  /**
    * getMashupTracks() - gets all tracks of a mashup
    * @param mashup_id - unique mashup id
    * @returns Promise resolving to array of spotify track ids (rejected if an error occures)
    */
   async getMashupTracks(mashup_id: string): Promise<Array<TrackInfo>> {
-    await this.mashupExists(mashup_id);
+    await this.assertMashupExists(mashup_id);
 
     const rows = (await this.dbAll('SELECT track_id, start_ms, end_ms FROM tracks WHERE mashup_id = $mashup_id;', {
       $mashup_id: mashup_id,
@@ -56,7 +70,7 @@ export default class TrackDBInterface extends MashupDBInterface {
     }
 
     // check that track_id is not already in mashup
-    await this.mashupExists(mashup_id);
+    await this.assertMashupExists(mashup_id);
     if (await this.mashupIncludesTrack(mashup_id, track_id)) {
       this.log_.debug(`track_id ${track_id} exists in mashup already, refusing to create new track`);
       return Promise.reject(new Error('Track Id Exists In Mashup'));
@@ -77,11 +91,7 @@ export default class TrackDBInterface extends MashupDBInterface {
   async setStartMS(mashup_id: string, track_id: string, start_ms: number): Promise<void> {
     if (start_ms < 0) throw new Error('start_ms cannot be negative');
 
-    // check that track_id is in mashup
-    await this.mashupExists(mashup_id);
-    if (!(await this.mashupIncludesTrack(mashup_id, track_id))) {
-      return Promise.reject(new Error('Invalid Track Id'));
-    }
+    await this.assertTrackExists(mashup_id, track_id);
 
     await this.dbRun('UPDATE tracks SET start_ms = $start_ms WHERE mashup_id = $mashup_id AND track_id = $track_id', {
       $start_ms: start_ms,
@@ -98,11 +108,8 @@ export default class TrackDBInterface extends MashupDBInterface {
    */
   async setEndMS(mashup_id: string, track_id: string, end_ms: number): Promise<void> {
     if (end_ms < -1) throw new Error('end_ms cannot be less than -1');
-    // check that track_id is in mashup
-    await this.mashupExists(mashup_id);
-    if (!(await this.mashupIncludesTrack(mashup_id, track_id))) {
-      return Promise.reject(new Error('Invalid Track Id'));
-    }
+
+    await this.assertTrackExists(mashup_id, track_id);
 
     await this.dbRun('UPDATE tracks SET end_ms = $end_ms WHERE mashup_id = $mashup_id AND track_id = $track_id', {
       $end_ms: end_ms,
@@ -110,6 +117,7 @@ export default class TrackDBInterface extends MashupDBInterface {
       $track_id: track_id,
     });
   }
+
   /**
    * removeTrack() - removes a track from mashup
    * @param mashup_id - unique mashup id
@@ -119,11 +127,7 @@ export default class TrackDBInterface extends MashupDBInterface {
   async removeTrack(mashup_id: string, track_id: string): Promise<void> {
     this.log_.debug(`Removing track with track_id ${track_id} for mashup with mashup_id ${mashup_id}`);
 
-    // check that track_id is in mashup
-    await this.mashupExists(mashup_id);
-    if (!(await this.mashupIncludesTrack(mashup_id, track_id))) {
-      return Promise.reject(new Error('Invalid Track Id'));
-    }
+    await this.assertTrackExists(mashup_id, track_id);
 
     await this.dbRun('DELETE FROM tracks WHERE track_id = $track_id AND mashup_id = $mashup_id;', {
       $mashup_id: mashup_id,

@@ -118,14 +118,14 @@ describe('Mashup API Tracks', () => {
       arraysMatchUnordered(response1.body.tracks, this.default_tracks, matchTracks, 'Mashup Tracks');
     });
 
-    it('refuses to delete track with invalid track_id', async function () {
+    it('refuses to delete track not in mashup', async function () {
       const invalid_track_id = 'invalid';
       const response0 = await request(this.app).delete(
         `/mashupapi/removeTrack?mashup_id=${this.mashup_id}&track_id=${invalid_track_id}`
       );
 
       assert.equal(response0.statusCode, 400, 'Responds with bad request code');
-      assert.equal(response0.body.error_message, 'Invalid Track Id', 'Responds with error message');
+      assert.equal(response0.body.error_message, 'Track Does Not Exist In Mashup', 'Responds with error message');
 
       const response1 = await request(this.app).get(`/mashupapi/getMashupTracks?mashup_id=${this.mashup_id}`);
       arraysMatchUnordered(response1.body.tracks, this.default_tracks, matchTracks, 'Mashup Tracks');
@@ -193,7 +193,7 @@ describe('Mashup API Tracks', () => {
       assert.equal(response0.statusCode, 400, 'Responds with bad request code');
       assert.equal(response0.body.error_message, 'start_ms cannot be negative', 'Responds with error message');
       assert.equal(response1.statusCode, 400, 'Responds with bad request code');
-      assert.equal(response1.body.error_message, 'Invalid Track Id', 'Responds with error message');
+      assert.equal(response1.body.error_message, 'Track Does Not Exist In Mashup', 'Responds with error message');
       assert.equal(response2.statusCode, 400, 'Responds with bad request code');
       assert.equal(response2.body.error_message, 'Invalid Mashup Id', 'Responds with error message');
       assert.equal(response3.statusCode, 400, 'Responds with bad request code');
@@ -201,7 +201,7 @@ describe('Mashup API Tracks', () => {
 
     it('refuses to set invalid end data', async function () {
       const invalid_mashup_id = 'invalid';
-      const invalid_track_id = 'invalid;';
+      const invalid_track_id = 'invalid';
       const track_id = this.default_tracks[0].track_id;
       const response0 = await request(this.app).put(
         `/mashupapi/setEndMs?mashup_id=${this.mashup_id}&track_id=${track_id}&end_ms=${-2}`
@@ -219,7 +219,7 @@ describe('Mashup API Tracks', () => {
       assert.equal(response0.statusCode, 400, 'Responds with bad request code');
       assert.equal(response0.body.error_message, 'end_ms cannot be less than -1', 'Responds with error message');
       assert.equal(response1.statusCode, 400, 'Responds with bad request code');
-      assert.equal(response1.body.error_message, 'Invalid Track Id', 'Responds with error message');
+      assert.equal(response1.body.error_message, 'Track Does Not Exist In Mashup', 'Responds with error message');
       assert.equal(response2.statusCode, 400, 'Responds with bad request code');
       assert.equal(response2.body.error_message, 'Invalid Mashup Id', 'Responds with error message');
       assert.equal(response3.statusCode, 400, 'Responds with bad request code');

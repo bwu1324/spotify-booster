@@ -25,11 +25,11 @@ export default class MashupDBInterface extends SQLiteInterface {
   }
 
   /**
-   * mashupExists() - Checks if a mashup exists in the database
+   * assertMashupExists() - Checks if a mashup exists in the database, throw error if not
    * @param mashup_id - unique mashup id
    * @returns - Promise that resolves if mashup exists, throws error if not
    */
-  protected async mashupExists(mashup_id: string): Promise<void> {
+  protected async assertMashupExists(mashup_id: string): Promise<void> {
     try {
       await this.getMashupName(mashup_id);
     } catch {
@@ -90,7 +90,7 @@ export default class MashupDBInterface extends SQLiteInterface {
   async setMashupName(mashup_id: string, new_name: string): Promise<void> {
     this.log_.debug(`Updating mashup with mashup_id ${mashup_id} with name ${new_name}`);
 
-    await this.mashupExists(mashup_id);
+    await this.assertMashupExists(mashup_id);
 
     // check for invalid name
     if (this.isEmpty(new_name)) {
@@ -112,7 +112,7 @@ export default class MashupDBInterface extends SQLiteInterface {
   async deleteMashup(mashup_id: string): Promise<void> {
     this.log_.debug(`Deleting mashup with mashup_id ${mashup_id}`);
 
-    await this.mashupExists(mashup_id);
+    await this.assertMashupExists(mashup_id);
 
     await this.dbRun('DELETE FROM mashups WHERE mashup_id = $mashup_id;', {
       $mashup_id: mashup_id,
