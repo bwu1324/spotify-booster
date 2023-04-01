@@ -22,6 +22,14 @@ export default function createMashupsRouter(log: Logger, db: DatabaseInterface) 
   };
 
   router.get(
+    '/mashupapi/getUserMashups',
+    runMashupAPIFunction(async (req: AuthRequest) => {
+      const mashups = await db.getUserMashups(req.spotify_uid);
+      return { code: 200, res: { mashups } };
+    })
+  );
+
+  router.get(
     '/mashupapi/getMashupName',
     runAuthMashupAPIFunction(async (req: AuthRequest) => {
       const mashup_id = req.query.mashup_id as string;

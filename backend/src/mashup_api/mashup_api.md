@@ -1,4 +1,10 @@
 # Mashup API Documentation
+
+
+## Important: Authentication Is Required
+
+Ensure requests are sent with cookie: `"spotify_access_token"` set to valid spotify_api access_token
+
 ## Create Mashup
 Creates a new mashup
 ```http
@@ -24,8 +30,48 @@ POST: /mashupapi/createMashup?name=mashup_name
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (name was probably invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
+
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| none | | |
+
+### Response
+```js
+type MashupInfo = {
+  mashup_id: string,
+  name: string,
+}
+
+{
+  "mashups": Array<MashupInfo>,
+  "error_message": string
+}
+```
+`"mashups"` is the array of user mashups
+
+`"MashupInfo.mashup_id"` mashup id of mashup
+
+`"MashupInfo.name"` name of mashup
+
+`"error_message"` contains an error message if there was an error
+
+## Get Users Mashups
+Gets users mashups
+```http
+GET: /mashupapi/getUserMashups
+```
+
+### Status Codes
+| Code | Description |
+| :--- | :---|
+| 200 | OK |
+| 400 | BAD REQUEST |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 500 | INTERNAL SERVER ERROR |
+
 
 ## Get Mashup Name
 Fetches the name of a given mashup
@@ -52,7 +98,8 @@ Get: /mashupapi/getMashupName?mashup_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNzYx
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably wrong) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 ## Set Mashup Name
@@ -77,7 +124,8 @@ PUT: /mashupapi/setMashupName?name=new_name&mashup_id=MTUxODVkMzFmZDc2MGUwNjg2Yj
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (probably mashup_id was wrong or name was invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 ## Delete Mashup
@@ -101,7 +149,8 @@ DELETE: /mashupapi/deleteMashup?mashup_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNz
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 ## Get Mashup Tracks
@@ -140,7 +189,8 @@ type TrackInfo = {
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably wrong) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 ## Add Track
@@ -166,7 +216,8 @@ PUT: /mashupapi/addTrack?track_id=6wmcrRId5aeo7hiEqHAtEO&mashup_id=MTUxODVkMzFmZ
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 ## Set Track Start MS
@@ -193,7 +244,8 @@ PUT: /mashupapi/setStartMs?track_id=6wmcrRId5aeo7hiEqHAtEO&mashup_id=MTUxODVkMzF
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 
@@ -221,7 +273,8 @@ PUT: /mashupapi/setEndMs?track_id=6wmcrRId5aeo7hiEqHAtEO&mashup_id=MTUxODVkMzFmZ
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
 ## Remove Track
@@ -247,5 +300,6 @@ DELETE: /mashupapi/removeTrack?track_id=6wmcrRId5aeo7hiEqHAtEO&mashup_id=MTUxODV
 | :--- | :--- |
 | 200 | OK |
 | 400 | BAD REQUEST (mashup_id was probably invalid) |
-| 404 | NOT FOUND |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |

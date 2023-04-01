@@ -11,6 +11,8 @@ import { createLoggerStub, stubLogger } from '../test_utils/stubs/stub_logger.te
 import uniqueID from '../test_utils/unique_id.test';
 import { stubSpotifyAuth } from '../test_utils/stubs/stub_spotify_auth.test';
 import { createEmptyMashup } from './mashup_api_utils.test';
+import { arraysMatchUnordered } from '../test_utils/assertions/arrays_match.test';
+import { matchUserMashup } from '../database_interface/database_interface_utils.test';
 
 const TEST_DIRECTORY = path.join(__dirname, 'test_mashup_api_mashups');
 
@@ -43,6 +45,25 @@ describe('Mashup API Mashups', () => {
 
   after(() => {
     removeDirectory(TEST_DIRECTORY);
+  });
+
+  describe('Mashup API Get User Mashups', () => {
+    it('gets users mashups', async function () {
+      await this.db.createMashup('other_users_mashup0', 'some_other_user');
+      await this.db.createMashup('other_users_mashup1', 'some_other_user');
+      const mashup_id0 = await this.db.createMashup('users_mashup0', 'some_user_id');
+      const mashup_id1 = await this.db.createMashup('users_mashup1', 'some_user_id');
+
+      const expected0 = [
+        { mashup_id: mashup_id0, name: 'users_mashup0' },
+        { mashup_id: mashup_id1, name: 'users_mashup1' },
+      ];
+
+      const req = request(this.app);
+      const response = await req.get('/mashupapi/getUserMashups');
+      assert.equal(response.statusCode, 200, 'Responds with success status code');
+      arraysMatchUnordered(response.body.mashups, expected0, matchUserMashup, 'Users Mashups');
+    });
   });
 
   describe('Mashup API Create Mashup', () => {
