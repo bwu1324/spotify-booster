@@ -6,6 +6,8 @@ import DatabaseInterface from '../../src/database_interface/database_interface';
 import { createDirectory, removeDirectory } from '../test_utils/hooks/create_test_directory.test';
 import { stubLogger } from '../test_utils/stubs/stub_logger.test';
 import uniqueID from '../test_utils/unique_id.test';
+import { arraysMatchUnordered } from '../test_utils/assertions/arrays_match.test';
+import { matchUserMashup } from './database_interface_utils.test';
 
 const TEST_DB_DIRECTORY = path.join(__dirname, 'test_mashup_db_interface');
 
@@ -20,6 +22,7 @@ describe('Mashup DB Interface', () => {
     this.db = new DatabaseInterface(this.db_location);
     this.id0 = await this.db.createMashup('test_mashup0', 'some_user_id0');
     this.id1 = await this.db.createMashup('  test_mashup1  ', 'some_user_id1');
+    this.id2 = await this.db.createMashup('test_mashup2', 'some_user_id0');
   });
 
   afterEach(async function () {
@@ -30,9 +33,23 @@ describe('Mashup DB Interface', () => {
     removeDirectory(TEST_DB_DIRECTORY);
   });
 
+  describe('Get User Mashups', () => {
+    it('Gets User Mashups', async function () {
+      const expected0 = [
+        { mashup_id: this.id0, name: 'test_mashup0' },
+        { mashup_id: this.id2, name: 'test_mashup2' },
+      ];
+      const expected1 = [{ mashup_id: this.id1, name: 'test_mashup1' }];
+
+      arraysMatchUnordered(await this.db.getUserMashups('some_user_id0'), expected0, matchUserMashup, 'Gets User 0 Mashups');
+      arraysMatchUnordered(await this.db.getUserMashups('some_user_id1'), expected1, matchUserMashup, 'Gets User 1 Mashups');
+      arraysMatchUnordered(await this.db.getUserMashups('some_user_id2'), [], matchUserMashup, 'Unknown User');
+    });
+  });
+
   describe('Creating Mashups', () => {
     it('creates a new mashup with a unique id and given name and trims name', async function () {
-      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.mashupCount(), 3, 'Creates exactly 2 mashups');
       assert.notEqual(this.id0, this.id1, 'Mashup ids are unique');
       assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Database contains new mashup 0');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Database contains new mashup 1');
@@ -51,7 +68,7 @@ describe('Mashup DB Interface', () => {
         await assert.isRejected(this.db.createMashup(name, 'some_spotify_user'), 'Invalid Mashup Name');
       }
 
-      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 0 new mashups');
+      assert.equal(await this.db.mashupCount(), 3, 'Creates exactly 0 new mashups');
     });
 
     it('rejects promise if getting name of invalid mashup id', async function () {
@@ -72,7 +89,7 @@ describe('Mashup DB Interface', () => {
         await assert.isRejected(this.db.getMashupName(invalid), 'Invalid Mashup Id');
       }
 
-      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.mashupCount(), 3, 'Creates exactly 2 mashups');
       assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not update other mashups');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
@@ -95,7 +112,7 @@ describe('Mashup DB Interface', () => {
     it('updates name of valid mashup id with trimmed name', async function () {
       await this.db.setMashupName(this.id0, ' new_name ');
 
-      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.mashupCount(), 3, 'Creates exactly 2 mashups');
       assert.equal(await this.db.getMashupName(this.id0), 'new_name', 'Updates mashup name with new name');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
@@ -113,7 +130,7 @@ describe('Mashup DB Interface', () => {
         await assert.isRejected(this.db.setMashupName(this.id0, name), 'Invalid Mashup Name');
       }
 
-      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.mashupCount(), 3, 'Creates exactly 2 mashups');
       assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not update mashup name with new name');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
@@ -136,7 +153,7 @@ describe('Mashup DB Interface', () => {
         await assert.isRejected(this.db.setMashupName(invalid, 'new_name'), 'Invalid Mashup Id');
       }
 
-      assert.equal(await this.db.mashupCount(), 2, 'Creates exactly 2 mashups');
+      assert.equal(await this.db.mashupCount(), 3, 'Creates exactly 2 mashups');
       assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not update mashup name with new name');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not update other mashups');
     });
@@ -146,7 +163,7 @@ describe('Mashup DB Interface', () => {
     it('deletes a valid mashup id', async function () {
       await this.db.deleteMashup(this.id0);
 
-      assert.equal(await this.db.mashupCount(), 1, 'Exactly 1 mashup remains');
+      assert.equal(await this.db.mashupCount(), 2, 'Exactly 2 mashups remains');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not delete other mashups');
     });
 
@@ -168,7 +185,7 @@ describe('Mashup DB Interface', () => {
         await assert.isRejected(this.db.deleteMashup(invalid), 'Invalid Mashup Id');
       }
 
-      assert.equal(await this.db.mashupCount(), 2, 'Exactly 2 mashups remains');
+      assert.equal(await this.db.mashupCount(), 3, 'Exactly 2 mashups remains');
       assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not delete other mashups');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not delete other mashups');
     });

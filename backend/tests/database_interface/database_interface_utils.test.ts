@@ -34,3 +34,12 @@ export async function checkTrackDB(
   arraysMatchOrdered(await db.getMashupTracks(id0), expected0, matchTracks, 'Mashup 0 Tracks');
   arraysMatchOrdered(await db.getMashupTracks(id1), expected1, matchTracks, 'Mashup 1 Tracks');
 }
+
+/**
+ * matchUserMahup() - compares two mashups to check that they match
+ * @param a - actual track
+ * @param e - expected track
+ */
+export function matchUserMashup(a: { mashup_id: string; name: string }, e: { mashup_id: string; name: string }): boolean {
+  return a.mashup_id === e.mashup_id && a.name === e.name;
+}

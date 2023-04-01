@@ -79,6 +79,19 @@ export default class MashupDBInterface extends SQLiteInterface {
   }
 
   /**
+   * getUserMashups() - Gets all of a users mashups
+   * @param user_id - spotify user id to get mashups for
+   * @returns - Array containing mashup_id and name of string
+   */
+  async getUserMashups(user_id: string): Promise<Array<{ mashup_id: string; name: string }>> {
+    const rows = (await this.dbAll('SELECT mashup_id, name FROM mashups WHERE user_id = $user_id', {
+      $user_id: user_id,
+    })) as Array<{ mashup_id: string; name: string }>;
+
+    return rows;
+  }
+
+  /**
    * getMashupName() - gets the name of a mashup
    * @param mashup_id - unique mashup id
    * @returns Promise resolving to mashup name (rejected if an error occurs)
