@@ -51,22 +51,22 @@ describe('Mashup API Mashups', () => {
       const req0 = request(this.app);
       const response0 = await req0.post(`/mashupapi/createMashup?name=${mashup_name}`);
 
-      assert(response0.statusCode === 200, 'Responds with success status code');
-      assert(response0.body.mashup_id !== '', 'Does not respond with empty mashup_id');
+      assert.equal(response0.statusCode, 200, 'Responds with success status code');
+      assert.notEqual(response0.body.mashup_id, '', 'Does not respond with empty mashup_id');
 
       const req1 = request(this.app);
       const response1 = await req1.get(`/mashupapi/getMashupName?mashup_id=${response0.body.mashup_id}`);
 
-      assert(response1.statusCode === 200, 'Responds with success status code');
-      assert(response1.body.name === mashup_name, 'Mashup was created and accessable');
+      assert.equal(response1.statusCode, 200, 'Responds with success status code');
+      assert.equal(response1.body.name, mashup_name, 'Mashup was created and accessable');
     });
 
     it('refuses to create mashup with invalid name', async function () {
       const req = request(this.app);
       const response = await req.post('/mashupapi/createMashup');
 
-      assert(response.statusCode === 400, 'Responds with bad request code');
-      assert(response.body.error_message === 'Invalid Mashup Name', 'Responds with error message');
+      assert.equal(response.statusCode, 400, 'Responds with bad request code');
+      assert.equal(response.body.error_message, 'Invalid Mashup Name', 'Responds with error message');
     });
   });
 
@@ -79,20 +79,20 @@ describe('Mashup API Mashups', () => {
       const new_name = 'new_mashup_name';
       const response1 = await request(this.app).put(`/mashupapi/setMashupName?mashup_id=${this.mashup_id}&name=${new_name}`);
 
-      assert(response1.statusCode === 200, 'Responds with success status code');
+      assert.equal(response1.statusCode, 200, 'Responds with success status code');
 
       const req2 = request(this.app);
       const response2 = await req2.get(`/mashupapi/getMashupName?mashup_id=${this.mashup_id}`);
 
-      assert(response2.body.name === new_name, 'Mashup was edited');
+      assert.equal(response2.body.name, new_name, 'Mashup was edited');
     });
 
     it('refuses to edit mashup with invalid name', async function () {
       const new_name = '';
       const response = await request(this.app).put(`/mashupapi/setMashupName?mashup_id=${this.mashup_id}&name=${new_name}`);
 
-      assert(response.statusCode === 400, 'Responds with bad request code');
-      assert(response.body.error_message === 'Invalid Mashup Name', 'Responds with error message');
+      assert.equal(response.statusCode, 400, 'Responds with bad request code');
+      assert.equal(response.body.error_message, 'Invalid Mashup Name', 'Responds with error message');
     });
 
     it('refuses to edit mashup with invalid mashup_id', async function () {
@@ -100,8 +100,8 @@ describe('Mashup API Mashups', () => {
       const new_name = 'valid_name';
       const response = await request(this.app).put(`/mashupapi/setMashupName?mashup_id=${mashup_id}&name=${new_name}`);
 
-      assert(response.statusCode === 400, 'Responds with bad request code');
-      assert(response.body.error_message === 'Invalid Mashup Id', 'Responds with error message');
+      assert.equal(response.statusCode, 400, 'Responds with bad request code');
+      assert.equal(response.body.error_message, 'Invalid Mashup Id', 'Responds with error message');
     });
   });
 
@@ -113,24 +113,24 @@ describe('Mashup API Mashups', () => {
     it('deletes mashup with valid id', async function () {
       const response1 = await request(this.app).delete(`/mashupapi/deleteMashup?mashup_id=${this.mashup_id}`);
 
-      assert(response1.statusCode === 200, 'Responds with success status code');
+      assert.equal(response1.statusCode, 200, 'Responds with success status code');
 
       const response2 = await request(this.app).get(`/mashupapi/getMashupName?mashup_id=${this.mashup_id}`);
 
-      assert(response2.statusCode === 400, 'Mashup no longer exists');
-      assert(response2.body.error_message === 'Invalid Mashup Id', 'Responds with error message');
+      assert.equal(response2.statusCode, 400, 'Mashup no longer exists');
+      assert.equal(response2.body.error_message, 'Invalid Mashup Id', 'Responds with error message');
     });
 
     it('refuses to delete mashup with invalid mashup_id', async function () {
       const invalid_mashup_id = 'invalid';
       const response1 = await request(this.app).delete(`/mashupapi/deleteMashup?mashup_id=${invalid_mashup_id}`);
 
-      assert(response1.statusCode === 400, 'Responds with bad request code');
-      assert(response1.body.error_message === 'Invalid Mashup Id', 'Responds with error message');
+      assert.equal(response1.statusCode, 400, 'Responds with bad request code');
+      assert.equal(response1.body.error_message, 'Invalid Mashup Id', 'Responds with error message');
 
       const response2 = await request(this.app).get(`/mashupapi/getMashupName?mashup_id=${this.mashup_id}`);
 
-      assert(response2.statusCode === 200, 'Mashup still exists');
+      assert.equal(response2.statusCode, 200, 'Mashup still exists');
     });
   });
 });
