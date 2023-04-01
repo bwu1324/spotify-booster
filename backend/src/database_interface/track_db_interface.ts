@@ -48,9 +48,12 @@ export default class TrackDBInterface extends MashupDBInterface {
   async getMashupTracks(mashup_id: string): Promise<Array<TrackInfo>> {
     await this.assertMashupExists(mashup_id);
 
-    const rows = (await this.dbAll('SELECT track_id, start_ms, end_ms FROM tracks WHERE mashup_id = $mashup_id;', {
-      $mashup_id: mashup_id,
-    })) as Array<TrackInfo>;
+    const rows = (await this.dbAll(
+      'SELECT track_id, start_ms, end_ms FROM tracks WHERE mashup_id = $mashup_id ORDER BY "index" ASC;',
+      {
+        $mashup_id: mashup_id,
+      }
+    )) as Array<TrackInfo>;
 
     return rows;
   }
@@ -76,10 +79,13 @@ export default class TrackDBInterface extends MashupDBInterface {
       return Promise.reject(new Error('Track Id Exists In Mashup'));
     }
 
-    await this.dbRun('INSERT INTO tracks VALUES ($mashup_id, $track_id, 0, -1);', {
-      $mashup_id: mashup_id,
-      $track_id: track_id,
-    });
+    await this.dbRun(
+      'INSERT INTO tracks(mashup_id, track_id, "index", start_ms, end_ms) SELECT $mashup_id, $track_id, IFNULL(MAX("index") + 1, 1), 0, -1 FROM tracks',
+      {
+        $mashup_id: mashup_id,
+        $track_id: track_id,
+      }
+    );
   }
 
   /**

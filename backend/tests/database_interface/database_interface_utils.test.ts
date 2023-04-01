@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import DatabaseInterface from '../../src/database_interface/database_interface';
 import { TrackInfo } from '../../src/database_interface/track_db_interface';
-import { arraysMatchUnordered } from '../test_utils/assertions/arrays_match.test';
+import { arraysMatchOrdered } from '../test_utils/assertions/arrays_match.test';
 
 /**
  * matchTracks() - Compares two tracks and returns true if they match
@@ -31,6 +31,6 @@ export async function checkTrackDB(
   total_tracks: number
 ) {
   assert.equal(await db.totalTrackCount(), total_tracks, `Database contains ${total_tracks} tracks`);
-  arraysMatchUnordered(await db.getMashupTracks(id0), expected0, matchTracks, 'Mashup 0 Tracks');
-  arraysMatchUnordered(await db.getMashupTracks(id1), expected1, matchTracks, 'Mashup 1 Tracks');
+  arraysMatchOrdered(await db.getMashupTracks(id0), expected0, matchTracks, 'Mashup 0 Tracks');
+  arraysMatchOrdered(await db.getMashupTracks(id1), expected1, matchTracks, 'Mashup 1 Tracks');
 }
