@@ -9,13 +9,13 @@ const TABLES = [
   },
   {
     name: 'mashups',
-    cols: '("mashup_id" STRING NOT NULL, "name" STRING NOT NULL)',
+    cols: '("mashup_id" STRING NOT NULL, "name" STRING NOT NULL, "user_id" STRING NOT NULL)',
   },
 ];
 
 /**
  * DatabaseInterface() - SQLite Abstraction for saving user mashups
- * Contains methods for Creating/Deleting/Editing User Mashpes the tracks they contain
+ * Contains methods for Creating/Deleting/Editing User Mashups the tracks they contain
  */
 export default class DatabaseInterface extends TrackDBInterface {
   /**

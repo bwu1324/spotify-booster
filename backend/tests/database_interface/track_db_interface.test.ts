@@ -21,8 +21,8 @@ describe('Track DB Interface', () => {
     this.db_location = path.join(TEST_DB_DIRECTORY, uniqueID());
     this.db = new DatabaseInterface(this.db_location);
 
-    this.id0 = await this.db.createMashup('test_mashup0');
-    this.id1 = await this.db.createMashup('test_mashup1');
+    this.id0 = await this.db.createMashup('test_mashup0', 'some_spotify_user');
+    this.id1 = await this.db.createMashup('test_mashup1', 'some_spotify_user');
 
     this.default_mashup0 = [
       { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 }, // default start_ms and end_ms values

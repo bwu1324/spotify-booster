@@ -2,6 +2,7 @@ import { assert } from 'chai';
 import request from 'supertest';
 import path from 'path';
 import express from 'express';
+import sinon from 'sinon';
 
 import createMashupRouter from '../../src/mashup_api/mashup_api';
 import { arraysMatchUnordered } from '../test_utils/assertions/arrays_match.test';
@@ -27,9 +28,12 @@ describe('Mashup API Tracks', () => {
         path: path.join(TEST_DIRECTORY, uniqueID()),
       },
     });
-    stubSpotifyAuth(true, 'some_user_id');
+    stubSpotifyAuth('some_user_id', true);
 
     const { db, mashup_api } = await createMashupRouter(createLoggerStub());
+
+    sinon.stub(db, 'mashupPermission').returns(Promise.resolve(true));
+
     this.app = express();
     this.app.use(mashup_api);
     this.db = db;

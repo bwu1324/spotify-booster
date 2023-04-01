@@ -34,9 +34,9 @@ export default class TrackDBInterface extends MashupDBInterface {
    */
   protected async assertTrackExists(mashup_id: string, track_id: string): Promise<void> {
     await this.assertMashupExists(mashup_id);
-    if (this.isEmpty(track_id)) return Promise.reject('Invalid Track Id');
+    if (this.isEmpty(track_id)) throw new Error('Invalid Track Id');
     if (!(await this.mashupIncludesTrack(mashup_id, track_id))) {
-      return Promise.reject(new Error('Track Does Not Exist In Mashup'));
+      throw new Error('Track Does Not Exist In Mashup');
     }
   }
 
@@ -69,14 +69,14 @@ export default class TrackDBInterface extends MashupDBInterface {
     // check for invalid track_id
     if (this.isEmpty(track_id)) {
       this.log_.debug(`track_id ${track_id} was empty, refusing to create new track`);
-      return Promise.reject(new Error('Invalid Track Id'));
+      throw new Error('Invalid Track Id');
     }
 
     // check that track_id is not already in mashup
     await this.assertMashupExists(mashup_id);
     if (await this.mashupIncludesTrack(mashup_id, track_id)) {
       this.log_.debug(`track_id ${track_id} exists in mashup already, refusing to create new track`);
-      return Promise.reject(new Error('Track Id Exists In Mashup'));
+      throw new Error('Track Id Exists In Mashup');
     }
 
     await this.dbRun(
