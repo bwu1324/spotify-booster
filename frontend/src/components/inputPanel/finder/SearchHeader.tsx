@@ -17,7 +17,7 @@ import {
   Typography,
 } from '@mui/material';
 import { FinderView } from './Finder';
-import { ResultType } from '../util';
+import { ResultType } from '../../util';
 
 // Reusable button component for the side of the search bar, etc.
 function SideButton({

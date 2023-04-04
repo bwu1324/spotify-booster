@@ -17,6 +17,7 @@ import Splash from './splash/Splash';
 import Player from './player/Player';
 import { getCookie } from '../components/login/Cookie';
 import InputPanel from './inputPanel/InputPanel';
+import { EmptyResult, MashupContext, Result } from './util';
 
 const styles = {
   parentGrid: {
@@ -31,6 +32,9 @@ function Home() {
   const cookie = getCookie('spotify_access_token');
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
+  // Current mashup ID. '...' if a mashup is in the creation process.
+  const [mashup, setMashup] = React.useState<Result>(EmptyResult);
+
   // Checks if user is logged in by checking if user token exists
   useEffect(() => {
     const loggedIn = cookie != null;
@@ -39,36 +43,38 @@ function Home() {
 
   return (
     <ThemeProvider theme={theme}>
-      <GlobalStyles
-        styles={{
-          body: { backgroundColor: theme.palette.background.default },
-        }}
-      ></GlobalStyles>
-      <Header />
-      {isLoggedIn ? (
-        <>
-          <Grid container style={styles.parentGrid}>
-            <Grid item xs={4} sx={{ padding: 2 }} style={styles.childGrid}>
-              <InputPanel />
+      <MashupContext.Provider value={{ mashup: mashup, setMashup: setMashup }}>
+        <GlobalStyles
+          styles={{
+            body: { backgroundColor: theme.palette.background.default },
+          }}
+        ></GlobalStyles>
+        <Header />
+        {isLoggedIn ? (
+          <>
+            <Grid container style={styles.parentGrid}>
+              <Grid item xs={4} sx={{ padding: 2 }} style={styles.childGrid}>
+                <InputPanel />
+              </Grid>
+              <Grid
+                item
+                xs={8}
+                sx={{
+                  paddingLeft: 0,
+                  paddingRight: 2,
+                  paddingTop: 2,
+                  paddingBottom: 2,
+                }}
+                style={styles.childGrid}
+              >
+                <Player mashup={mashup} />
+              </Grid>
             </Grid>
-            <Grid
-              item
-              xs={8}
-              sx={{
-                paddingLeft: 0,
-                paddingRight: 2,
-                paddingTop: 2,
-                paddingBottom: 2,
-              }}
-              style={styles.childGrid}
-            >
-              <Player />
-            </Grid>
-          </Grid>
-        </>
-      ) : (
-        <Splash />
-      )}
+          </>
+        ) : (
+          <Splash />
+        )}
+      </MashupContext.Provider>
     </ThemeProvider>
   );
 }

@@ -8,7 +8,7 @@ import { useTheme } from '@mui/material/styles';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
 import { searchSpotifyFor } from './SpotifySearch';
-import { Result, ResultType } from '../util';
+import { Result, ResultType } from '../../util';
 
 const NO_RESULTS: Result[] = [
   {

@@ -5,7 +5,7 @@
 
 import React from 'react';
 import { Button, Divider, Typography } from '@mui/material';
-import { Result } from '../util';
+import { Result } from '../../util';
 
 function MashupInfo({
   mashup,
@@ -17,7 +17,7 @@ function MashupInfo({
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
       <Typography>
-        <b>Mashup: </b>
+        <b>Selected Mashup: </b>
         {mashup.name}
       </Typography>
       <Divider />

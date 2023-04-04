@@ -1,6 +1,6 @@
 import React from 'react';
 import { Button, Divider, TextField, Typography } from '@mui/material';
-import { EmptyResult, Result } from '../util';
+import { EmptyResult, Result } from '../../util';
 
 /**
  * This function validates the name of a mashup. We can't just use an array of
