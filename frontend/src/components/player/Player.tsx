@@ -58,11 +58,11 @@ export default function Player({ mashup }: { mashup: Result }) {
   const [tracks, setTracks] = useState<Array<Result>>([]);
 
   // The current song that should be playing.
-  const [currentTrack, setCurrentTrack] = useState<Result | null>(null);
+  const [currentTrack, setCurrentTrack] = useState<number | null>(null);
 
   useEffect(() => {
     getTracksInMashup(mashup).then((tracks) => {
-      if (tracks.length !== 0) setCurrentTrack(tracks[0]);
+      if (tracks.length !== 0) setCurrentTrack(0);
       setTracks(tracks);
     });
   }, [mashup]);

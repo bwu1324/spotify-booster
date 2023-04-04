@@ -5,31 +5,65 @@ import React from 'react';
 
 import { TrackListContainer } from '../../theme';
 import { Result } from '../util';
-import { List, ListItem, ListItemText } from '@mui/material';
+import { List, ListItem, ListItemText, useTheme } from '@mui/material';
 
-// Used for rendering each track.
-function RenderedTrack({ track, number }: { track: Result; number: number }) {
+/**
+ * Renders a single track in the list, with with unselected tracks greyed out.
+ *
+ * @param track The track to render.
+ * @param number The number of the track in the list.
+ * @param selected Whether the track is selected (and should be highlighted).
+ */
+function Track({
+  track,
+  number,
+  selected,
+}: {
+  track: Result;
+  number: number;
+  selected: boolean;
+}) {
+  const theme = useTheme();
   return (
     <ListItem disablePadding>
-      <ListItemText>
+      <ListItemText
+        primaryTypographyProps={{
+          style: {
+            color: selected
+              ? theme.palette.text.primary
+              : theme.palette.text.disabled,
+          },
+        }}
+      >
         {number}. {track.name}
       </ListItemText>
     </ListItem>
   );
 }
 
+/**
+ * Component for the list of tracks in the mash-up.
+ *
+ * @param tracks The list of tracks to render.
+ * @param currentTrack The index of the currently playing track.
+ */
 export default function TrackList({
   tracks,
   currentTrack,
 }: {
   tracks: Array<Result>;
-  currentTrack: Result | null;
+  currentTrack: number | null;
 }) {
   return (
     <TrackListContainer>
       <List>
         {tracks.map((track, index) => (
-          <RenderedTrack track={track} number={index + 1} key={track.id} />
+          <Track
+            track={track}
+            number={index + 1}
+            selected={index == currentTrack}
+            key={track.id}
+          />
         ))}
       </List>
     </TrackListContainer>

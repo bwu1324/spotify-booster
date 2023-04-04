@@ -8,16 +8,31 @@ import Container from '@mui/material/Container/Container';
 import IconButton from '@mui/material/IconButton';
 import { PlayArrow, FastForward, FastRewind, Pause } from '@mui/icons-material';
 import { useState } from 'react';
+import { spotifyHTTP } from '../util';
 
+/**
+ * The playback bar shows a progress bar of how much is left on the current
+ * track, as well as the ability to play/pause and skip tracks.
+ *
+ * @param prevTrack Function to go to the previous track.
+ * @param nextTrack Function to go to the next track.
+ * @param paused Whether the music is paused or not.
+ * @param togglePaused Function to toggle whether the music is paused or not.
+ */
 function PlaybackBar({
-  spotifyPlayer,
+  prevTrack,
+  nextTrack,
+  paused,
+  togglePaused,
 }: {
-  spotifyPlayer: Spotify.Player | null;
+  prevTrack: Function;
+  nextTrack: Function;
+  paused: boolean;
+  togglePaused: Function;
 }) {
   const progress = 10;
   const total = 20;
 
-  const [clicked, setClicked] = useState<boolean>(false);
   return (
     <Container
       maxWidth="lg"
@@ -26,13 +41,13 @@ function PlaybackBar({
       }}
     >
       <Box display="flex" justifyContent="center" alignItems="center">
-        <IconButton>
+        <IconButton onClick={() => prevTrack()}>
           <FastRewind />
         </IconButton>
-        <IconButton onClick={() => setClicked(!clicked)}>
-          {clicked ? <PlayArrow /> : <Pause />}
+        <IconButton onClick={() => togglePaused()}>
+          {paused ? <PlayArrow /> : <Pause />}
         </IconButton>
-        <IconButton onClick={() => spotifyPlayer?.nextTrack()}>
+        <IconButton onClick={() => nextTrack()}>
           <FastForward />
         </IconButton>
       </Box>
