@@ -5,7 +5,7 @@
     - mash-up playing progress bar
     - mash-up playing controls (play/pause, skip, etc.)
     - mash-up remake
-*/
+    */
 
 import React, { useContext } from 'react';
 import { useState, useEffect, useRef } from 'react';
@@ -47,6 +47,8 @@ export default function Control({
 
   // Spotify authentication token
   const cookie = useContext(CookieContext);
+  spotifyHTTP.defaults.headers.common['Authorization'] = `Bearer ${cookie}`;
+
   // Spotify player SDK
   const [spotifyPlayer, setSpotifyPlayer] = useState<Spotify.Player | null>(
     null
