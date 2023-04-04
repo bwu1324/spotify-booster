@@ -12,12 +12,11 @@ import '../App.scss';
 
 // Components import
 import Header from './Header';
-import Finder from './inputPanel/finder/Finder';
 import Splash from './splash/Splash';
 import Player from './player/Player';
 import { getCookie } from '../components/login/Cookie';
 import InputPanel from './inputPanel/InputPanel';
-import { EmptyResult, MashupContext, Result } from './util';
+import { CookieContext, EmptyResult, MashupContext, Result } from './util';
 
 const styles = {
   parentGrid: {
@@ -43,38 +42,42 @@ function Home() {
 
   return (
     <ThemeProvider theme={theme}>
-      <MashupContext.Provider value={{ mashup: mashup, setMashup: setMashup }}>
-        <GlobalStyles
-          styles={{
-            body: { backgroundColor: theme.palette.background.default },
-          }}
-        ></GlobalStyles>
-        <Header />
-        {isLoggedIn ? (
-          <>
-            <Grid container style={styles.parentGrid}>
-              <Grid item xs={4} sx={{ padding: 2 }} style={styles.childGrid}>
-                <InputPanel />
+      <CookieContext.Provider value={cookie}>
+        <MashupContext.Provider
+          value={{ mashup: mashup, setMashup: setMashup }}
+        >
+          <GlobalStyles
+            styles={{
+              body: { backgroundColor: theme.palette.background.default },
+            }}
+          ></GlobalStyles>
+          <Header />
+          {isLoggedIn ? (
+            <>
+              <Grid container style={styles.parentGrid}>
+                <Grid item xs={4} sx={{ padding: 2 }} style={styles.childGrid}>
+                  <InputPanel />
+                </Grid>
+                <Grid
+                  item
+                  xs={8}
+                  sx={{
+                    paddingLeft: 0,
+                    paddingRight: 2,
+                    paddingTop: 2,
+                    paddingBottom: 2,
+                  }}
+                  style={styles.childGrid}
+                >
+                  <Player mashup={mashup} />
+                </Grid>
               </Grid>
-              <Grid
-                item
-                xs={8}
-                sx={{
-                  paddingLeft: 0,
-                  paddingRight: 2,
-                  paddingTop: 2,
-                  paddingBottom: 2,
-                }}
-                style={styles.childGrid}
-              >
-                <Player mashup={mashup} />
-              </Grid>
-            </Grid>
-          </>
-        ) : (
-          <Splash />
-        )}
-      </MashupContext.Provider>
+            </>
+          ) : (
+            <Splash />
+          )}
+        </MashupContext.Provider>
+      </CookieContext.Provider>
     </ThemeProvider>
   );
 }

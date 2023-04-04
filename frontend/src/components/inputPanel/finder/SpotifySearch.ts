@@ -1,29 +1,28 @@
-import axios from 'axios';
-import { getCookie } from '../../login/Cookie';
+import { spotifyHTTP } from '../../util';
 import { Result, ResultType } from '../../util';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.
-export async function searchSpotifyFor(query: string, type: ResultType) {
+export async function searchSpotifyFor(
+  query: string,
+  type: ResultType,
+  cookie: string | null
+) {
   // This happens when you type in a search query, then delete it all. You are
   // searching for nothing.
-  if (query.length === 0) {
+  if (query.length === 0 || cookie === null) {
     return [];
   }
 
   // Catch any errors with authentication, or the API request.
   try {
-    return await axios
-      .get('https://api.spotify.com/v1/search', {
+    return await spotifyHTTP
+      .get('/search', {
         // Get limit number of results of each given type.
         params: {
           q: query,
           type: ResultType[type].toLowerCase(),
           limit: 10,
-        },
-        // Give Spotify our access token.
-        headers: {
-          Authorization: `Bearer ${getCookie('spotify_access_token')}`,
         },
       })
       .then((response) => convertSpotifyResults(response.data));

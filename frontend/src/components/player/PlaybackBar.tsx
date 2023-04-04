@@ -9,8 +9,11 @@ import IconButton from '@mui/material/IconButton';
 import { PlayArrow, FastForward, FastRewind, Pause } from '@mui/icons-material';
 import { useState } from 'react';
 
-function PlaybackBar() {
-  <script src="https://sdk.scdn.co/spotify-player.js"></script>;
+function PlaybackBar({
+  spotifyPlayer,
+}: {
+  spotifyPlayer: Spotify.Player | null;
+}) {
   const progress = 10;
   const total = 20;
 
@@ -29,7 +32,7 @@ function PlaybackBar() {
         <IconButton onClick={() => setClicked(!clicked)}>
           {clicked ? <PlayArrow /> : <Pause />}
         </IconButton>
-        <IconButton>
+        <IconButton onClick={() => spotifyPlayer?.nextTrack()}>
           <FastForward />
         </IconButton>
       </Box>

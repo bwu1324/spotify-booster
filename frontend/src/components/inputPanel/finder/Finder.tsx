@@ -2,13 +2,13 @@
 // either the search bar and search results, or the current mashup and all the
 // songs in the mashup.
 
-import React, { useState } from 'react';
+import React, { useContext, useState } from 'react';
 import { Paper } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
 import { searchSpotifyFor } from './SpotifySearch';
-import { Result, ResultType } from '../../util';
+import { CookieContext, Result, ResultType } from '../../util';
 
 const NO_RESULTS: Result[] = [
   {
@@ -42,6 +42,7 @@ function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
   const mashupID = 'Example Mashup Title';
   const [results, setResults] = useState<Result[]>([]);
   const theme = useTheme();
+  const cookie = useContext(CookieContext);
 
   async function handleViewChange(newView: FinderView) {
     setView(newView);
@@ -50,7 +51,7 @@ function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
         // Prevent incorrect results from being displayed while waiting for a
         // response from Spotify.
         setResults([]);
-        setResults(await searchSpotifyFor(query, searchType));
+        setResults(await searchSpotifyFor(query, searchType, cookie));
         break;
       case FinderView.MASHUP:
         setResults(
@@ -72,7 +73,7 @@ function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
       setResults(NO_RESULTS);
     } else {
       // Search Spotify given params.
-      const response = await searchSpotifyFor(query, searchType);
+      const response = await searchSpotifyFor(query, searchType, cookie);
       if (response.length === 0) setResults(NO_RESULTS);
       else setResults(response);
     }

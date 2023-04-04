@@ -7,14 +7,23 @@
     - mash-up remake
 */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { useState, useEffect, useRef } from 'react';
 
 import { Typography, Grid } from '@mui/material';
 import { ControllerContainer, AlbumArt } from '../../theme';
-import PlaybackBar from './Playback';
+import PlaybackBar from './PlaybackBar';
+import { CookieContext, Result, spotifyHTTP } from '../util';
 
-export default function Control() {
+export default function Control({
+  tracks,
+  currentTrack,
+  updateCurrentTrack,
+}: {
+  tracks: Array<Result>;
+  currentTrack: Result | null;
+  updateCurrentTrack: (track: Result) => void;
+}) {
   // outerHeight and outerWidth are the height and width of the ControllerPaper container
   const [outerHeight, setOuterHeight] = useState(0);
   const [outerWidth, setOuterWidth] = useState(0);
@@ -25,6 +34,12 @@ export default function Control() {
   // outerRef is a reference to the ControllerPaper container
   // it is for us to know the dimension of the first Grid container
   const outerRef = useRef<any>();
+
+  const cookie = useContext(CookieContext);
+  const [spotifyPlayer, setSpotifyPlayer] = useState<Spotify.Player | null>(
+    null
+  );
+  const [playerReady, setPlayerReady] = useState(false);
 
   useEffect(() => {
     if (!outerRef.current) return; // wait for the elementRef to be available
@@ -41,6 +56,67 @@ export default function Control() {
       // clean up
       resizeObserver.disconnect();
     };
+  });
+
+  useEffect(() => {
+    console.log('Setting up Spotify Player SDK...');
+    const script = document.createElement('script');
+    script.src = 'https://sdk.scdn.co/spotify-player.js';
+    script.async = true;
+
+    document.body.appendChild(script);
+
+    window.onSpotifyWebPlaybackSDKReady = () => {
+      const player = new window.Spotify.Player({
+        name: 'Spotify Booster',
+        getOAuthToken: (cb: Function) => {
+          cb(cookie);
+        },
+        volume: 1,
+      });
+
+      setSpotifyPlayer(player);
+      setPlayerReady(true);
+
+      console.log('Spotify Player SDK ready!');
+    };
+  }, []);
+
+  useEffect(() => {
+    if (playerReady && spotifyPlayer) {
+      spotifyPlayer.addListener(
+        'ready',
+        ({ device_id }: { device_id: any }) => {
+          console.log('Ready with Device ID', device_id);
+        }
+      );
+
+      spotifyPlayer.addListener(
+        'not_ready',
+        ({ device_id }: { device_id: any }) => {
+          console.log('Device ID has gone offline', device_id);
+        }
+      );
+
+      spotifyPlayer.addListener(
+        'player_state_changed',
+        ({ position, duration, track_window: { current_track } }) => {
+          console.log(position, duration, current_track);
+        }
+      );
+
+      spotifyPlayer.connect();
+    }
+  }, [playerReady]);
+
+  useEffect(() => {
+    if (currentTrack && spotifyPlayer) {
+      spotifyHTTP.put(
+        'me/player/play',
+        { uris: [currentTrack.id] },
+        { params: { device_id: spotifyPlayer._options.id } }
+      );
+    }
   });
 
   // This function returns the Control component
@@ -75,7 +151,7 @@ export default function Control() {
           <Typography variant="h6">Song Title</Typography>
           <Typography variant="subtitle1">Artist Name</Typography>
 
-          <PlaybackBar />
+          <PlaybackBar spotifyPlayer={spotifyPlayer} />
         </Grid>
       </Grid>
     </ControllerContainer>

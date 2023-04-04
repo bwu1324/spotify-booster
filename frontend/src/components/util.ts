@@ -5,6 +5,7 @@
 import React from 'react';
 import axios from 'axios';
 import backend_config from '../config/backend_config.js';
+import { getCookie } from './login/Cookie';
 
 // rendered differently.
 export enum ResultType {
@@ -41,6 +42,8 @@ export const MashupContext = React.createContext<{
   setMashup: React.Dispatch<React.SetStateAction<Result>>;
 }>({ mashup: EmptyResult, setMashup: () => {} });
 
+export const CookieContext = React.createContext<string | null>(null);
+
 export type TrackInfo = {
   track_id: string;
   start_ms: number;
@@ -52,4 +55,9 @@ export type TrackInfo = {
 export const backendHTTP = axios.create({
   baseURL: backend_config.base_url,
   withCredentials: true,
+});
+
+export const spotifyHTTP = axios.create({
+  baseURL: 'https://api.spotify.com/v1/',
+  headers: { Authorization: `Bearer ${getCookie('spotify_access_token')}` },
 });

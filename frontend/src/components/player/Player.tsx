@@ -21,17 +21,17 @@ function convertBackendTrackList(response: any): Array<Result> {
   return [
     {
       resultType: ResultType.Track,
-      id: '0VjIjW4GlUZAMYd2vXMi3b',
+      id: 'spotify:track:0VjIjW4GlUZAMYd2vXMi3b',
       name: 'Blinding Lights',
     },
     {
       resultType: ResultType.Track,
-      id: '7qiZfU4dY1lWllzX7mPBI3',
+      id: 'spotify:track:7qiZfU4dY1lWllzX7mPBI3',
       name: 'Shape of You',
     },
     {
       resultType: ResultType.Track,
-      id: '2XU0oxnq2qxCpomAAuJY8K',
+      id: 'spotify:track:2XU0oxnq2qxCpomAAuJY8K',
       name: 'Dance Monkey',
     },
   ];
@@ -61,13 +61,20 @@ export default function Player({ mashup }: { mashup: Result }) {
   const [currentTrack, setCurrentTrack] = useState<Result | null>(null);
 
   useEffect(() => {
-    getTracksInMashup(mashup).then((tracks) => setTracks(tracks));
+    getTracksInMashup(mashup).then((tracks) => {
+      if (tracks.length !== 0) setCurrentTrack(tracks[0]);
+      setTracks(tracks);
+    });
   }, [mashup]);
 
   return (
     <Grid container style={{ height: '100%' }}>
       <Grid item xs={12} sx={{ paddingBottom: 2 }} style={{ height: '20%' }}>
-        <Control />
+        <Control
+          tracks={tracks}
+          currentTrack={currentTrack}
+          updateCurrentTrack={setCurrentTrack}
+        />
       </Grid>
       <Grid item xs={12} style={{ height: '80%' }}>
         <TrackList tracks={tracks} currentTrack={currentTrack} />
