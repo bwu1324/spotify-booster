@@ -67,7 +67,7 @@ describe('Mashup API Tracks', () => {
       const response2 = await request(this.app).get(`/mashupapi/getMashupTracks?mashup_id=${this.mashup_id}`);
 
       assert.equal(response2.statusCode, 200, 'Responds with success status code');
-      arraysMatchUnordered(response2.body.tracks, this.default_tracks, matchTracks, 'Mashup Tracks');
+      arraysMatchUnordered(response2.body.tracks, this.default_tracks, 'Mashup Tracks', matchTracks);
     });
 
     it('refuses to add track with invalid mashup_id', async function () {
@@ -106,7 +106,7 @@ describe('Mashup API Tracks', () => {
       assert.equal(response0.statusCode, 200, 'Responds with success status code');
 
       const response1 = await request(this.app).get(`/mashupapi/getMashupTracks?mashup_id=${this.mashup_id}`);
-      arraysMatchUnordered(response1.body.tracks, updated_tracks, matchTracks, 'Mashup Tracks');
+      arraysMatchUnordered(response1.body.tracks, updated_tracks, 'Mashup Tracks', matchTracks);
     });
 
     it('refuses to add track with invalid mashup_id', async function () {
@@ -119,7 +119,7 @@ describe('Mashup API Tracks', () => {
       assert.equal(response0.body.error_message, 'Invalid Mashup Id', 'Responds with error message');
 
       const response1 = await request(this.app).get(`/mashupapi/getMashupTracks?mashup_id=${this.mashup_id}`);
-      arraysMatchUnordered(response1.body.tracks, this.default_tracks, matchTracks, 'Mashup Tracks');
+      arraysMatchUnordered(response1.body.tracks, this.default_tracks, 'Mashup Tracks', matchTracks);
     });
 
     it('refuses to delete track not in mashup', async function () {
@@ -132,7 +132,7 @@ describe('Mashup API Tracks', () => {
       assert.equal(response0.body.error_message, 'Track Does Not Exist In Mashup', 'Responds with error message');
 
       const response1 = await request(this.app).get(`/mashupapi/getMashupTracks?mashup_id=${this.mashup_id}`);
-      arraysMatchUnordered(response1.body.tracks, this.default_tracks, matchTracks, 'Mashup Tracks');
+      arraysMatchUnordered(response1.body.tracks, this.default_tracks, 'Mashup Tracks', matchTracks);
     });
   });
 
@@ -174,7 +174,7 @@ describe('Mashup API Tracks', () => {
       }
 
       const response2 = await request(this.app).get(`/mashupapi/getMashupTracks?mashup_id=${this.mashup_id}`);
-      arraysMatchUnordered(response2.body.tracks, updated_tracks, matchTracks, 'Mashup Tracks');
+      arraysMatchUnordered(response2.body.tracks, updated_tracks, 'Mashup Tracks', matchTracks);
     });
 
     it('refuses to set invalid start data', async function () {

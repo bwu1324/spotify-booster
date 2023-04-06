@@ -84,9 +84,9 @@ describe('Database Interface', () => {
       assert.equal(await db.getMashupName(id0), name0, 'Mashup 0 has correct name');
       assert.equal(await db.getMashupName(id1), name1, 'Mashup 1 has correct name');
       assert.equal(await db.getMashupName(id2), name2, 'Mashup 2 has correct name');
-      arraysMatchUnordered(await db.getMashupTracks(id0), mashup0_tracks, matchTracks, 'Mashup 0 Tracks');
-      arraysMatchUnordered(await db.getMashupTracks(id1), mashup1_tracks, matchTracks, 'Mashup 1 Tracks');
-      arraysMatchUnordered(await db.getMashupTracks(id2), mashup2_tracks, matchTracks, 'Mashup 2 Tracks');
+      arraysMatchUnordered(await db.getMashupTracks(id0), mashup0_tracks, 'Mashup 0 Tracks', matchTracks);
+      arraysMatchUnordered(await db.getMashupTracks(id1), mashup1_tracks, 'Mashup 1 Tracks', matchTracks);
+      arraysMatchUnordered(await db.getMashupTracks(id2), mashup2_tracks, 'Mashup 2 Tracks', matchTracks);
 
       await db.close();
     });

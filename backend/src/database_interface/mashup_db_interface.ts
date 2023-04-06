@@ -92,6 +92,32 @@ export default class MashupDBInterface extends SQLiteInterface {
   }
 
   /**
+   * searchUserMashups() - Searchs a users mashups
+   * Uses basic SQLite LIKE, matches mashups whose name begins with search_string
+   * @param user_id - spotify user id to get mashups for
+   * @param search_string - string to search for
+   * @returns - Array containing mashup_id and name of string
+   */
+  async searchUserMashups(
+    user_id: string,
+    search_string: string,
+    limit?: number
+  ): Promise<Array<{ mashup_id: string; name: string }>> {
+    if (!limit) limit = 20;
+
+    const rows = (await this.dbAll(
+      'SELECT mashup_id, name FROM mashups WHERE user_id = $user_id AND name LIKE $search LIMIT $limit',
+      {
+        $user_id: user_id,
+        $search: `${search_string}%`,
+        $limit: limit,
+      }
+    )) as Array<{ mashup_id: string; name: string }>;
+
+    return rows;
+  }
+
+  /**
    * getMashupName() - gets the name of a mashup
    * @param mashup_id - unique mashup id
    * @returns Promise resolving to mashup name (rejected if an error occurs)

@@ -41,9 +41,9 @@ describe('Mashup DB Interface', () => {
       ];
       const expected1 = [{ mashup_id: this.id1, name: 'test_mashup1' }];
 
-      arraysMatchUnordered(await this.db.getUserMashups('some_user_id0'), expected0, matchUserMashup, 'Gets User 0 Mashups');
-      arraysMatchUnordered(await this.db.getUserMashups('some_user_id1'), expected1, matchUserMashup, 'Gets User 1 Mashups');
-      arraysMatchUnordered(await this.db.getUserMashups('some_user_id2'), [], matchUserMashup, 'Unknown User');
+      arraysMatchUnordered(await this.db.getUserMashups('some_user_id0'), expected0, 'Gets User 0 Mashups', matchUserMashup);
+      arraysMatchUnordered(await this.db.getUserMashups('some_user_id1'), expected1, 'Gets User 1 Mashups', matchUserMashup);
+      arraysMatchUnordered(await this.db.getUserMashups('some_user_id2'), [], 'Unknown User', matchUserMashup);
     });
   });
 
@@ -188,6 +188,41 @@ describe('Mashup DB Interface', () => {
       assert.equal(await this.db.mashupCount(), 3, 'Exactly 2 mashups remains');
       assert.equal(await this.db.getMashupName(this.id0), 'test_mashup0', 'Does not delete other mashups');
       assert.equal(await this.db.getMashupName(this.id1), 'test_mashup1', 'Does not delete other mashups');
+    });
+  });
+
+  describe('Mashup Searching', () => {
+    it('returns songs matching search string', async function () {
+      const mashup_names_to_search = [
+        'a mashup 0',
+        'a mashup 1',
+        'a mashup 2',
+        'another mashup 0',
+        'another mashup 1',
+        'another mashup 2',
+        'another mashup 3',
+      ];
+      for (let i = 0; i < mashup_names_to_search.length; i++) {
+        await this.db.createMashup(mashup_names_to_search[i], 'test_user');
+      }
+
+      const matches_all = (await this.db.searchUserMashups('test_user', 'a')).map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_all, mashup_names_to_search, 'Search Results: "a"');
+
+      const matches_all_caps = (await this.db.searchUserMashups('test_user', 'A')).map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_all_caps, mashup_names_to_search, 'Search Results: "A"');
+
+      const matches_some = (await this.db.searchUserMashups('test_user', 'ano')).map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_some, mashup_names_to_search.slice(3, 7), 'Search Results: "ano"');
+
+      const matches_some_mixed = (await this.db.searchUserMashups('test_user', 'ANo')).map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_some_mixed, mashup_names_to_search.slice(3, 7), 'Search Results: "ANo"');
+
+      const matches_all_limited = await this.db.searchUserMashups('test_user', 'a', 3);
+      assert.equal(matches_all_limited.length, 3, 'Matches are limited to 3');
+
+      const other_user = await this.db.searchUserMashups('unknown_user', 'a');
+      assert.equal(other_user.length, 0, 'Returns no results for other user');
     });
   });
 });

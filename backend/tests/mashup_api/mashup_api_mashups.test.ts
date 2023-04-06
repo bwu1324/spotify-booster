@@ -62,7 +62,7 @@ describe('Mashup API Mashups', () => {
       const req = request(this.app);
       const response = await req.get('/mashupapi/getUserMashups');
       assert.equal(response.statusCode, 200, 'Responds with success status code');
-      arraysMatchUnordered(response.body.mashups, expected0, matchUserMashup, 'Users Mashups');
+      arraysMatchUnordered(response.body.mashups, expected0, 'Users Mashups', matchUserMashup);
     });
   });
 

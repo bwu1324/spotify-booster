@@ -4,14 +4,14 @@ import { assert } from 'chai';
  * arraysMatchUnordered() - Checks if 2 arrays match without regard to order
  * @param actual - actual result
  * @param expected - expected result
- * @param comparator - function to compare elements, where act is the actual value and exp is the expected value, defaults to ===
  * @param array_identifier - string identifying array being tested
+ * @param comparator - function to compare elements, where act is the actual value and exp is the expected value, defaults to ===
  */
 export function arraysMatchUnordered<T>(
   actual: Array<T>,
   expected: Array<T>,
-  comparator?: (act: T, exp: T) => boolean,
-  array_identifier?: string
+  array_identifier?: string,
+  comparator?: (act: T, exp: T) => boolean
 ) {
   if (!comparator) comparator = (a, b) => a === b;
   if (array_identifier) array_identifier = ` ${array_identifier} `;
@@ -35,14 +35,14 @@ export function arraysMatchUnordered<T>(
  * arraysMatchOrdered() - Checks if 2 arrays match in order
  * @param actual - actual result
  * @param expected - expected result
- * @param comparator - function to compare elements, where act is the actual value and exp is the expected value, defaults to ===
  * @param array_identifier - string identifying array being tested
+ * @param comparator - function to compare elements, where act is the actual value and exp is the expected value, defaults to ===
  */
 export function arraysMatchOrdered<T>(
   actual: Array<T>,
   expected: Array<T>,
-  comparator?: (act: T, exp: T) => boolean,
-  array_identifier?: string
+  array_identifier?: string,
+  comparator?: (act: T, exp: T) => boolean
 ) {
   if (!comparator) comparator = (a, b) => a === b;
   if (array_identifier) array_identifier = ` ${array_identifier} `;

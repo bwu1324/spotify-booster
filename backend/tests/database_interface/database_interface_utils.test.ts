@@ -31,8 +31,8 @@ export async function checkTrackDB(
   total_tracks: number
 ) {
   assert.equal(await db.totalTrackCount(), total_tracks, `Database contains ${total_tracks} tracks`);
-  arraysMatchOrdered(await db.getMashupTracks(id0), expected0, matchTracks, 'Mashup 0 Tracks');
-  arraysMatchOrdered(await db.getMashupTracks(id1), expected1, matchTracks, 'Mashup 1 Tracks');
+  arraysMatchOrdered(await db.getMashupTracks(id0), expected0, 'Mashup 0 Tracks', matchTracks);
+  arraysMatchOrdered(await db.getMashupTracks(id1), expected1, 'Mashup 1 Tracks', matchTracks);
 }
 
 /**

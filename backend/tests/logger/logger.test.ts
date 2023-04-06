@@ -103,8 +103,8 @@ describe('Logger', () => {
       setTimeout(() => {
         const { debug, info } = fetchLogs(this.name);
 
-        arraysMatchOrdered(debug, expected_debug, matchLogs, 'Debug Logs');
-        arraysMatchOrdered(info, expected_info, matchLogs, 'Info Logs');
+        arraysMatchOrdered(debug, expected_debug, 'Debug Logs', matchLogs);
+        arraysMatchOrdered(info, expected_info, 'Info Logs', matchLogs);
 
         done();
       }, WRITE_WAIT);
