@@ -34,6 +34,12 @@ POST: /mashupapi/createMashup?name=mashup_name
 | 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
 
+## Get Users Mashups
+Gets users mashups
+```http
+GET: /mashupapi/getUserMashups
+```
+
 | Parameter | Type | Description |
 | :--- | :--- | :--- |
 | none | | |
@@ -46,32 +52,26 @@ type MashupInfo = {
 }
 
 {
-  "mashups": Array<MashupInfo>,
+  "mashups": Array<MashupInfo>
   "error_message": string
 }
 ```
-`"mashups"` is the array of user mashups
+`"mashups"` is the array containing the search restuls
 
-`"MashupInfo.mashup_id"` mashup id of mashup
+`"MashupInfo.mashup_id"` is the unique mashup_id of the mashup
 
-`"MashupInfo.name"` name of mashup
+`"MashupInfo.name"` is the user set name of the mashup
 
 `"error_message"` contains an error message if there was an error
 
-## Get Users Mashups
-Gets users mashups
-```http
-GET: /mashupapi/getUserMashups
-```
-
 ### Status Codes
 | Code | Description |
-| :--- | :---|
+| :--- | :--- |
 | 200 | OK |
-| 400 | BAD REQUEST |
+| 400 | BAD REQUEST (mashup_id was probably wrong) |
 | 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
-
 
 ## Get Mashup Name
 Fetches the name of a given mashup
@@ -101,6 +101,47 @@ Get: /mashupapi/getMashupName?mashup_id=MTUxODVkMzFmZDc2MGUwNjg2YjFiMTFjZTRkNzYx
 | 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
 | 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
 | 500 | INTERNAL SERVER ERROR |
+
+## Search Users Mashups
+Searches a users mashups to find mashups with names beginning the same way as the search string
+```http
+Get: /mashupapi/searchUserMashups?search_string=name&limit=3
+```
+| Parameter | Type | Description |
+| :--- | :--- | :--- |
+| search_string | `string` | Search string to search with |
+| limit | `integer` | (Optional) number of results to limit search to |
+
+### Response
+```js
+type MashupInfo = {
+  mashup_id: string,
+  name: string,
+}
+
+{
+  "results": Array<MashupInfo>
+  "error_message": string
+}
+```
+`"results"` is the array containing the search restuls
+
+`"MashupInfo.mashup_id"` is the unique mashup_id of the mashup
+
+`"MashupInfo.name"` is the user set name of the mashup
+
+`"error_message"` contains an error message if there was an error
+
+### Status Codes
+| Code | Description |
+| :--- | :--- |
+| 200 | OK |
+| 400 | BAD REQUEST (mashup_id was probably wrong) |
+| 401 | UNAUTHORIZED (`"spotify_access_token"` cookie probably was not set correctly) |
+| 403 | FORBIDDEN (user probably does not have access to view/edit mashup) |
+| 500 | INTERNAL SERVER ERROR |
+
+
 
 ## Set Mashup Name
 Updates the name of a given mashup
