@@ -30,6 +30,19 @@ export default function createMashupsRouter(log: Logger, db: DatabaseInterface) 
   );
 
   router.get(
+    '/mashupapi/searchUserMashups',
+    runMashupAPIFunction(async (req: AuthRequest) => {
+      const search_string = req.query.search_string as string;
+      let limit = 20;
+      if (req.query.limit) {
+        limit = parseInt(req.query.limit as string);
+      }
+      const results = await db.searchUserMashups(req.spotify_uid, search_string, limit);
+      return { code: 200, res: { results } };
+    })
+  );
+
+  router.get(
     '/mashupapi/getMashupName',
     runAuthMashupAPIFunction(async (req: AuthRequest) => {
       const mashup_id = req.query.mashup_id as string;

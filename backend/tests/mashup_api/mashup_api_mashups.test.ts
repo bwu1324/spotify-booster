@@ -154,4 +154,40 @@ describe('Mashup API Mashups', () => {
       assert.equal(response2.statusCode, 200, 'Mashup still exists');
     });
   });
+
+  describe('Mashup API Search Mashups', () => {
+    it('Finds a users mashups', async function () {
+      const mashup_names_to_search = [
+        'a mashup 0',
+        'a mashup 1',
+        'a mashup 2',
+        'another mashup 0',
+        'another mashup 1',
+        'another mashup 2',
+        'another mashup 3',
+      ];
+      for (let i = 0; i < mashup_names_to_search.length; i++) {
+        await this.db.createMashup(mashup_names_to_search[i], 'some_user_id');
+      }
+
+      const response0 = await request(this.app).get('/mashupapi/searchUserMashups?search_string=a');
+      const matches_all = response0.body.results.map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_all, mashup_names_to_search, 'Search String: a');
+
+      const response1 = await request(this.app).get('/mashupapi/searchUserMashups?search_string=A');
+      const matches_all_caps = response1.body.results.map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_all_caps, mashup_names_to_search, 'Search String: A');
+
+      const response2 = await request(this.app).get('/mashupapi/searchUserMashups?search_string=ano');
+      const matches_some = response2.body.results.map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_some, mashup_names_to_search.slice(3, 7), 'Search String: ano');
+
+      const response3 = await request(this.app).get('/mashupapi/searchUserMashups?search_string=ANo');
+      const matches_some_mixed = response3.body.results.map((m: { name: string }) => m.name);
+      arraysMatchUnordered(matches_some_mixed, mashup_names_to_search.slice(3, 7), 'Search String: ANo');
+
+      const response4 = await request(this.app).get('/mashupapi/searchUserMashups?search_string=a&limit=3');
+      assert.equal(response4.body.results.length, 3, 'Limits results to 3');
+    });
+  });
 });
