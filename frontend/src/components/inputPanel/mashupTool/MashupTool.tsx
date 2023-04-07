@@ -10,22 +10,14 @@
  * songs.
  */
 
-import React from 'react';
+import React, { useContext } from 'react';
 import { Paper } from '@mui/material';
 import { theme } from '../../../theme';
 import NoMashup from './NoMashup';
 import MashupCreator from './MashupCreator';
 import MashupInfo from './MashupInfo';
-import { Result, ResultType } from '../util';
-import { EmptyResult } from '../util';
-import axios from 'axios';
-import backend_config from '../../../config/backend_config.js';
-
-const MashupInCreation: Result = {
-  resultType: ResultType.Mashup,
-  id: '...',
-  name: 'Mashup under Construction',
-};
+import { MashupContext, Result, ResultType } from '../../util';
+import { EmptyResult, MashupInCreation, backendHTTP } from '../../util';
 
 /**
  * MashupToolContent is a wrapper for the MashupTool screens. We need it to
@@ -39,15 +31,7 @@ function MashupToolContent({
   startSong: Result;
   songRepo: Result;
 }) {
-  // Current mashup ID. '...' if a mashup is in the creation process.
-  const [mashup, setMashup] = React.useState<Result>(EmptyResult);
-
-  // We need axios instance because we need to send cookies in the OPTIONS
-  // request, so we need to specify `withCredentials: true` generally.
-  const axiosInstance = axios.create({
-    baseURL: backend_config.base_url,
-    withCredentials: true,
-  });
+  const { mashup, setMashup } = useContext(MashupContext);
 
   async function createMashup(name: string) {
     // Make sure we have a start song (track) and a song repo (playlist/album).
@@ -63,7 +47,7 @@ function MashupToolContent({
 
     // Create new mashup with the API.
     try {
-      axiosInstance
+      backendHTTP
         .post('mashupapi/createMashup', null, { params: { name: name } })
         .then((response) => {
           // console.log(response);

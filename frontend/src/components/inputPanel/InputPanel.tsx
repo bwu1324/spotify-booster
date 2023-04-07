@@ -10,7 +10,7 @@
 import React from 'react';
 import Finder from './finder/Finder';
 import MashupTool from './mashupTool/MashupTool';
-import { EmptyResult, Result, ResultType } from './util';
+import { EmptyResult, Result, ResultType } from '../util';
 
 function InputPanel() {
   // The start song is the song that the mashup will start with.

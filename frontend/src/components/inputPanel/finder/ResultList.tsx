@@ -9,7 +9,7 @@ import {
   ListItemText,
   useTheme,
 } from '@mui/material';
-import { Result, ResultType } from '../util';
+import { Result, ResultType } from '../../util';
 
 // Used for rendering each result.
 function RenderedResult({
