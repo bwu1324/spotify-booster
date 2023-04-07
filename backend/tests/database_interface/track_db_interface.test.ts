@@ -21,8 +21,8 @@ describe('Track DB Interface', () => {
     this.db_location = path.join(TEST_DB_DIRECTORY, uniqueID());
     this.db = new DatabaseInterface(this.db_location);
 
-    this.id0 = await this.db.createMashup('test_mashup0');
-    this.id1 = await this.db.createMashup('test_mashup1');
+    this.id0 = await this.db.createMashup('test_mashup0', 'some_spotify_user');
+    this.id1 = await this.db.createMashup('test_mashup1', 'some_spotify_user');
 
     this.default_mashup0 = [
       { track_id: 'some_spotify_id0', start_ms: 0, end_ms: -1 }, // default start_ms and end_ms values
@@ -111,11 +111,16 @@ describe('Track DB Interface', () => {
         '', // blank
         '\n',
         ' ',
-        's0me_spotify_id0', // similar
       ];
       for (const id of invalid_ids) {
         await assert.isRejected(this.db.removeTrack(this.id0, id), 'Invalid Track Id');
       }
+
+      await checkTrackDB(this.db, this.id0, this.id1, this.default_mashup0, this.default_mashup1, 8);
+    });
+
+    it('rejects promise is removing track that does not exist', async function () {
+      await assert.isRejected(this.db.removeTrack(this.id0, 'some_spotify_id10'), 'Track Does Not Exist In Mashup');
 
       await checkTrackDB(this.db, this.id0, this.id1, this.default_mashup0, this.default_mashup1, 8);
     });
@@ -176,8 +181,14 @@ describe('Track DB Interface', () => {
       await assert.isRejected(this.db.setStartMS(unknown_mashup, this.default_mashup0[0].track_id, 0), 'Invalid Mashup Id');
       await assert.isRejected(this.db.setEndMS(unknown_mashup, this.default_mashup0[0].track_id, 0), 'Invalid Mashup Id');
 
-      await assert.isRejected(this.db.setStartMS(this.id0, this.default_mashup1[3].track_id, 0), 'Invalid Track Id');
-      await assert.isRejected(this.db.setEndMS(this.id0, this.default_mashup1[3].track_id, 0), 'Invalid Track Id');
+      await assert.isRejected(
+        this.db.setStartMS(this.id0, this.default_mashup1[3].track_id, 0),
+        'Track Does Not Exist In Mashup'
+      );
+      await assert.isRejected(
+        this.db.setEndMS(this.id0, this.default_mashup1[3].track_id, 0),
+        'Track Does Not Exist In Mashup'
+      );
 
       await checkTrackDB(this.db, this.id0, this.id1, this.default_mashup0, this.default_mashup1, 8);
     });

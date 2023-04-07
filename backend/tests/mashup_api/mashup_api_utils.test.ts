@@ -1,5 +1,6 @@
 import express from 'express';
 import request from 'supertest';
+
 import { TrackInfo } from '../../src/database_interface/track_db_interface';
 
 /**
@@ -9,8 +10,12 @@ import { TrackInfo } from '../../src/database_interface/track_db_interface';
  */
 export async function createEmptyMashup(app: express.Application) {
   const mashup_name = 'test_mashup';
-  const req0 = request(app);
-  const response = await req0.post(`/mashupapi/createMashup?name=${mashup_name}`);
+  const agent = request
+    .agent(app)
+    .post(`/mashupapi/createMashup?name=${mashup_name}`)
+    .set('Cookie', 'spotify_access_token=valid_token');
+
+  const response = await agent.send();
   return response.body.mashup_id;
 }
 

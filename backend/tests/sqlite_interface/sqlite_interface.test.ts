@@ -48,7 +48,7 @@ describe('SQLite Interface', () => {
 
       const rows = await sqlite_interface.dbAll('SELECT * FROM test_table0', {});
       const expected_rows = [{ col1: 'some string', col2: 0 }];
-      arraysMatchUnordered(expected_rows, rows, matchTestRow, 'Existing Data');
+      arraysMatchUnordered(expected_rows, rows, 'Existing Data', matchTestRow);
 
       assert(fs.existsSync(db_location), 'Creates database at correct location');
 
@@ -73,7 +73,7 @@ describe('SQLite Interface', () => {
         { col1: 'another string', col2: 1 },
         { col1: 'a string', col2: 2 },
       ];
-      arraysMatchUnordered(expected_rows, rows, matchTestRow, 'Existing Data');
+      arraysMatchUnordered(expected_rows, rows, 'Existing Data', matchTestRow);
 
       await sqlite_interface.close();
     });

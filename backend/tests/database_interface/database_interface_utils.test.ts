@@ -1,7 +1,7 @@
 import { assert } from 'chai';
 import DatabaseInterface from '../../src/database_interface/database_interface';
 import { TrackInfo } from '../../src/database_interface/track_db_interface';
-import { arraysMatchUnordered } from '../test_utils/assertions/arrays_match.test';
+import { arraysMatchOrdered } from '../test_utils/assertions/arrays_match.test';
 
 /**
  * matchTracks() - Compares two tracks and returns true if they match
@@ -31,6 +31,15 @@ export async function checkTrackDB(
   total_tracks: number
 ) {
   assert.equal(await db.totalTrackCount(), total_tracks, `Database contains ${total_tracks} tracks`);
-  arraysMatchUnordered(await db.getMashupTracks(id0), expected0, matchTracks, 'Mashup 0 Tracks');
-  arraysMatchUnordered(await db.getMashupTracks(id1), expected1, matchTracks, 'Mashup 1 Tracks');
+  arraysMatchOrdered(await db.getMashupTracks(id0), expected0, 'Mashup 0 Tracks', matchTracks);
+  arraysMatchOrdered(await db.getMashupTracks(id1), expected1, 'Mashup 1 Tracks', matchTracks);
+}
+
+/**
+ * matchUserMahup() - compares two mashups to check that they match
+ * @param a - actual track
+ * @param e - expected track
+ */
+export function matchUserMashup(a: { mashup_id: string; name: string }, e: { mashup_id: string; name: string }): boolean {
+  return a.mashup_id === e.mashup_id && a.name === e.name;
 }

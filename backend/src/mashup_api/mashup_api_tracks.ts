@@ -2,6 +2,8 @@ import express from 'express';
 
 import DatabaseInterface from '../database_interface/database_interface';
 import Logger from '../logger/logger';
+import { runAuthMashupAPIFunction } from './mashup_api_util';
+import { AuthRequest } from '../spotify_authentication/spotify_authentication';
 
 /**
  * createTracksRouter() - Returns router for tracks part of mashup api
@@ -13,66 +15,68 @@ import Logger from '../logger/logger';
 export default function createTracksRouter(log: Logger, db: DatabaseInterface) {
   const router = express.Router();
 
-  router.get('/mashupapi/getMashupTracks', async (req, res) => {
+  // Checks if a user is authorized to view/edit mashup
+  const auth_function = async (req: AuthRequest) => {
     const mashup_id = req.query.mashup_id as string;
+    return await db.mashupPermission(mashup_id, req.spotify_uid);
+  };
 
-    try {
+  router.get(
+    '/mashupapi/getMashupTracks',
+    runAuthMashupAPIFunction(async (req) => {
+      const mashup_id = req.query.mashup_id as string;
       const tracks = await db.getMashupTracks(mashup_id);
-      res.status(200).send({ tracks });
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
 
-  router.put('/mashupapi/addTrack', async (req, res) => {
-    const mashup_id = req.query.mashup_id as string;
-    const track_id = req.query.track_id as string;
+      return { code: 200, res: { tracks } };
+    }, auth_function)
+  );
 
-    try {
+  router.put(
+    '/mashupapi/addTrack',
+    runAuthMashupAPIFunction(async (req) => {
+      const mashup_id = req.query.mashup_id as string;
+      const track_id = req.query.track_id as string;
+
       await db.addTrack(mashup_id, track_id);
-      res.status(200).send({});
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      return { code: 200, res: {} };
+    }, auth_function)
+  );
 
-  router.put('/mashupapi/setStartMs', async (req, res) => {
-    const mashup_id = req.query.mashup_id as string;
-    const track_id = req.query.track_id as string;
-    const start_ms = parseInt(req.query.start_ms as string);
+  router.put(
+    '/mashupapi/setStartMs',
+    runAuthMashupAPIFunction(async (req) => {
+      const mashup_id = req.query.mashup_id as string;
+      const track_id = req.query.track_id as string;
+      const start_ms = parseInt(req.query.start_ms as string);
 
-    try {
       await db.setStartMS(mashup_id, track_id, start_ms);
-      res.status(200).send({});
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
 
-  router.put('/mashupapi/setEndMs', async (req, res) => {
-    const mashup_id = req.query.mashup_id as string;
-    const track_id = req.query.track_id as string;
-    const end_ms = parseInt(req.query.end_ms as string);
+      return { code: 200, res: {} };
+    }, auth_function)
+  );
 
-    try {
+  router.put(
+    '/mashupapi/setEndMs',
+    runAuthMashupAPIFunction(async (req) => {
+      const mashup_id = req.query.mashup_id as string;
+      const track_id = req.query.track_id as string;
+      const end_ms = parseInt(req.query.end_ms as string);
+
       await db.setEndMS(mashup_id, track_id, end_ms);
-      res.status(200).send({});
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      return { code: 200, res: {} };
+    }, auth_function)
+  );
 
-  router.delete('/mashupapi/removeTrack', async (req, res) => {
-    const mashup_id = req.query.mashup_id as string;
-    const track_id = req.query.track_id as string;
+  router.delete(
+    '/mashupapi/removeTrack',
+    runAuthMashupAPIFunction(async (req) => {
+      const mashup_id = req.query.mashup_id as string;
+      const track_id = req.query.track_id as string;
 
-    try {
       await db.removeTrack(mashup_id, track_id);
-      res.status(200).send({});
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      return { code: 200, res: {} };
+    }, auth_function)
+  );
 
   return router;
 }

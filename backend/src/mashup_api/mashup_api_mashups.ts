@@ -2,61 +2,86 @@ import express from 'express';
 
 import DatabaseInterface from '../database_interface/database_interface';
 import Logger from '../logger/logger';
+import { AuthRequest } from '../spotify_authentication/spotify_authentication';
+import { runAuthMashupAPIFunction, runMashupAPIFunction } from './mashup_api_util';
 
 /**
- * createMashpesRouter() - Returns router for mashup part of mashup api
+ * createMashupsRouter() - Returns router for mashup part of mashup api
  * Handles adding/editing/deleting mashups
  * @param log - logger
  * @param db - database interface for mashups and tracks
  * @returns - Express router
  */
-export default function createMashpesRouter(log: Logger, db: DatabaseInterface) {
+export default function createMashupsRouter(log: Logger, db: DatabaseInterface) {
   const router = express.Router();
 
-  router.get('/mashupapi/getMashupName', async (req, res) => {
+  // Checks if a user is authorized to view/edit mashup
+  const auth_function = async (req: AuthRequest) => {
     const mashup_id = req.query.mashup_id as string;
+    return await db.mashupPermission(mashup_id, req.spotify_uid);
+  };
 
-    try {
+  router.get(
+    '/mashupapi/getUserMashups',
+    runMashupAPIFunction(async (req: AuthRequest) => {
+      const mashups = await db.getUserMashups(req.spotify_uid);
+      return { code: 200, res: { mashups } };
+    })
+  );
+
+  router.get(
+    '/mashupapi/searchUserMashups',
+    runMashupAPIFunction(async (req: AuthRequest) => {
+      const search_string = req.query.search_string as string;
+      let limit = 20;
+      if (req.query.limit) {
+        limit = parseInt(req.query.limit as string);
+      }
+      const results = await db.searchUserMashups(req.spotify_uid, search_string, limit);
+      return { code: 200, res: { results } };
+    })
+  );
+
+  router.get(
+    '/mashupapi/getMashupName',
+    runAuthMashupAPIFunction(async (req: AuthRequest) => {
+      const mashup_id = req.query.mashup_id as string;
+
       const name = await db.getMashupName(mashup_id);
-      res.status(200).send({ name });
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      return { code: 200, res: { name } };
+    }, auth_function)
+  );
 
-  router.put('/mashupapi/setMashupName', async (req, res) => {
-    const mashup_id = req.query.mashup_id as string;
-    const name = req.query.name as string;
+  router.put(
+    '/mashupapi/setMashupName',
+    runAuthMashupAPIFunction(async (req: AuthRequest) => {
+      const mashup_id = req.query.mashup_id as string;
+      const name = req.query.name as string;
 
-    try {
       await db.setMashupName(mashup_id, name);
-      res.status(200).send({});
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      return { code: 200, res: {} };
+    }, auth_function)
+  );
 
-  router.post('/mashupapi/createMashup', async (req, res) => {
-    const name = req.query.name as string;
+  router.post(
+    '/mashupapi/createMashup',
+    runMashupAPIFunction(async (req: AuthRequest) => {
+      const name = req.query.name as string;
 
-    try {
-      const mashup_id = await db.createMashup(name);
-      res.status(200).send({ mashup_id });
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      const mashup_id = await db.createMashup(name, req.spotify_uid);
+      return { code: 200, res: { mashup_id } };
+    })
+  );
 
-  router.delete('/mashupapi/deleteMashup', async (req, res) => {
-    const mashup_id = req.query.mashup_id as string;
+  router.delete(
+    '/mashupapi/deleteMashup',
+    runAuthMashupAPIFunction(async (req: AuthRequest) => {
+      const mashup_id = req.query.mashup_id as string;
 
-    try {
       await db.deleteMashup(mashup_id);
-      res.status(200).send({});
-    } catch (error) {
-      res.status(400).send({ error_message: error.message });
-    }
-  });
+      return { code: 200, res: {} };
+    }, auth_function)
+  );
 
   return router;
 }

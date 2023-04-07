@@ -32,8 +32,8 @@ describe('Profiler', () => {
       this.debug_spy.getCall(0).calledWith('Task "profile0" completed successfully after 100 milliseconds'),
       'Logs correct message'
     );
-    assert(time === 100, 'Returns correct duration');
-    assert(time === profile0.stop(), 'Calling stop again returns same duration');
+    assert.equal(time, 100, 'Returns correct duration');
+    assert.equal(time, profile0.stop(), 'Calling stop again returns same duration');
   });
 
   it('writes custom log message and success', async () => {
