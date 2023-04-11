@@ -34,11 +34,9 @@ export default function Control({
   currentTrack: number | null;
   updateCurrentTrack: Function;
 }) {
-  // outerHeight and outerWidth are the height and width of the ControllerPaper container
-  const [outerHeight, setOuterHeight] = useState(0);
-  const [outerWidth, setOuterWidth] = useState(0);
-
-  // albumColPortion is the portion of the ControllerPaper container that is allocated to the album art
+  console.log('Rendering Control');
+  // albumColPortion is the portion of the ControllerPaper container that is
+  // allocated to the album art
   const [albumColPortion, setAlbumColPortion] = useState(0);
 
   // outerRef is a reference to the ControllerPaper container
@@ -64,10 +62,14 @@ export default function Control({
     if (!outerRef.current) return; // wait for the elementRef to be available
     const resizeObserver = new ResizeObserver(() => {
       // The following actions will be called every time the element is resized
-      setOuterHeight(outerRef.current.clientHeight);
-      setOuterWidth(outerRef.current.clientWidth);
       setAlbumColPortion(
-        parseFloat((((outerHeight - 32) / (outerWidth - 32)) * 100).toFixed(4))
+        parseFloat(
+          (
+            ((outerRef.current.clientHeight - 32) /
+              (outerRef.current.clientWidth - 32)) *
+            100
+          ).toFixed(4)
+        )
       );
     });
     resizeObserver.observe(outerRef.current);
@@ -79,6 +81,7 @@ export default function Control({
 
   // Prepare the Spotify player SDK.
   useEffect(() => {
+    console.log('Spotify prep');
     // Attatch the SDK.
     const script = document.createElement('script');
     script.src = 'https://sdk.scdn.co/spotify-player.js';
@@ -87,6 +90,7 @@ export default function Control({
 
     // Callback for when the SDK is ready.
     window.onSpotifyWebPlaybackSDKReady = () => {
+      console.log('Spotify ready');
       // Request player with given settings.
       const player = new window.Spotify.Player({
         // This is the name that will show up in Spotify Connect.

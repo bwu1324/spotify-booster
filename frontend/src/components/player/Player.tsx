@@ -54,6 +54,7 @@ async function getTracksInMashup(mashup: Result): Promise<Array<Result>> {
 }
 
 export default function Player({ mashup }: { mashup: Result }) {
+  console.log('Rendering Player');
   // The list of songs in a mashup.
   const [tracks, setTracks] = useState<Array<Result>>([]);
 

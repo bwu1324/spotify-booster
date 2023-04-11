@@ -29,16 +29,10 @@ const styles = {
 
 function Home() {
   const cookie = getCookie('spotify_access_token');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const isLoggedIn = cookie != null;
 
   // Current mashup ID. '...' if a mashup is in the creation process.
   const [mashup, setMashup] = React.useState<Result>(EmptyResult);
-
-  // Checks if user is logged in by checking if user token exists
-  useEffect(() => {
-    const loggedIn = cookie != null;
-    setIsLoggedIn(loggedIn);
-  });
 
   return (
     <ThemeProvider theme={theme}>

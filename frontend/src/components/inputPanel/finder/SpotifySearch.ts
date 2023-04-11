@@ -24,10 +24,13 @@ export async function searchSpotifyFor(
           type: ResultType[type].toLowerCase(),
           limit: 10,
         },
+        headers: {
+          Authorization: `Bearer ${cookie}`,
+        },
       })
       .then((response) => convertSpotifyResults(response.data));
   } catch (error) {
-    console.error(error);
+    console.error('Cookie:', cookie, error);
     return [];
   }
 }
