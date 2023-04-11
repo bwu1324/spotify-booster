@@ -5,7 +5,6 @@
 import React from 'react';
 import axios from 'axios';
 import backend_config from '../config/backend_config.js';
-import { getCookie } from './login/Cookie';
 
 // rendered differently.
 export enum ResultType {
@@ -53,11 +52,6 @@ export type TrackInfo = {
 // We need axios instance because we need to send cookies in the OPTIONS
 // request, so we need to specify `withCredentials: true` generally.
 export const backendHTTP = axios.create({
-  baseURL: backend_config.base_url,
+  baseURL: backend_config.baseURL,
   withCredentials: true,
-});
-
-export const spotifyHTTP = axios.create({
-  baseURL: 'https://api.spotify.com/v1/',
-  headers: { Authorization: `Bearer ${getCookie('spotify_access_token')}` },
 });

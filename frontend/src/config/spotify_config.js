@@ -1,5 +1,6 @@
 // Spotify API configuration
 module.exports = {
+  baseURL: 'https://api.spotify.com/v1/',
   clientId: '01e902e599d7467494c373c6873781ad',
   clientSec: '4990665be4f148d696cc5143ca4f84e4',
   authorizeUrlPrefix:
