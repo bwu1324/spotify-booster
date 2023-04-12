@@ -3,6 +3,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { Button, Typography } from '@mui/material';
 import { getCookie, setCookie } from './Cookie';
+import { checkTokenExpiration } from './Requests';
 
 import SpotifyWebApi from 'spotify-web-api-js';
 import spotify_config from '../../config/spotify_config';
@@ -69,6 +70,14 @@ const SpotifyLogin: React.FC = () => {
     if (user) {
       setUserName(user.display_name);
     }
+
+    // Check token expiration every 5 minutes
+    const intervalId = setInterval(checkTokenExpiration, 5 * 60 * 1000);
+
+    // Clear the interval when the component is unmounted or the user object changes
+    return () => {
+      clearInterval(intervalId);
+    };
   }, [user]);
 
   /* Detects whether user has logged in or not */
