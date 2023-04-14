@@ -13,9 +13,13 @@ import { useState, useEffect, useRef } from 'react';
 import { Typography, Grid } from '@mui/material';
 import { ControllerContainer, AlbumArt } from '../../theme';
 import PlaybackBar from './PlaybackBar';
-import { CookieContext, Result } from '../util';
-import spotify_config from '../../config/spotify_config.js';
-import axios from 'axios';
+import {
+  AccessTokenContext,
+  Result,
+  pauseSpotifyPlayback,
+  playSpotifyPlayback,
+  playSpotifyTracks,
+} from '../util';
 import getSpotifyPlayer from './getSpotifyPlayer';
 
 /**
@@ -45,9 +49,6 @@ export default function Control({
   // it is for us to know the dimension of the first Grid container
   const outerRef = useRef<any>();
 
-  // Spotify authentication token
-  const cookie = useContext(CookieContext);
-
   // Spotify player SDK
   const [spotifyPlayer, setSpotifyPlayer] = useState<Spotify.Player | null>(
     null
@@ -57,10 +58,7 @@ export default function Control({
   // Whether music is currently not playing.
   const [paused, setPaused] = useState<boolean>(true);
 
-  const spotifyHTTP = axios.create({
-    baseURL: spotify_config.baseURL,
-    headers: { Authorization: `Bearer ${cookie}` },
-  });
+  const spotifyAccessToken = useContext(AccessTokenContext).token;
 
   useEffect(() => {
     if (!outerRef.current) return; // wait for the elementRef to be available
@@ -85,10 +83,10 @@ export default function Control({
 
   // Prepare the Spotify player SDK.
   useEffect(() => {
-    if (cookie === null) return;
-    getSpotifyPlayer(cookie, setSpotifyPlayer, setDeviceId);
-    spotifyHTTP.defaults.headers.Authorization = `Bearer ${cookie}`;
-  }, [cookie]);
+    if (spotifyAccessToken === null) return;
+
+    getSpotifyPlayer(spotifyAccessToken, setSpotifyPlayer, setDeviceId);
+  }, [spotifyAccessToken]);
 
   // Handle when the current track changes.
   useEffect(() => {
@@ -96,15 +94,12 @@ export default function Control({
     if (deviceId === null) return;
     if (currentTrack !== null) {
       // Send request to Spotify to play the song.
-      spotifyHTTP.put(
-        'me/player/play',
-        { uris: [tracks[currentTrack].id] },
-        { params: { device_id: deviceId } }
-      );
+      playSpotifyTracks([tracks[currentTrack].id], deviceId);
+
       // Mark that the song is playing.
       setPaused(false);
     } else {
-      spotifyHTTP.put('me/player/pause');
+      pauseSpotifyPlayback();
     }
   }, [currentTrack, spotifyPlayer]);
 
@@ -135,9 +130,9 @@ export default function Control({
   function togglePaused() {
     if (deviceId !== null && currentTrack !== null) {
       if (paused) {
-        spotifyHTTP.put('me/player/play');
+        playSpotifyPlayback();
       } else {
-        spotifyHTTP.put('me/player/pause');
+        pauseSpotifyPlayback();
       }
       setPaused(!paused);
     }

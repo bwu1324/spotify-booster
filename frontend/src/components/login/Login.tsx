@@ -1,12 +1,13 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useState, useEffect } from 'react';
 import { Button, Typography } from '@mui/material';
-import { getCookie, setCookie } from './Cookie';
+import { setCookie } from './Cookie';
 import { checkTokenExpiration } from './Requests';
 
 import SpotifyWebApi from 'spotify-web-api-js';
 import spotify_config from '../../config/spotify_config';
+import { AccessTokenContext } from '../util';
 
 const spotifyApi = new SpotifyWebApi();
 
@@ -15,9 +16,7 @@ const SpotifyLogin: React.FC = () => {
 
   const [user, setUser] = useState<any>(null);
   const [userName, setUserName] = useState<string>('');
-  const [token, setToken] = useState<string | null>(
-    getCookie('spotify_access_token')
-  );
+  const { token, setToken } = useContext(AccessTokenContext);
 
   // Handle login behavior
   const handleLogin = async () => {

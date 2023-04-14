@@ -6,17 +6,10 @@ import React, { useEffect, useState } from 'react';
 import { Grid } from '@mui/material';
 import Control from './Control';
 import TrackList from './TrackList';
-import {
-  MashupInCreation,
-  Result,
-  ResultType,
-  TrackInfo,
-  backendHTTP,
-} from '../util';
+import { MashupInCreation, Result, ResultType, backendHTTP } from '../util';
 
 function convertBackendTrackList(response: any): Array<Result> {
   // TODO
-  console.log(response.data.tracks);
   // Temporary for testing
   return [
     {
@@ -54,7 +47,6 @@ async function getTracksInMashup(mashup: Result): Promise<Array<Result>> {
 }
 
 export default function Player({ mashup }: { mashup: Result }) {
-  console.log('Rendering Player');
   // The list of songs in a mashup.
   const [tracks, setTracks] = useState<Array<Result>>([]);
 

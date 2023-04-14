@@ -58,7 +58,7 @@ export async function checkTokenExpiration(): Promise<void> {
     // 59 min = 3540000 ms, for debug use
     // 5 min = 300000 ms, for actual use
     if (expirationTimestamp - now < 300000) {
-      console.log('Token expired!');
+      console.warn('Token expired!');
       RefreshToken();
     }
   }

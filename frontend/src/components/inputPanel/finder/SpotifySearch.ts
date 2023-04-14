@@ -7,11 +7,11 @@ import { Result, ResultType } from '../../util';
 export async function searchSpotifyFor(
   query: string,
   type: ResultType,
-  cookie: string | null
+  spotifyAccessToken: string | null
 ) {
   // This happens when you type in a search query, then delete it all. You are
   // searching for nothing.
-  if (query.length === 0 || cookie === null) {
+  if (query.length === 0 || spotifyAccessToken === null) {
     return [];
   }
 
@@ -27,12 +27,12 @@ export async function searchSpotifyFor(
           limit: 10,
         },
         headers: {
-          Authorization: `Bearer ${cookie}`,
+          Authorization: `Bearer ${spotifyAccessToken}`,
         },
       })
       .then((response) => convertSpotifyResults(response.data));
   } catch (error) {
-    console.error('Cookie:', cookie, error);
+    console.error('Spotify Access Token:', spotifyAccessToken, error);
     return [];
   }
 }

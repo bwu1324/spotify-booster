@@ -34,7 +34,7 @@ async function getSpotifyPlayer(
   });
 
   player.addListener('ready', ({ device_id }: { device_id: any }) => {
-    console.debug('Spotify player ready with ID', device_id);
+    console.debug('Spotify player ready with Device ID', device_id);
     setDeviceId(device_id);
   });
 
