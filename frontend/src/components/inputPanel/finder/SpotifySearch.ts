@@ -1,4 +1,5 @@
-import { spotifyHTTP } from '../../util';
+import axios from 'axios';
+import spotify_config from '../../../config/spotify_config.js';
 import { Result, ResultType } from '../../util';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
@@ -6,28 +7,32 @@ import { Result, ResultType } from '../../util';
 export async function searchSpotifyFor(
   query: string,
   type: ResultType,
-  cookie: string | null
+  spotifyAccessToken: string | null
 ) {
   // This happens when you type in a search query, then delete it all. You are
   // searching for nothing.
-  if (query.length === 0 || cookie === null) {
+  if (query.length === 0 || spotifyAccessToken === null) {
     return [];
   }
 
   // Catch any errors with authentication, or the API request.
   try {
-    return await spotifyHTTP
+    return await axios
       .get('/search', {
+        baseURL: spotify_config.baseURL,
         // Get limit number of results of each given type.
         params: {
           q: query,
           type: ResultType[type].toLowerCase(),
           limit: 10,
         },
+        headers: {
+          Authorization: `Bearer ${spotifyAccessToken}`,
+        },
       })
       .then((response) => convertSpotifyResults(response.data));
   } catch (error) {
-    console.error(error);
+    console.error('Spotify Access Token:', spotifyAccessToken, error);
     return [];
   }
 }

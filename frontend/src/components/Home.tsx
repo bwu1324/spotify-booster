@@ -1,7 +1,6 @@
 // This file contains the entire code for the Home component.
 
 import React from 'react';
-import { useState, useEffect } from 'react';
 
 // Styling import
 import { ThemeProvider } from '@mui/material/styles';
@@ -16,7 +15,7 @@ import Splash from './splash/Splash';
 import Player from './player/Player';
 import { getCookie } from '../components/login/Cookie';
 import InputPanel from './inputPanel/InputPanel';
-import { CookieContext, EmptyResult, MashupContext, Result } from './util';
+import { AccessTokenContext, EmptyResult, MashupContext, Result } from './util';
 
 const styles = {
   parentGrid: {
@@ -28,21 +27,18 @@ const styles = {
 };
 
 function Home() {
-  const cookie = getCookie('spotify_access_token');
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [spotifyAccessToken, setSpotifyAccessToken] = React.useState<
+    string | null
+  >(getCookie('spotify_access_token'));
 
   // Current mashup ID. '...' if a mashup is in the creation process.
   const [mashup, setMashup] = React.useState<Result>(EmptyResult);
 
-  // Checks if user is logged in by checking if user token exists
-  useEffect(() => {
-    const loggedIn = cookie != null;
-    setIsLoggedIn(loggedIn);
-  });
-
   return (
     <ThemeProvider theme={theme}>
-      <CookieContext.Provider value={cookie}>
+      <AccessTokenContext.Provider
+        value={{ token: spotifyAccessToken, setToken: setSpotifyAccessToken }}
+      >
         <MashupContext.Provider
           value={{ mashup: mashup, setMashup: setMashup }}
         >
@@ -52,7 +48,7 @@ function Home() {
             }}
           ></GlobalStyles>
           <Header />
-          {isLoggedIn ? (
+          {spotifyAccessToken != null ? (
             <>
               <Grid container style={styles.parentGrid}>
                 <Grid item xs={4} sx={{ padding: 2 }} style={styles.childGrid}>
@@ -77,7 +73,7 @@ function Home() {
             <Splash />
           )}
         </MashupContext.Provider>
-      </CookieContext.Provider>
+      </AccessTokenContext.Provider>
     </ThemeProvider>
   );
 }

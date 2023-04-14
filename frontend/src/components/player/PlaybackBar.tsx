@@ -7,8 +7,6 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container/Container';
 import IconButton from '@mui/material/IconButton';
 import { PlayArrow, FastForward, FastRewind, Pause } from '@mui/icons-material';
-import { useState } from 'react';
-import { spotifyHTTP } from '../util';
 
 /**
  * The playback bar shows a progress bar of how much is left on the current

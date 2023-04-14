@@ -50,13 +50,23 @@ const Callback: React.FC = () => {
 
         const data = await response.json();
         if (data.access_token !== null) {
-          // Set the access token in a cookie that expires in 7 days
+          // Set the access token in a cookie that expires in 31 days
           spotifyApi.setAccessToken(data.access_token);
           // Set cookie
-          setCookie('spotify_access_token', data.access_token, 7);
+          setCookie('spotify_access_token', data.access_token, 31);
+          setCookie('spotify_refresh_token', data.refresh_token, 31);
+
+          const now = Date.now();
+          const expirationTime = now + data.expires_in * 1000;
+          setCookie(
+            'spotify_access_token_expires_in',
+            expirationTime.toString(),
+            31
+          );
 
           // Remove the query parameters from the URL
           window.history.replaceState(null, '', redirectUri);
+          console.log(data);
         }
       } catch (error) {
         console.log('Spotify API request: ', error);
