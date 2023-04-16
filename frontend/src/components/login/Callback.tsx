@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useContext } from 'react';
 
 import { useEffect } from 'react';
 import { setCookie } from './Cookie';
@@ -7,10 +7,14 @@ import { useNavigate } from 'react-router-dom';
 import querystring from 'querystring';
 import SpotifyWebApi from 'spotify-web-api-js';
 import spotify_config from '../../config/spotify_config';
+import { AccessTokenContext } from '../util';
 
 const spotifyApi = new SpotifyWebApi();
 
 const Callback: React.FC = () => {
+  // Used for updating the react state which holds the Spotify access token.
+  const setToken = useContext(AccessTokenContext).setToken;
+
   let isRequestSent = false; // Make sure to call the Spoitfy API only once
 
   const navigate = useNavigate(); // Initiate `useNavigate()`
@@ -52,6 +56,7 @@ const Callback: React.FC = () => {
         if (data.access_token !== null) {
           // Set the access token in a cookie that expires in 31 days
           spotifyApi.setAccessToken(data.access_token);
+          setToken(data.access_token);
           // Set cookie
           setCookie('spotify_access_token', data.access_token, 31);
           setCookie('spotify_refresh_token', data.refresh_token, 31);
