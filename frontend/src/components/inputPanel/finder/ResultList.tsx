@@ -7,7 +7,6 @@ import {
   ListItem,
   ListItemButton,
   ListItemText,
-  useTheme,
 } from '@mui/material';
 import { Result, ResultType } from '../../util';
 
@@ -19,27 +18,29 @@ function RenderedResult({
   result: Result;
   updateMashupParam: Function;
 }) {
-  const theme = useTheme();
   return (
     <ListItem disablePadding>
-      <ListItemButton
-        onClick={() => {
-          updateMashupParam(result);
-        }}
-      >
+      {result.resultType === ResultType.Artist ? (
         <ListItemText
-          primaryTypographyProps={{
-            style: {
-              color:
-                result.resultType === ResultType.None
-                  ? theme.palette.text.disabled
-                  : theme.palette.text.primary,
-            },
+          sx={{
+            paddingTop: '8px',
+            paddingBottom: '8px',
+            paddingLeft: '16px',
+            paddingRight: '16px',
           }}
         >
           {result.name}
         </ListItemText>
-      </ListItemButton>
+      ) : (
+        <ListItemButton
+          onClick={() => {
+            updateMashupParam(result);
+          }}
+          disabled={result.resultType === ResultType.None ? true : false}
+        >
+          <ListItemText>{result.name}</ListItemText>
+        </ListItemButton>
+      )}
     </ListItem>
   );
 }

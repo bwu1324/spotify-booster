@@ -9,6 +9,7 @@ import ResultList from './ResultList';
 import SearchHeader from './SearchHeader';
 import { searchSpotifyFor } from './SpotifySearch';
 import { AccessTokenContext, Result, ResultType } from '../../util';
+import { searchBackendForMashups } from './MashupSearch';
 
 const NO_RESULTS: Result[] = [
   {
@@ -67,22 +68,20 @@ function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
 
   async function updateResults(query: string, searchType: ResultType) {
     setResults(LOADING_RESULTS);
+    let response: Result[] = [];
     if (query === '') {
       // Don't search for anything if there is no query.
-      setResults([]);
     } else if (searchType === ResultType.Mashup) {
-      // Don't search Spotify for mashups.
-      setResults(NO_RESULTS);
-    } else {
-      // Search Spotify given params.
-      const response = await searchSpotifyFor(
-        query,
-        searchType,
-        spotifyAccessToken
-      );
+      // Search the backend for mashups.
+      response = await searchBackendForMashups(query, spotifyAccessToken);
       if (response.length === 0) setResults(NO_RESULTS);
       else setResults(response);
+    } else {
+      // Search Spotify given params.
+      response = await searchSpotifyFor(query, searchType, spotifyAccessToken);
     }
+    if (response.length === 0) setResults(NO_RESULTS);
+    else setResults(response);
   }
 
   return (
