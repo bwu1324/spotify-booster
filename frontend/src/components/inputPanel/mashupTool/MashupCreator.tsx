@@ -58,11 +58,14 @@ function getMashupSetting(
   unset_str: string,
   set_str: string
 ): JSX.Element {
-  if (setting === EmptyResult) return <Typography>{unset_str}</Typography>;
+  if (setting === EmptyResult) {
+    return <Typography>{unset_str}</Typography>;
+  }
+
   return (
     <Typography>
       <b>{set_str}</b>
-      {setting.name}
+      <span style={{ marginLeft: '16px' }}>{setting.name}</span>
     </Typography>
   );
 }
@@ -71,11 +74,13 @@ function MashupCreator({
   startSong,
   songRepo,
   handleCancel,
+  handleResetInputs,
   handleCreate,
 }: {
   startSong: Result;
   songRepo: Result;
   handleCancel: Function;
+  handleResetInputs: Function;
   handleCreate: Function;
 }) {
   // The currently set mashup name.
@@ -114,15 +119,23 @@ function MashupCreator({
           variant="outlined"
           color="secondary"
           onClick={() => handleCancel()}
-          sx={{ width: '50%' }}
+          sx={{ width: '33.33333%' }}
         >
           Cancel
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => handleResetInputs()}
+          sx={{ width: '33.33333%' }}
+        >
+          Reset
         </Button>
         <Button
           variant="contained"
           color="secondary"
           onClick={() => handleCreate(name)}
-          sx={{ width: '50%' }}
+          sx={{ width: '33.33333%' }}
           disabled={
             startSong === EmptyResult ||
             songRepo === EmptyResult ||

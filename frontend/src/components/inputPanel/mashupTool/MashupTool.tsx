@@ -75,6 +75,7 @@ function MashupToolContent({
         startSong={startSong}
         songRepo={songRepo}
         handleCancel={() => setMashup(EmptyResult)}
+        handleResetInputs={() => {}} // doesn't do anything yet, need to implement
         handleCreate={createMashup}
       />
     );

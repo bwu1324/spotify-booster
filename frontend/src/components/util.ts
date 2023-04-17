@@ -42,13 +42,13 @@ export const MashupContext = React.createContext<{
   mashup: Result;
   setMashup: React.Dispatch<React.SetStateAction<Result>>;
   // eslint-disable-next-line
-}>({ mashup: EmptyResult, setMashup: () => { } });
+}>({ mashup: EmptyResult, setMashup: () => {} });
 
 export const AccessTokenContext = React.createContext<{
   token: string | null;
   setToken: Function;
   // eslint-disable-next-line
-}>({ token: null, setToken: () => { } });
+}>({ token: null, setToken: () => {} });
 
 export type TrackInfo = {
   track_id: string;

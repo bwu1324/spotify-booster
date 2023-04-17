@@ -30,6 +30,7 @@ export async function searchBackendForMashups(
 }
 
 function convertBackendMashups(item: any): Array<Result> {
+  console.log(item);
   if (item.results) {
     return item.results.map((mashup: any) => ({
       id: mashup.mashup_id,

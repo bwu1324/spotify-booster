@@ -1,3 +1,12 @@
+import * as React from 'react';
+
+interface PlaybackData {
+  duration: number;
+  position: number;
+}
+
+const playbackData: PlaybackData = { duration: 0, position: 0 };
+
 async function waitForSpotifyWebPlaybackSDKToLoad() {
   return new Promise((resolve) => {
     if (window.Spotify) {
@@ -43,6 +52,22 @@ async function getSpotifyPlayer(
     setDeviceId(null);
   });
 
+  // Add a listener to the player_state_changed event
+  player.addListener('player_state_changed', () => {
+    // Call the getCurrentState method to get the WebPlaybackState object
+    player.getCurrentState().then((state) => {
+      if (state) {
+        playbackData.duration = state.duration;
+        playbackData.position = state.position;
+        // Access the duration and position properties to get the time played
+        // console.log(`Time played: ${position} milliseconds`);
+        // console.log(`Duration: ${duration} milliseconds`);
+        // Calculate the time remaining for the current track
+        // console.log(`Time remaining: ${duration - position} milliseconds`);
+      }
+    });
+  });
+
   if (!(await player.connect())) {
     console.error('Failed to connect the Spotify player.');
   }
@@ -50,4 +75,5 @@ async function getSpotifyPlayer(
   setSpotifyPlayer(player);
 }
 
+export { playbackData };
 export default getSpotifyPlayer;

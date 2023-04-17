@@ -8,6 +8,8 @@ import Container from '@mui/material/Container/Container';
 import IconButton from '@mui/material/IconButton';
 import { PlayArrow, FastForward, FastRewind, Pause } from '@mui/icons-material';
 
+import { playbackData } from './getSpotifyPlayer';
+
 /**
  * The playback bar shows a progress bar of how much is left on the current
  * track, as well as the ability to play/pause and skip tracks.
@@ -76,6 +78,7 @@ function fancyTimeFormat(duration: number) {
 function LinearProgressWithTime(
   props: LinearProgressProps & { current: number; total: number }
 ) {
+  console.log(playbackData.duration);
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ minWidth: 35 }}>
@@ -86,7 +89,8 @@ function LinearProgressWithTime(
       <Box sx={{ width: '100%', mr: 1 }}>
         <LinearProgress
           variant="determinate"
-          value={(100 * props.current) / props.total}
+          // value={(100 * props.current) / props.total}
+          value={20}
         />
       </Box>
       <Box sx={{ minWidth: 35 }}>
