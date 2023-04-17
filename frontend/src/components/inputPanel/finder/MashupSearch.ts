@@ -1,6 +1,6 @@
 import axios from 'axios';
 import backend_config from '../../../config/backend_config';
-import { Result, ResultType } from '../../util';
+import { Result, ResultType, backendHTTP } from '../../util';
 
 export async function searchBackendForMashups(
   query: string,
@@ -11,32 +11,41 @@ export async function searchBackendForMashups(
   }
 
   if (query.length === 0) {
-    return await axios
-      .get('/mashupapi/getUserMashups', { baseURL: backend_config.baseURL })
-      .then((response) => convertBackendMashups(response.data));
+    try {
+      return await backendHTTP
+        .get('/mashupapi/getUserMashups')
+        .then((response) => convertBackendMashups(response.data));
+    } catch {
+      console.error('Error retrieving user mashups.');
+      return [];
+    }
   }
 
   try {
-    return await axios
+    return await backendHTTP
       .get('/mashupapi/searchUserMashups', {
-        baseURL: backend_config.baseURL,
         params: { search_string: query, limit: 10 },
       })
       .then((response) => convertBackendMashups(response.data));
-  } catch (error) {
+  } catch {
     console.error('Error retrieving user mashups.');
     return [];
   }
 }
 
 function convertBackendMashups(item: any): Array<Result> {
-  console.log(item);
+  let to_parse: any;
   if (item.results) {
-    return item.results.map((mashup: any) => ({
-      id: mashup.mashup_id,
-      name: mashup.name,
-      type: ResultType.Mashup,
-    }));
+    to_parse = item.results;
+  } else if (item.mashups) {
+    to_parse = item.mashups;
+  } else {
+    return [];
   }
-  return [];
+
+  return to_parse.map((mashup: any) => ({
+    id: mashup.mashup_id,
+    name: mashup.name,
+    type: ResultType.Mashup,
+  }));
 }

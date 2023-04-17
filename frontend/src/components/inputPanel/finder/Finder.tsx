@@ -69,14 +69,10 @@ function Finder({ updateMashupParam }: { updateMashupParam: Function }) {
   async function updateResults(query: string, searchType: ResultType) {
     setResults(LOADING_RESULTS);
     let response: Result[] = [];
-    if (query === '') {
-      // Don't search for anything if there is no query.
-    } else if (searchType === ResultType.Mashup) {
+    if (searchType === ResultType.Mashup) {
       // Search the backend for mashups.
       response = await searchBackendForMashups(query, spotifyAccessToken);
-      if (response.length === 0) setResults(NO_RESULTS);
-      else setResults(response);
-    } else {
+    } else if (query !== '') {
       // Search Spotify given params.
       response = await searchSpotifyFor(query, searchType, spotifyAccessToken);
     }

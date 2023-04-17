@@ -27,9 +27,11 @@ import { EmptyResult, MashupInCreation, backendHTTP } from '../../util';
 function MashupToolContent({
   startSong,
   songRepo,
+  resetMashupParams,
 }: {
   startSong: Result;
   songRepo: Result;
+  resetMashupParams: Function;
 }) {
   const { mashup, setMashup } = useContext(MashupContext);
 
@@ -75,7 +77,7 @@ function MashupToolContent({
         startSong={startSong}
         songRepo={songRepo}
         handleCancel={() => setMashup(EmptyResult)}
-        handleResetInputs={() => {}} // doesn't do anything yet, need to implement
+        handleResetInputs={resetMashupParams} // doesn't do anything yet, need to implement
         handleCreate={createMashup}
       />
     );
@@ -93,9 +95,11 @@ function MashupToolContent({
 function MashupTool({
   startSong,
   songRepo,
+  resetMashupParams,
 }: {
   startSong: Result;
   songRepo: Result;
+  resetMashupParams: Function;
 }) {
   return (
     <Paper
@@ -107,7 +111,11 @@ function MashupTool({
         padding: 1,
       }}
     >
-      <MashupToolContent startSong={startSong} songRepo={songRepo} />
+      <MashupToolContent
+        startSong={startSong}
+        songRepo={songRepo}
+        resetMashupParams={resetMashupParams}
+      />
     </Paper>
   );
 }

@@ -30,6 +30,12 @@ function InputPanel() {
     }
   }
 
+  // Resets the start song and song repo.
+  function resetMashupParams() {
+    setStartSong(EmptyResult);
+    setSongRepo(EmptyResult);
+  }
+
   return (
     <div
       style={{
@@ -38,7 +44,11 @@ function InputPanel() {
         gap: 12,
       }}
     >
-      <MashupTool startSong={startSong} songRepo={songRepo} />
+      <MashupTool
+        startSong={startSong}
+        songRepo={songRepo}
+        resetMashupParams={resetMashupParams}
+      />
       <Finder updateMashupParam={handleNewMashupParam} />
     </div>
   );
