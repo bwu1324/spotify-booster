@@ -46,6 +46,6 @@ function convertBackendMashups(item: any): Array<Result> {
   return to_parse.map((mashup: any) => ({
     id: mashup.mashup_id,
     name: mashup.name,
-    type: ResultType.Mashup,
+    resultType: ResultType.Mashup,
   }));
 }

@@ -1,6 +1,6 @@
 // Component for the list shown in the finder.
 
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Divider,
   List,
@@ -8,7 +8,7 @@ import {
   ListItemButton,
   ListItemText,
 } from '@mui/material';
-import { Result, ResultType } from '../../util';
+import { MashupContext, Result, ResultType } from '../../util';
 
 // Used for rendering each result.
 function RenderedResult({
@@ -18,6 +18,7 @@ function RenderedResult({
   result: Result;
   updateMashupParam: Function;
 }) {
+  const setMashup = useContext(MashupContext).setMashup;
   return (
     <ListItem disablePadding>
       {result.resultType === ResultType.Artist ? (
@@ -34,7 +35,11 @@ function RenderedResult({
       ) : (
         <ListItemButton
           onClick={() => {
-            updateMashupParam(result);
+            if (result.resultType === ResultType.Mashup) {
+              setMashup(result);
+            } else {
+              updateMashupParam(result);
+            }
           }}
           disabled={result.resultType === ResultType.None ? true : false}
         >
