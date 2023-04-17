@@ -27,10 +27,12 @@ import { EmptyResult, MashupInCreation, backendHTTP } from '../../util';
 function MashupToolContent({
   startSong,
   songRepo,
+  resetResults,
   resetMashupParams,
 }: {
   startSong: Result;
   songRepo: Result;
+  resetResults: Function;
   resetMashupParams: Function;
 }) {
   const { mashup, setMashup } = useContext(MashupContext);
@@ -66,6 +68,29 @@ function MashupToolContent({
     }
   }
 
+  function deleteCurrentMashup() {
+    if (mashup.resultType !== ResultType.Mashup) {
+      console.error('No mashup selected.');
+      return;
+    }
+
+    // Delete the mashup with the API.
+    backendHTTP
+      .delete('mashupapi/deleteMashup', {
+        params: { mashup_id: mashup.id },
+      })
+      .catch(() => {
+        console.error('Error deleting mashup.');
+      })
+      .then(() => {
+        // Reset the result list so that the deleted mashup doesn't show up.
+        resetResults();
+      });
+
+    // Set the mashup to empty.
+    setMashup(EmptyResult);
+  }
+
   // Decide which screen to show.
   if (mashup === EmptyResult) {
     // If we don't have a mashup selected, show the NoMashup screen.
@@ -84,7 +109,11 @@ function MashupToolContent({
   } else {
     return (
       // If we have a mashup selected, show the MashupInfo screen.
-      <MashupInfo mashup={mashup} handleClose={() => setMashup(EmptyResult)} />
+      <MashupInfo
+        mashup={mashup}
+        handleClose={() => setMashup(EmptyResult)}
+        handleDelete={deleteCurrentMashup}
+      />
     );
   }
 }
@@ -95,10 +124,12 @@ function MashupToolContent({
 function MashupTool({
   startSong,
   songRepo,
+  resetResults,
   resetMashupParams,
 }: {
   startSong: Result;
   songRepo: Result;
+  resetResults: Function;
   resetMashupParams: Function;
 }) {
   return (
@@ -114,6 +145,7 @@ function MashupTool({
       <MashupToolContent
         startSong={startSong}
         songRepo={songRepo}
+        resetResults={resetResults}
         resetMashupParams={resetMashupParams}
       />
     </Paper>

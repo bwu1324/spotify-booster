@@ -7,16 +7,32 @@
  * creating a mashup.
  */
 
-import React from 'react';
+import React, { useContext, useState } from 'react';
 import Finder from './finder/Finder';
 import MashupTool from './mashupTool/MashupTool';
-import { EmptyResult, Result, ResultType } from '../util';
+import {
+  AccessTokenContext,
+  EmptyResult,
+  LOADING_RESULTS,
+  NO_RESULTS,
+  Result,
+  ResultType,
+} from '../util';
+import { searchBackendForMashups } from './finder/MashupSearch';
+import { searchSpotifyFor } from './finder/SpotifySearch';
 
 function InputPanel() {
   // The start song is the song that the mashup will start with.
-  const [startSong, setStartSong] = React.useState<Result>(EmptyResult);
+  const [startSong, setStartSong] = useState<Result>(EmptyResult);
   // The song repo is the album/playlist that the mashup will draw songs from.
-  const [songRepo, setSongRepo] = React.useState<Result>(EmptyResult);
+  const [songRepo, setSongRepo] = useState<Result>(EmptyResult);
+
+  const [results, setResults] = useState<Result[]>([]);
+  // Current query for the search bar.
+  const [query, setQuery] = useState('');
+  // Current search filter.
+  const [searchType, setSearchType] = useState(ResultType.Track);
+  const spotifyAccessToken = useContext(AccessTokenContext).token;
 
   // Updates state if input is valid. (e.g. startSong cannot be an album)
   function handleNewMashupParam(param: Result) {
@@ -36,6 +52,20 @@ function InputPanel() {
     setSongRepo(EmptyResult);
   }
 
+  async function queryForResults(query: string, searchType: ResultType) {
+    setResults(LOADING_RESULTS);
+    let response: Result[] = [];
+    if (searchType === ResultType.Mashup) {
+      // Search the backend for mashups.
+      response = await searchBackendForMashups(query, spotifyAccessToken);
+    } else if (query !== '') {
+      // Search Spotify given params.
+      response = await searchSpotifyFor(query, searchType, spotifyAccessToken);
+    }
+    if (response.length === 0) setResults(NO_RESULTS);
+    else setResults(response);
+  }
+
   return (
     <div
       style={{
@@ -47,9 +77,19 @@ function InputPanel() {
       <MashupTool
         startSong={startSong}
         songRepo={songRepo}
+        resetResults={() => queryForResults(query, searchType)}
         resetMashupParams={resetMashupParams}
       />
-      <Finder updateMashupParam={handleNewMashupParam} />
+      <Finder
+        results={results}
+        query={query}
+        searchType={searchType}
+        setResults={setResults}
+        setQuery={setQuery}
+        setSearchType={setSearchType}
+        queryForResults={queryForResults}
+        updateMashupParam={handleNewMashupParam}
+      />
     </div>
   );
 }

@@ -10,9 +10,11 @@ import { Result } from '../../util';
 function MashupInfo({
   mashup,
   handleClose,
+  handleDelete,
 }: {
   mashup: Result;
   handleClose: Function;
+  handleDelete: Function;
 }) {
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 10 }}>
@@ -21,13 +23,29 @@ function MashupInfo({
         {mashup.name}
       </Typography>
       <Divider />
-      <Button
-        variant="outlined"
-        color="secondary"
-        onClick={() => handleClose()}
+      <div
+        style={{
+          display: 'flex',
+          gap: 10,
+        }}
       >
-        Close Mashup
-      </Button>
+        <Button
+          variant="outlined"
+          color="error"
+          onClick={() => handleDelete()}
+          sx={{ width: '50%' }}
+        >
+          Delete
+        </Button>
+        <Button
+          variant="outlined"
+          color="secondary"
+          onClick={() => handleClose()}
+          sx={{ width: '50%' }}
+        >
+          Close
+        </Button>
+      </div>
     </div>
   );
 }
