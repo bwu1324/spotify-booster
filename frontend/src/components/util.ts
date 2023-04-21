@@ -38,9 +38,25 @@ export const MashupInCreation: Result = {
   name: 'Mashup under Construction',
 };
 
+export const NO_RESULTS: Result[] = [
+  {
+    resultType: ResultType.None,
+    name: 'No results.',
+    id: 'N/A',
+  },
+];
+
+export const LOADING_RESULTS: Result[] = [
+  {
+    resultType: ResultType.None,
+    name: 'Loading...',
+    id: 'N/A',
+  },
+];
+
 export const MashupContext = React.createContext<{
   mashup: Result;
-  setMashup: React.Dispatch<React.SetStateAction<Result>>;
+  setMashup: Function;
   // eslint-disable-next-line
 }>({ mashup: EmptyResult, setMashup: () => { } });
 

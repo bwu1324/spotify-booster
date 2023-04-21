@@ -58,6 +58,7 @@ const SpotifyLogin: React.FC = () => {
     if (token) {
       if (!isRequestSentGetProfile) {
         spotifyApi.setAccessToken(token);
+        setToken(token);
         getUserProfile();
         isRequestSentGetProfile = true;
       }

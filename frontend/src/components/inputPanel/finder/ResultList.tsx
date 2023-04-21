@@ -1,15 +1,14 @@
 // Component for the list shown in the finder.
 
-import React from 'react';
+import React, { useContext } from 'react';
 import {
   Divider,
   List,
   ListItem,
   ListItemButton,
   ListItemText,
-  useTheme,
 } from '@mui/material';
-import { Result, ResultType } from '../../util';
+import { MashupContext, Result, ResultType } from '../../util';
 
 // Used for rendering each result.
 function RenderedResult({
@@ -19,27 +18,34 @@ function RenderedResult({
   result: Result;
   updateMashupParam: Function;
 }) {
-  const theme = useTheme();
+  const setMashup = useContext(MashupContext).setMashup;
   return (
     <ListItem disablePadding>
-      <ListItemButton
-        onClick={() => {
-          updateMashupParam(result);
-        }}
-      >
+      {result.resultType === ResultType.Artist ? (
         <ListItemText
-          primaryTypographyProps={{
-            style: {
-              color:
-                result.resultType === ResultType.None
-                  ? theme.palette.text.disabled
-                  : theme.palette.text.primary,
-            },
+          sx={{
+            paddingTop: '8px',
+            paddingBottom: '8px',
+            paddingLeft: '16px',
+            paddingRight: '16px',
           }}
         >
           {result.name}
         </ListItemText>
-      </ListItemButton>
+      ) : (
+        <ListItemButton
+          onClick={() => {
+            if (result.resultType === ResultType.Mashup) {
+              setMashup(result);
+            } else {
+              updateMashupParam(result);
+            }
+          }}
+          disabled={result.resultType === ResultType.None ? true : false}
+        >
+          <ListItemText>{result.name}</ListItemText>
+        </ListItemButton>
+      )}
     </ListItem>
   );
 }
