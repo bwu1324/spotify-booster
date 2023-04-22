@@ -51,17 +51,26 @@ function MashupToolContent({
 
     // Create new mashup with the API.
     try {
+      const mashupId = (
+        await backendHTTP.post('mashupapi/createMashup', null, {
+          params: { name: name },
+        })
+      ).data.mashup_id;
       backendHTTP
-        .post('mashupapi/createMashup', null, { params: { name: name } })
-        .then((response) => {
-          // console.log(response);
-          const newMashup = {
+        .post('mashupapi/generateMashup', null, {
+          params: {
+            mashup_id: mashupId,
+            start_track_id: startSong.id,
+            source_id: songRepo.id,
+            source_type: songRepo.resultType === ResultType.Album ? 0 : 1,
+          },
+        })
+        .then(() => {
+          setMashup({
             resultType: ResultType.Mashup,
-            id: response.data.mashup_id,
+            id: mashupId,
             name: name,
-          };
-          // Set the mashup ID to rerender correctly.
-          setMashup(newMashup);
+          });
         });
     } catch (error) {
       console.error(error);

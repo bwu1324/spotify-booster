@@ -26,6 +26,12 @@ export type Result = {
   // TODO: add more information to display when we add that feature.
 };
 
+export type MashupSection = {
+  track: Result;
+  startMs: number;
+  endMs: number;
+};
+
 export const EmptyResult = {
   resultType: ResultType.None,
   name: '',
@@ -94,11 +100,22 @@ function getSpotifyAxios() {
   });
 }
 
-export function playSpotifyTracks(trackIds: string[], deviceId: string) {
+/**
+ * Play a Spotify track.
+ *
+ * @param trackIds Array of Spotify track IDs.
+ * @param deviceId Spotify device ID (device id of our web player).
+ * @param startMs (optional) Start playback at this position (in ms).
+ */
+export function playSpotifyTracks(
+  trackIds: string[],
+  deviceId: string,
+  startMs = 0
+) {
   getSpotifyAxios().put(
     '/me/player/play',
     { uris: trackIds },
-    { params: { device_id: deviceId } }
+    { params: { device_id: deviceId, position_ms: startMs } }
   );
 }
 
@@ -112,4 +129,9 @@ export function pauseSpotifyPlayback() {
   getSpotifyAxios().put('/me/player/pause', null, {
     baseURL: spotify_config.baseURL,
   });
+}
+
+// Given a Spotify API item, and its type, convert it to a Result.
+export function convertSpotifyItem(type: ResultType, item: any): Result {
+  return { resultType: type, name: item.name, id: item.id };
 }

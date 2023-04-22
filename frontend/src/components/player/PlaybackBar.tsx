@@ -78,7 +78,7 @@ function fancyTimeFormat(duration: number) {
 function LinearProgressWithTime(
   props: LinearProgressProps & { current: number; total: number }
 ) {
-  console.log(playbackData.duration);
+  // console.log(playbackData.duration);
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
       <Box sx={{ minWidth: 35 }}>

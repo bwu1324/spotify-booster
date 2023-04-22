@@ -15,6 +15,7 @@ import { ControllerContainer, AlbumArt } from '../../theme';
 import PlaybackBar from './PlaybackBar';
 import {
   AccessTokenContext,
+  MashupSection,
   Result,
   pauseSpotifyPlayback,
   playSpotifyPlayback,
@@ -33,11 +34,11 @@ import getSpotifyPlayer from './getSpotifyPlayer';
  * parent.
  */
 export default function Control({
-  tracks,
+  mashupSections: mashupSections,
   currentTrack,
   updateCurrentTrack,
 }: {
-  tracks: Array<Result>;
+  mashupSections: Array<MashupSection>;
   currentTrack: number | null;
   updateCurrentTrack: Function;
 }) {
@@ -93,8 +94,13 @@ export default function Control({
     // If we have a valid song that we can play...
     if (deviceId === null) return;
     if (currentTrack !== null) {
-      // Send request to Spotify to play the song.
-      playSpotifyTracks([tracks[currentTrack].id], deviceId);
+      // Send request to Spotify to play the song starting at the correct
+      // position.
+      playSpotifyTracks(
+        [mashupSections[currentTrack].track.id],
+        deviceId,
+        mashupSections[currentTrack].startMs
+      );
 
       // Mark that the song is playing.
       setPaused(false);
@@ -108,8 +114,8 @@ export default function Control({
    * beginning.
    */
   function nextTrack() {
-    if (tracks.length !== 0 && currentTrack !== null) {
-      updateCurrentTrack((currentTrack + 1) % tracks.length);
+    if (mashupSections.length !== 0 && currentTrack !== null) {
+      updateCurrentTrack((currentTrack + 1) % mashupSections.length);
     }
   }
 
@@ -118,8 +124,10 @@ export default function Control({
    * the end.
    */
   function prevTrack() {
-    if (tracks.length !== 0 && currentTrack !== null) {
-      updateCurrentTrack((currentTrack - 1 + tracks.length) % tracks.length);
+    if (mashupSections.length !== 0 && currentTrack !== null) {
+      updateCurrentTrack(
+        (currentTrack - 1 + mashupSections.length) % mashupSections.length
+      );
     }
   }
 
@@ -146,8 +154,8 @@ export default function Control({
         <Grid
           height="100%"
           style={{
-            // the following makes sure that the album art
-            // doesn't have correct display when the parent container is not loaded yet
+            // the following makes sure that the album art doesn't have correct
+            // display when the parent container is not loaded yet
             flex: `0 0 ${
               albumColPortion == 0 || albumColPortion == 100
                 ? 0
@@ -158,7 +166,8 @@ export default function Control({
         >
           <AlbumArt
             // this src is a placeholder for the album art
-            // @TODO: replace with actual album art, if available from Spotify's API or elsewhere
+            // @TODO: replace with actual album art, if available from Spotify's
+            // API or elsewhere
             src="https://i.ibb.co/Y0KTnFf/a4139357031-10.jpg"
           />
         </Grid>
@@ -169,7 +178,7 @@ export default function Control({
         >
           <Typography variant="h6">
             {currentTrack !== null
-              ? tracks[currentTrack].name
+              ? mashupSections[currentTrack].track.name
               : 'No Song Selected'}
           </Typography>
           <Typography variant="subtitle1">Artist Name</Typography>
