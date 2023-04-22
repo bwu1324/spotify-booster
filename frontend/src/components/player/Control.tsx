@@ -19,7 +19,7 @@ import {
   Result,
   pauseSpotifyPlayback,
   playSpotifyPlayback,
-  playSpotifyTracks,
+  playSpotifyTrack,
 } from '../util';
 import getSpotifyPlayer from './getSpotifyPlayer';
 
@@ -96,8 +96,8 @@ export default function Control({
     if (currentTrack !== null) {
       // Send request to Spotify to play the song starting at the correct
       // position.
-      playSpotifyTracks(
-        [mashupSections[currentTrack].track.id],
+      playSpotifyTrack(
+        mashupSections[currentTrack].track.id,
         deviceId,
         mashupSections[currentTrack].startMs
       );

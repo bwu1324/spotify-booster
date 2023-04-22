@@ -68,10 +68,9 @@ async function getSpotifyPlayer(
     });
   });
 
-  // Disabled for testing.
-  // if (!(await player.connect())) {
-  //   console.error('Failed to connect the Spotify player.');
-  // }
+  if (!(await player.connect())) {
+    console.error('Failed to connect the Spotify player.');
+  }
 
   setSpotifyPlayer(player);
 }

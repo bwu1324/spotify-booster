@@ -107,15 +107,15 @@ function getSpotifyAxios() {
  * @param deviceId Spotify device ID (device id of our web player).
  * @param startMs (optional) Start playback at this position (in ms).
  */
-export function playSpotifyTracks(
-  trackIds: string[],
+export function playSpotifyTrack(
+  trackId: string,
   deviceId: string,
-  startMs = 0
+  startMs?: number
 ) {
   getSpotifyAxios().put(
     '/me/player/play',
-    { uris: trackIds },
-    { params: { device_id: deviceId, position_ms: startMs } }
+    { uris: [`spotify:track:${trackId}`], position_ms: startMs ? startMs : 0 },
+    { params: { device_id: deviceId } }
   );
 }
 
