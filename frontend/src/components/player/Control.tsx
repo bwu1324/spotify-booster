@@ -61,6 +61,11 @@ export default function Control({
 
   const spotifyAccessToken = useContext(AccessTokenContext).token;
 
+  function getCurrentTrackWrapper(): number | null {
+    console.log('Getting current track', currentTrack);
+    return currentTrack;
+  }
+
   useEffect(() => {
     if (!outerRef.current) return; // wait for the elementRef to be available
     const resizeObserver = new ResizeObserver(() => {
@@ -101,9 +106,13 @@ export default function Control({
         deviceId,
         mashupSections[currentTrack].startMs
       );
-
       // Mark that the song is playing.
       setPaused(false);
+
+      // Once we are done with this section of the song, go to the next track.
+      setTimeout(() => {
+        nextTrack();
+      }, mashupSections[currentTrack].endMs - mashupSections[currentTrack].startMs);
     } else {
       pauseSpotifyPlayback();
     }
