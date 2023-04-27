@@ -16,7 +16,6 @@ import PlaybackBar from './PlaybackBar';
 import {
   AccessTokenContext,
   MashupSection,
-  Result,
   pauseSpotifyPlayback,
   playSpotifyPlayback,
   playSpotifyTrack,
@@ -59,12 +58,10 @@ export default function Control({
   // Whether music is currently not playing.
   const [paused, setPaused] = useState<boolean>(true);
 
-  const spotifyAccessToken = useContext(AccessTokenContext).token;
+  const [shouldConsiderAutoplay, setShouldConsiderAutoplay] =
+    useState<boolean>(false);
 
-  function getCurrentTrackWrapper(): number | null {
-    console.log('Getting current track', currentTrack);
-    return currentTrack;
-  }
+  const spotifyAccessToken = useContext(AccessTokenContext).token;
 
   useEffect(() => {
     if (!outerRef.current) return; // wait for the elementRef to be available
@@ -109,14 +106,47 @@ export default function Control({
       // Mark that the song is playing.
       setPaused(false);
 
-      // Once we are done with this section of the song, go to the next track.
-      setTimeout(() => {
-        nextTrack();
-      }, mashupSections[currentTrack].endMs - mashupSections[currentTrack].startMs);
+      // Once we are done with this section of the song, consider autoplaying.
+      // When the state is updated after the delay, a useEffect will reevaluate
+      // whether to autoplay.
+      setTimeout(
+        () => setShouldConsiderAutoplay(true),
+        mashupSections[currentTrack].endMs -
+          mashupSections[currentTrack].startMs
+      );
     } else {
       pauseSpotifyPlayback();
     }
   }, [currentTrack, spotifyPlayer]);
+
+  useEffect(() => {
+    if (shouldConsiderAutoplay === false) return;
+    setShouldConsiderAutoplay(false); // Handle this notification.
+    async function func() {
+      if (spotifyPlayer === null || currentTrack === null) return;
+      // Get where we are in the song via Spotify state.
+      const state = await spotifyPlayer.getCurrentState();
+      if (state === null || state === undefined) return;
+      // Calculate how much time is left in this mashup section.
+      const remaining =
+        state.position === 0 // If we are at the end of the song.
+          ? 0
+          : mashupSections[currentTrack].endMs - state.position;
+      // If we have completed this mashup section, go to the next track.
+      if (remaining <= 0) {
+        // Stop at the end of the mashup.
+        if (currentTrack === mashupSections.length - 1) {
+          updateCurrentTrack(0);
+          setPaused(true);
+        } else {
+          nextTrack();
+        }
+      } else {
+        setTimeout(() => setShouldConsiderAutoplay(true), remaining);
+      }
+    }
+    func();
+  }, [shouldConsiderAutoplay]);
 
   /**
    * Skip to the next track. If we are at the end of the list, go back to the
