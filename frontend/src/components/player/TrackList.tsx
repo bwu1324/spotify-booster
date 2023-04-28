@@ -58,10 +58,6 @@ export default function TrackList({
   tracks: Array<Result>;
   currentTrack: number | null;
 }) {
-  // console.log('TrackList\n', tracks);
-
-  // saveDataToLocalStorage('tracks', tracks);
-
   return (
     <TrackListContainer>
       <List>

@@ -72,8 +72,6 @@ async function getSpotifyPlayer(
             const current_mashup_prop =
               getDataFromLocalStorage('current_mashup');
 
-            // console.log('Current track:', currentTrackId);
-
             for (const [key, value] of Object.entries<Record<string, unknown>>(
               current_playing_mashup
             )) {
@@ -82,7 +80,6 @@ async function getSpotifyPlayer(
                 const startMs = (value as any).start_ms;
                 const startPosition = (value as any).start_position;
 
-                // console.log(state.position);
                 // Calculate the updated playback position based on the state and stored data
                 playbackPosition = Math.round(
                   ((startPosition + (state.position - startMs)) /
