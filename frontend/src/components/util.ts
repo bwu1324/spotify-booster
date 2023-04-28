@@ -64,13 +64,13 @@ export const MashupContext = React.createContext<{
   mashup: Result;
   setMashup: Function;
   // eslint-disable-next-line
-}>({ mashup: EmptyResult, setMashup: () => { } });
+}>({ mashup: EmptyResult, setMashup: () => {} });
 
 export const AccessTokenContext = React.createContext<{
   token: string | null;
   setToken: Function;
   // eslint-disable-next-line
-}>({ token: null, setToken: () => { } });
+}>({ token: null, setToken: () => {} });
 
 export type TrackInfo = {
   track_id: string;
@@ -134,4 +134,19 @@ export function pauseSpotifyPlayback() {
 // Given a Spotify API item, and its type, convert it to a Result.
 export function convertSpotifyItem(type: ResultType, item: any): Result {
   return { resultType: type, name: item.name, id: item.id };
+}
+
+/* Local Storage Functions */
+export function saveDataToLocalStorage(key: string, data: any): void {
+  localStorage.setItem(key, JSON.stringify(data));
+}
+
+export function getDataFromLocalStorage(key: string): any {
+  const dataString = localStorage.getItem(key);
+  return dataString ? JSON.parse(dataString) : null;
+}
+
+export function checkLocalStorageData(key: string): boolean {
+  const data = localStorage.getItem(key);
+  return data !== null;
 }

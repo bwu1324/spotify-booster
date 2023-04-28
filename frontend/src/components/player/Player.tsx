@@ -14,6 +14,7 @@ import {
   ResultType,
   backendHTTP,
   convertSpotifyItem,
+  saveDataToLocalStorage,
 } from '../util';
 import spotify_config from '../../config/spotify_config';
 import axios from 'axios';
@@ -72,6 +73,46 @@ async function convertBackendTrackList(
     console.error('Spotify access token is null.');
     return [];
   }
+
+  // saveDataToLocalStorage('tracks', response);
+  const current_tracks = response.data.tracks;
+  const current_tracks_dictionary: Record<
+    number,
+    {
+      track_id: string;
+      start_ms: number;
+      end_ms: number;
+      start_position: number;
+    }
+  > = {};
+
+  let current_mashup_total_length = 0;
+  let current_track_index = 0;
+  for (const track of current_tracks) {
+    const { track_id, start_ms, end_ms } = track;
+    const start_position = current_mashup_total_length;
+    current_tracks_dictionary[current_track_index] = {
+      track_id,
+      start_ms,
+      end_ms,
+      start_position,
+    };
+    current_mashup_total_length += end_ms - start_ms;
+    current_track_index++;
+  }
+  saveDataToLocalStorage('tracks', current_tracks_dictionary);
+
+  // current_mashup_total_length = current_mashup_total_length;
+  const current_mashup = {
+    total_length: current_mashup_total_length,
+    increment_stride: parseFloat(
+      (100 / current_mashup_total_length).toFixed(8)
+    ),
+  };
+  // const current_mashup = current_tracks_dictionary;
+
+  saveDataToLocalStorage('current_mashup', current_mashup);
+
   // Get track information from Spotify.
   const tracks = await convertSpotifyTracksToResults(
     response.data.tracks,

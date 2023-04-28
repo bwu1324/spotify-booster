@@ -72,7 +72,7 @@ const SpotifyLogin: React.FC = () => {
     }
 
     // Check token expiration every 5 minutes
-    const intervalId = setInterval(checkTokenExpiration, 5 * 60 * 1000);
+    const intervalId = setInterval(checkTokenExpiration, 1 * 60 * 1000);
 
     // Clear the interval when the component is unmounted or the user object changes
     return () => {

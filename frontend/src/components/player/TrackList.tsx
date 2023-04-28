@@ -4,7 +4,11 @@
 import React from 'react';
 
 import { TrackListContainer } from '../../theme';
-import { Result } from '../util';
+import {
+  Result,
+  saveDataToLocalStorage,
+  getDataFromLocalStorage,
+} from '../util';
 import { List, ListItem, ListItemText, useTheme } from '@mui/material';
 
 /**
@@ -54,6 +58,10 @@ export default function TrackList({
   tracks: Array<Result>;
   currentTrack: number | null;
 }) {
+  // console.log('TrackList\n', tracks);
+
+  // saveDataToLocalStorage('tracks', tracks);
+
   return (
     <TrackListContainer>
       <List>

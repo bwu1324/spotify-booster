@@ -7,8 +7,8 @@ import Box from '@mui/material/Box';
 import Container from '@mui/material/Container/Container';
 import IconButton from '@mui/material/IconButton';
 import { PlayArrow, FastForward, FastRewind, Pause } from '@mui/icons-material';
-
-import { playbackData } from './getSpotifyPlayer';
+import { playbackPosition } from './getSpotifyPlayer';
+import { useState, useEffect } from 'react';
 
 /**
  * The playback bar shows a progress bar of how much is left on the current
@@ -30,8 +30,17 @@ function PlaybackBar({
   paused: boolean;
   togglePaused: Function;
 }) {
-  const progress = 10;
-  const total = 20;
+  const [position, setPosition] = useState(0);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      // Perform the logic to update the sharedVariable here
+      setPosition(playbackPosition);
+    }, 100);
+
+    // Clean up the interval when the component is unmounted
+    return () => clearInterval(interval);
+  }, []); // Empty dependency array to run the effect only once
 
   return (
     <Container
@@ -51,52 +60,20 @@ function PlaybackBar({
           <FastForward />
         </IconButton>
       </Box>
-      <LinearProgressWithTime current={progress} total={total} />
+      <LinearProgressWithTime current={position} />
     </Container>
   );
 }
 
-function fancyTimeFormat(duration: number) {
-  // Hours, minutes and seconds
-  const hrs = ~~(duration / 3600);
-  const mins = ~~((duration % 3600) / 60);
-  const secs = ~~duration % 60;
-
-  // Output like "1:01" or "4:03:59" or "123:03:59"
-  let ret = '';
-
-  if (hrs > 0) {
-    ret += '' + hrs + ':' + (mins < 10 ? '0' : '');
-  }
-
-  ret += '' + mins + ':' + (secs < 10 ? '0' : '');
-  ret += '' + secs;
-
-  return ret;
-}
-
 function LinearProgressWithTime(
-  props: LinearProgressProps & { current: number; total: number }
+  props: LinearProgressProps & { current: number }
 ) {
-  // console.log(playbackData.duration);
+  const progress = Math.min(Math.max(props.current, 0), 100); // Ensure progress is within the 0-100 range
+
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${fancyTimeFormat(
-          props.current
-        )}`}</Typography>
-      </Box>
       <Box sx={{ width: '100%', mr: 1 }}>
-        <LinearProgress
-          variant="determinate"
-          // value={(100 * props.current) / props.total}
-          value={20}
-        />
-      </Box>
-      <Box sx={{ minWidth: 35 }}>
-        <Typography variant="body2" color="text.secondary">{`${fancyTimeFormat(
-          props.total
-        )}`}</Typography>
+        <LinearProgress variant="determinate" value={progress} />
       </Box>
     </Box>
   );

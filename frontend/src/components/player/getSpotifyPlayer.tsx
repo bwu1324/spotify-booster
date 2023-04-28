@@ -1,12 +1,15 @@
 import * as React from 'react';
+import {
+  getDataFromLocalStorage,
+  checkLocalStorageData,
+  saveDataToLocalStorage,
+} from '../util';
 
-interface PlaybackData {
-  duration: number;
-  position: number;
-}
+export let playbackPosition: any;
 
-const playbackData: PlaybackData = { duration: 0, position: 0 };
-
+/**
+ * Waits for the Spotify Web Playback SDK to load.
+ */
 async function waitForSpotifyWebPlaybackSDKToLoad() {
   return new Promise((resolve) => {
     if (window.Spotify) {
@@ -19,6 +22,13 @@ async function waitForSpotifyWebPlaybackSDKToLoad() {
   });
 }
 
+/**
+ * Retrieves the Spotify player and sets up event listeners.
+ *
+ * @param cookie The Spotify OAuth token.
+ * @param setSpotifyPlayer Function to set the Spotify player instance.
+ * @param setDeviceId Function to set the device ID.
+ */
 async function getSpotifyPlayer(
   cookie: string,
   setSpotifyPlayer: Function,
@@ -45,27 +55,54 @@ async function getSpotifyPlayer(
   player.addListener('ready', ({ device_id }: { device_id: any }) => {
     console.debug('Spotify player ready with Device ID', device_id);
     setDeviceId(device_id);
+
+    // Start checking the player state every second
+    setInterval(() => {
+      player.getCurrentState().then((state: any) => {
+        if (state) {
+          // const currentTrackName = state.track_window.current_track.name;
+          const currentTrackId = state.track_window.current_track.id;
+
+          if (
+            checkLocalStorageData('tracks') &&
+            checkLocalStorageData('current_mashup') &&
+            state.paused == false
+          ) {
+            const current_playing_mashup = getDataFromLocalStorage('tracks');
+            const current_mashup_prop =
+              getDataFromLocalStorage('current_mashup');
+
+            // console.log('Current track:', currentTrackId);
+
+            for (const [key, value] of Object.entries<Record<string, unknown>>(
+              current_playing_mashup
+            )) {
+              const trackId = (value as any).track_id;
+              if (trackId === currentTrackId) {
+                const startMs = (value as any).start_ms;
+                const startPosition = (value as any).start_position;
+
+                // console.log(state.position);
+                // Calculate the updated playback position based on the state and stored data
+                playbackPosition = Math.round(
+                  ((startPosition + (state.position - startMs)) /
+                    current_mashup_prop.total_length) *
+                    100
+                );
+
+                // Exit the loop after finding a match
+                break;
+              }
+            }
+          }
+        }
+      });
+    }, 100); // Run the interval every 1000ms (1 second)
   });
 
   player.addListener('not_ready', ({ device_id }: { device_id: any }) => {
     console.warn('Spotify player has gone offline.', device_id);
     setDeviceId(null);
-  });
-
-  // Add a listener to the player_state_changed event
-  player.addListener('player_state_changed', () => {
-    // Call the getCurrentState method to get the WebPlaybackState object
-    player.getCurrentState().then((state) => {
-      if (state) {
-        playbackData.duration = state.duration;
-        playbackData.position = state.position;
-        // Access the duration and position properties to get the time played
-        // console.log(`Time played: ${position} milliseconds`);
-        // console.log(`Duration: ${duration} milliseconds`);
-        // Calculate the time remaining for the current track
-        // console.log(`Time remaining: ${duration - position} milliseconds`);
-      }
-    });
   });
 
   if (!(await player.connect())) {
@@ -75,5 +112,4 @@ async function getSpotifyPlayer(
   setSpotifyPlayer(player);
 }
 
-export { playbackData };
 export default getSpotifyPlayer;
