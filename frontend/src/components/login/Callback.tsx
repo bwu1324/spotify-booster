@@ -71,10 +71,9 @@ const Callback: React.FC = () => {
 
           // Remove the query parameters from the URL
           window.history.replaceState(null, '', redirectUri);
-          console.log(data);
         }
       } catch (error) {
-        console.log('Spotify API request: ', error);
+        console.error('Spotify API request: ', error);
       }
       navigate('/');
     }

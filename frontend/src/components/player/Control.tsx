@@ -15,10 +15,10 @@ import { ControllerContainer, AlbumArt } from '../../theme';
 import PlaybackBar from './PlaybackBar';
 import {
   AccessTokenContext,
-  Result,
+  MashupSection,
   pauseSpotifyPlayback,
   playSpotifyPlayback,
-  playSpotifyTracks,
+  playSpotifyTrack,
 } from '../util';
 import getSpotifyPlayer from './getSpotifyPlayer';
 
@@ -33,11 +33,11 @@ import getSpotifyPlayer from './getSpotifyPlayer';
  * parent.
  */
 export default function Control({
-  tracks,
+  mashupSections: mashupSections,
   currentTrack,
   updateCurrentTrack,
 }: {
-  tracks: Array<Result>;
+  mashupSections: Array<MashupSection>;
   currentTrack: number | null;
   updateCurrentTrack: Function;
 }) {
@@ -57,6 +57,9 @@ export default function Control({
   const [deviceId, setDeviceId] = useState<string | null>(null);
   // Whether music is currently not playing.
   const [paused, setPaused] = useState<boolean>(true);
+
+  const [shouldConsiderAutoplay, setShouldConsiderAutoplay] =
+    useState<boolean>(false);
 
   const spotifyAccessToken = useContext(AccessTokenContext).token;
 
@@ -93,23 +96,65 @@ export default function Control({
     // If we have a valid song that we can play...
     if (deviceId === null) return;
     if (currentTrack !== null) {
-      // Send request to Spotify to play the song.
-      playSpotifyTracks([tracks[currentTrack].id], deviceId);
-
+      // Send request to Spotify to play the song starting at the correct
+      // position.
+      playSpotifyTrack(
+        mashupSections[currentTrack].track.id,
+        deviceId,
+        mashupSections[currentTrack].startMs
+      );
       // Mark that the song is playing.
       setPaused(false);
+
+      // Once we are done with this section of the song, consider autoplaying.
+      // When the state is updated after the delay, a useEffect will reevaluate
+      // whether to autoplay.
+      setTimeout(
+        () => setShouldConsiderAutoplay(true),
+        mashupSections[currentTrack].endMs -
+          mashupSections[currentTrack].startMs
+      );
     } else {
       pauseSpotifyPlayback();
     }
   }, [currentTrack, spotifyPlayer]);
+
+  useEffect(() => {
+    if (shouldConsiderAutoplay === false) return;
+    setShouldConsiderAutoplay(false); // Handle this notification.
+    async function func() {
+      if (spotifyPlayer === null || currentTrack === null) return;
+      // Get where we are in the song via Spotify state.
+      const state = await spotifyPlayer.getCurrentState();
+      if (state === null || state === undefined) return;
+      // Calculate how much time is left in this mashup section.
+      const remaining =
+        state.position === 0 // If we are at the end of the song.
+          ? 0
+          : mashupSections[currentTrack].endMs - state.position;
+      // If we have completed this mashup section, go to the next track.
+      if (remaining <= 0) {
+        // Stop at the end of the mashup.
+        if (currentTrack === mashupSections.length - 1) {
+          updateCurrentTrack(0);
+          setPaused(true);
+        } else {
+          nextTrack();
+        }
+      } else {
+        setTimeout(() => setShouldConsiderAutoplay(true), remaining);
+      }
+    }
+    func();
+  }, [shouldConsiderAutoplay]);
 
   /**
    * Skip to the next track. If we are at the end of the list, go back to the
    * beginning.
    */
   function nextTrack() {
-    if (tracks.length !== 0 && currentTrack !== null) {
-      updateCurrentTrack((currentTrack + 1) % tracks.length);
+    if (mashupSections.length !== 0 && currentTrack !== null) {
+      updateCurrentTrack((currentTrack + 1) % mashupSections.length);
     }
   }
 
@@ -118,8 +163,10 @@ export default function Control({
    * the end.
    */
   function prevTrack() {
-    if (tracks.length !== 0 && currentTrack !== null) {
-      updateCurrentTrack((currentTrack - 1 + tracks.length) % tracks.length);
+    if (mashupSections.length !== 0 && currentTrack !== null) {
+      updateCurrentTrack(
+        (currentTrack - 1 + mashupSections.length) % mashupSections.length
+      );
     }
   }
 
@@ -146,8 +193,8 @@ export default function Control({
         <Grid
           height="100%"
           style={{
-            // the following makes sure that the album art
-            // doesn't have correct display when the parent container is not loaded yet
+            // the following makes sure that the album art doesn't have correct
+            // display when the parent container is not loaded yet
             flex: `0 0 ${
               albumColPortion == 0 || albumColPortion == 100
                 ? 0
@@ -158,7 +205,8 @@ export default function Control({
         >
           <AlbumArt
             // this src is a placeholder for the album art
-            // @TODO: replace with actual album art, if available from Spotify's API or elsewhere
+            // @TODO: replace with actual album art, if available from Spotify's
+            // API or elsewhere
             src="https://i.ibb.co/Y0KTnFf/a4139357031-10.jpg"
           />
         </Grid>
@@ -169,7 +217,7 @@ export default function Control({
         >
           <Typography variant="h6">
             {currentTrack !== null
-              ? tracks[currentTrack].name
+              ? mashupSections[currentTrack].track.name
               : 'No Song Selected'}
           </Typography>
           <Typography variant="subtitle1">Artist Name</Typography>

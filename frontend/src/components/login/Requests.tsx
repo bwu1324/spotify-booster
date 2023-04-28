@@ -52,8 +52,6 @@ export async function checkTokenExpiration(): Promise<void> {
     // const expirationDate = new Date(expirationTimestamp);
     // const expirationUTCString = expirationDate.toUTCString();
 
-    // console.log(expirationUTCString, utcString, expirationTimestamp - now);
-
     // 5 minutes before expiration
     // 59 min = 3540000 ms, for debug use
     // 5 min = 300000 ms, for actual use

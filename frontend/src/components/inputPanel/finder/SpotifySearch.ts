@@ -1,6 +1,6 @@
 import axios from 'axios';
 import spotify_config from '../../../config/spotify_config.js';
-import { Result, ResultType } from '../../util';
+import { Result, ResultType, convertSpotifyItem } from '../../util';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.
@@ -61,9 +61,4 @@ function convertSpotifyResults(item: any): Array<Result> {
     });
 
   return results;
-}
-
-// Given a Spotify API item, and its type, convert it to a Result.
-function convertSpotifyItem(type: ResultType, item: any): Result {
-  return { resultType: type, name: item.name, id: item.id };
 }
