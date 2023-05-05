@@ -6,7 +6,7 @@ Spotify Booster is a web app that allows you to create mashups of similar soundi
 
 Simply login with Spotify, hit Create New Mashup, search and select a starting track and source playlist or album, and click create.
 
-Spotify Booster will look at the key, tempo, mode, time signature, and loudness of portions of the tracks and to generate a mashup where the most similar sections are played sequentially.
+Spotify Booster will look at the key, tempo, mode, time signature, and loudness of portions of the tracks to generate a mashup where the most similar sections are played sequentially.
 
 The mashup will show up on the right and you can play it back from Spotfiy right in the Spotify Booster app.
 
