@@ -71,7 +71,7 @@ npm run build
 npm start
 ```
 
-## Contributers:
+## Contributers
 
 **Alexander Eilert: Frontend** (Frontend Design, Song Playback)
 
