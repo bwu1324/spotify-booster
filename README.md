@@ -10,6 +10,14 @@ Spotify Booster will look at the key, tempo, mode, time signature, and loudness 
 
 The mashup will show up on the right and you can play it back from Spotfiy right in the Spotify Booster app.
 
+## Built With
+
+* Node.js
+* React.js
+* Typescript
+* Jest
+* SQLite
+
 ## Features
 
 * Login/Logout with Spotify
