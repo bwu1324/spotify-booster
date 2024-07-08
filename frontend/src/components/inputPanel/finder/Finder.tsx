@@ -2,7 +2,6 @@
 // either the search bar and search results, or the current mashup and all the
 // songs in the mashup.
 
-import React from 'react';
 import { Paper } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import ResultList from './ResultList';
@@ -28,11 +27,11 @@ function Finder({
   results: Result[];
   query: string;
   searchType: ResultType;
-  setResults: Function;
-  setQuery: Function;
-  setSearchType: Function;
-  queryForResults: Function;
-  updateMashupParam: Function;
+  setResults: (results: React.SetStateAction<Result[]>) => any;
+  setQuery: (query: string) => any;
+  setSearchType: (type: number) => any;
+  queryForResults: (query: string, type: number) => any;
+  updateMashupParam: (result: any) => any;
 }) {
   const theme = useTheme();
 

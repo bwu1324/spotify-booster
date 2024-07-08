@@ -1,8 +1,6 @@
-import * as React from 'react';
 import LinearProgress, {
   LinearProgressProps,
 } from '@mui/material/LinearProgress';
-import Typography from '@mui/material/Typography';
 import Box from '@mui/material/Box';
 import Container from '@mui/material/Container/Container';
 import IconButton from '@mui/material/IconButton';
@@ -25,10 +23,10 @@ function PlaybackBar({
   paused,
   togglePaused,
 }: {
-  prevTrack: Function;
-  nextTrack: Function;
+  prevTrack: () => any;
+  nextTrack: () => any;
   paused: boolean;
-  togglePaused: Function;
+  togglePaused: () => any;
 }) {
   const [position, setPosition] = useState(0);
 

@@ -1,11 +1,13 @@
-import * as React from 'react';
 import {
   getDataFromLocalStorage,
   checkLocalStorageData,
-  saveDataToLocalStorage,
 } from '../util';
 
 export let playbackPosition: any;
+
+declare global {
+  interface Window { Spotify: any; onSpotifyWebPlaybackSDKReady: () => any }
+}
 
 /**
  * Waits for the Spotify Web Playback SDK to load.
@@ -31,8 +33,8 @@ async function waitForSpotifyWebPlaybackSDKToLoad() {
  */
 async function getSpotifyPlayer(
   cookie: string,
-  setSpotifyPlayer: Function,
-  setDeviceId: Function
+  setSpotifyPlayer: (player: any) => void,
+  setDeviceId: (id: any) => void
 ) {
   // Attatch the SDK.
   const script = document.createElement('script');
@@ -46,7 +48,7 @@ async function getSpotifyPlayer(
   const player = new window.Spotify.Player({
     // This is the name that will show up in Spotify Connect.
     name: 'Spotify Booster',
-    getOAuthToken: (cb: Function) => {
+    getOAuthToken: (cb: (cookie: string) => any) => {
       cb(cookie);
     },
     volume: 0.5,
@@ -72,7 +74,7 @@ async function getSpotifyPlayer(
             const current_mashup_prop =
               getDataFromLocalStorage('current_mashup');
 
-            for (const [key, value] of Object.entries<Record<string, unknown>>(
+            for (const [, value] of Object.entries<Record<string, unknown>>(
               current_playing_mashup
             )) {
               const trackId = (value as any).track_id;
@@ -84,7 +86,7 @@ async function getSpotifyPlayer(
                 playbackPosition = Math.round(
                   ((startPosition + (state.position - startMs)) /
                     current_mashup_prop.total_length) *
-                    100
+                  100
                 );
 
                 // Exit the loop after finding a match

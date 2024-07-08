@@ -1,13 +1,8 @@
 // This file contains the entire code for the TrackList component.
 // The TrackList component is a container for the list of tracks in the mash-up.
-
-import React from 'react';
-
 import { TrackListContainer } from '../../theme';
 import {
-  Result,
-  saveDataToLocalStorage,
-  getDataFromLocalStorage,
+  Result
 } from '../util';
 import { List, ListItem, ListItemText, useTheme } from '@mui/material';
 
@@ -60,7 +55,7 @@ export default function TrackList({
 }) {
   return (
     <TrackListContainer>
-      <List>
+      <List style={{ margin: '1rem' }}>
         {tracks.map((track, index) => (
           <Track
             track={track}

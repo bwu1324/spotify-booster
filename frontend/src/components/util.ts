@@ -4,8 +4,7 @@
 
 import React from 'react';
 import axios from 'axios';
-import backend_config from '../config/backend_config.js';
-import spotify_config from '../config/spotify_config.js';
+import { config } from '../config/config';
 import { getCookie } from './login/Cookie';
 
 // rendered differently.
@@ -62,15 +61,15 @@ export const LOADING_RESULTS: Result[] = [
 
 export const MashupContext = React.createContext<{
   mashup: Result;
-  setMashup: Function;
-  // eslint-disable-next-line
-}>({ mashup: EmptyResult, setMashup: () => {} });
+  setMashup: (mashup: any) => any;
+   
+}>({ mashup: EmptyResult, setMashup: () => { /* */ } });
 
 export const AccessTokenContext = React.createContext<{
   token: string | null;
-  setToken: Function;
-  // eslint-disable-next-line
-}>({ token: null, setToken: () => {} });
+  setToken: (token: string) => any;
+   
+}>({ token: null, setToken: () => { /* */ } });
 
 export type TrackInfo = {
   track_id: string;
@@ -81,7 +80,6 @@ export type TrackInfo = {
 // We need axios instance because we need to send cookies in the OPTIONS
 // request, so we need to specify `withCredentials: true` generally.
 export const backendHTTP = axios.create({
-  baseURL: backend_config.baseURL,
   withCredentials: true,
 });
 
@@ -95,7 +93,7 @@ export const backendHTTP = axios.create({
 
 function getSpotifyAxios() {
   return axios.create({
-    baseURL: spotify_config.baseURL,
+    baseURL: config.spotify_baseURL,
     headers: { Authorization: `Bearer ${getCookie('spotify_access_token')}` },
   });
 }
@@ -121,13 +119,13 @@ export function playSpotifyTrack(
 
 export function playSpotifyPlayback() {
   getSpotifyAxios().put('/me/player/play', null, {
-    baseURL: spotify_config.baseURL,
+    baseURL: config.spotify_baseURL
   });
 }
 
 export function pauseSpotifyPlayback() {
   getSpotifyAxios().put('/me/player/pause', null, {
-    baseURL: spotify_config.baseURL,
+    baseURL: config.spotify_baseURL
   });
 }
 

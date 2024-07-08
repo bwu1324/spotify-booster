@@ -19,6 +19,7 @@ import {
   test_static_file1,
 } from './webserver_utils.test';
 import uniqueID from '../test_utils/unique_id.test';
+import axios from 'axios';
 
 const TEST_DIRECTORY = path.join(__dirname, 'test_web_server');
 const WEB_INDEX_PATH = path.join(TEST_DIRECTORY, 'index.html');
@@ -26,6 +27,11 @@ const WEB_STATIC_PATH = path.join(TEST_DIRECTORY, 'static');
 
 const WEB_PORT = 8888;
 const TEST_URL = 'http://localhost:8888';
+
+const TEST_CLIENT_ID = 'some_id';
+const TEST_CLIENT_SECRET = 'very_secret_secret';
+const TEST_REDIRECT_URL = 'http://redirect.url';
+const TEST_SCOPES = 'test scopes';
 
 describe('Web Server', () => {
   before(() => {
@@ -44,6 +50,12 @@ describe('Web Server', () => {
       },
       database_config: {
         path: path.join(TEST_DIRECTORY, uniqueID()),
+      },
+      spotify_api_config: {
+        client_id: TEST_CLIENT_ID,
+        client_secret: TEST_CLIENT_SECRET,
+        redirect_url: TEST_REDIRECT_URL,
+        scopes: TEST_SCOPES,
       },
     });
   });
@@ -68,11 +80,126 @@ describe('Web Server', () => {
       assert.equal(response.text, test_index_file, 'Responds with correct index file');
     });
 
-    it('returns index page at /callback', async () => {
+    it('redirects to spoitfy login at /login', async () => {
       const req = request(TEST_URL);
-      const response = await req.get('/callback');
+      const response = await req.get('/login');
 
-      assert.equal(response.text, test_index_file, 'Responds with correct index file');
+      const url = new URL(response.header.location);
+      assert.equal(url.origin, 'https://accounts.spotify.com', 'Calls correct host');
+      assert.equal(url.pathname, '/authorize', 'Calls correct path');
+      assert.equal(url.searchParams.get('client_id'), TEST_CLIENT_ID, 'Uses correct client_id');
+      assert.equal(url.searchParams.get('response_type'), 'code', 'Uses correct response_type');
+      assert.equal(url.searchParams.get('redirect_uri'), TEST_REDIRECT_URL, 'Uses correct redirect_url');
+      assert.equal(url.searchParams.get('scope'), TEST_SCOPES, 'Uses correct scopes');
+    });
+
+    it('successfully successfully exchanges token with spotify with valid code supplied at /callback', async () => {
+      let stub_url: string;
+      let stub_headers: any;
+      let stub_body: any;
+      sinon.stub(axios, 'post').callsFake(async (url: string, body: any, options: any) => {
+        stub_url = url;
+        stub_headers = options.headers;
+        stub_body = body;
+
+        if (body.code === 'valid') return { data: { access_token: 'some_token' } };
+        if (body.code === 'error') throw new Error('Something went wrong');
+        return {};
+      });
+
+      const req = request(TEST_URL);
+      const response = await req.get('/callback?code=valid');
+
+      assert.notEqual(
+        response.header['set-cookie'][0].indexOf('spotify_access_token=some_token'),
+        -1,
+        'Does not set spotify_access_token cookie.'
+      );
+      assert.equal(response.header.location, '/', 'Redirects to index page');
+
+      assert.equal(stub_url, 'https://accounts.spotify.com/api/token', 'Calls correct spotify url');
+
+      assert.equal(stub_headers['Content-Type'], 'application/x-www-form-urlencoded', 'Uses correct Content-Type header');
+      assert.equal(stub_headers['Accept'], 'application/json', 'Uses correct Accept header');
+
+      assert.equal(stub_body.grant_type, 'authorization_code', 'Uses correct grant_type');
+      assert.equal(stub_body.redirect_uri, TEST_REDIRECT_URL, 'Uses redirect_uri');
+      assert.equal(stub_body.client_id, TEST_CLIENT_ID, 'Uses correct client_id');
+      assert.equal(stub_body.client_secret, TEST_CLIENT_SECRET, 'Uses correct client_secret');
+    });
+
+    it('returns error when exchanging token with spotify errors at /callback', async () => {
+      let stub_url: string;
+      let stub_headers: any;
+      let stub_body: any;
+      sinon.stub(axios, 'post').callsFake(async (url: string, body: any, options: any) => {
+        stub_url = url;
+        stub_headers = options.headers;
+        stub_body = body;
+
+        if (body.code === 'valid') return { data: { access_token: 'some_token' } };
+        if (body.code === 'error') throw new Error('Something went wrong');
+        return {};
+      });
+
+      const req = request(TEST_URL);
+      const response = await req.get('/callback?code=error');
+
+      if (response.header['set-cookie'] && response.header['set-cookie'].length > 0) {
+        assert.equal(
+          response.header['set-cookie'][0].indexOf('spotify_access_token=some_token'),
+          -1,
+          'Does not set spotify_access_token cookie.'
+        );
+      }
+      assert.equal(response.status, 500, 'Responds with server error');
+
+      assert.equal(stub_url, 'https://accounts.spotify.com/api/token', 'Calls correct spotify url');
+
+      assert.equal(stub_headers['Content-Type'], 'application/x-www-form-urlencoded', 'Uses correct Content-Type header');
+      assert.equal(stub_headers['Accept'], 'application/json', 'Uses correct Accept header');
+
+      assert.equal(stub_body.grant_type, 'authorization_code', 'Uses correct grant_type');
+      assert.equal(stub_body.redirect_uri, TEST_REDIRECT_URL, 'Uses redirect_uri');
+      assert.equal(stub_body.client_id, TEST_CLIENT_ID, 'Uses correct client_id');
+      assert.equal(stub_body.client_secret, TEST_CLIENT_SECRET, 'Uses correct client_secret');
+    });
+
+    it('returns unauthenticated when exchanging token with spotify with invalid code supplied at /callback', async () => {
+      let stub_url: string;
+      let stub_headers: any;
+      let stub_body: any;
+      sinon.stub(axios, 'post').callsFake(async (url: string, body: any, options: any) => {
+        stub_url = url;
+        stub_headers = options.headers;
+        stub_body = body;
+
+        if (body.code === 'valid') return { data: { access_token: 'some_token' } };
+        if (body.code === 'error') throw new Error('Something went wrong');
+        return {};
+      });
+
+      const req = request(TEST_URL);
+      const response = await req.get('/callback?code=invalid');
+
+      if (response.header['set-cookie'] && response.header['set-cookie'].length > 0) {
+        assert.equal(
+          response.header['set-cookie'][0].indexOf('spotify_access_token=some_token'),
+          -1,
+          'Does not set spotify_access_token cookie.'
+        );
+      }
+      assert.equal(response.status, 403, 'Responds with unauthenticated error');
+
+      assert.equal(stub_url, 'https://accounts.spotify.com/api/token', 'Calls correct spotify url');
+
+      assert.equal(stub_headers['Content-Type'], 'application/x-www-form-urlencoded', 'Uses correct Content-Type header');
+      assert.equal(stub_headers['Accept'], 'application/json', 'Uses correct Accept header');
+
+      assert.equal(stub_body.grant_type, 'authorization_code', 'Uses correct grant_type');
+      assert.equal(stub_body.redirect_uri, TEST_REDIRECT_URL, 'Uses redirect_uri');
+      assert.equal(stub_body.client_id, TEST_CLIENT_ID, 'Uses correct client_id');
+      assert.equal(stub_body.client_secret, TEST_CLIENT_SECRET, 'Uses correct client_secret');
     });
 
     it('returns static content at /test_static0.js', async () => {

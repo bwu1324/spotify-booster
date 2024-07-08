@@ -1,7 +1,5 @@
 // This file contains the entire code for the Header component.
 
-import React from 'react';
-
 import SpotifyLogin from './login/Login';
 import { AppBar, Link, Toolbar } from '@mui/material';
 

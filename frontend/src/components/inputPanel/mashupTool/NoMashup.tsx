@@ -3,10 +3,9 @@
  * there is mashup selected. It gives the option to the user to create a new
  * mashup.
  */
-import React from 'react';
 import { Button, Typography } from '@mui/material';
 
-function NoMashup({ handleCreateNew }: { handleCreateNew: Function }) {
+function NoMashup({ handleCreateNew }: { handleCreateNew: () => any }) {
   return (
     <Typography>
       <Button

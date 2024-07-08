@@ -1,7 +1,7 @@
 // This file contains the entire code for the Player component.
 // It is a container for the Control and TrackList components.
 
-import React, { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 
 import { Grid } from '@mui/material';
 import Control from './Control';
@@ -16,8 +16,8 @@ import {
   convertSpotifyItem,
   saveDataToLocalStorage,
 } from '../util';
-import spotify_config from '../../config/spotify_config';
 import axios from 'axios';
+import { config } from '../../config/config';
 
 /**
  * Converts an array of Spotify track IDs to an array of results.
@@ -39,7 +39,7 @@ async function convertSpotifyTracksToResults(
   try {
     return await axios
       .get('/tracks', {
-        baseURL: spotify_config.baseURL,
+        baseURL: config.spotify_baseURL,
         params: {
           ids: query,
         },
@@ -182,7 +182,7 @@ export default function Player({ mashup }: { mashup: Result }) {
       else setCurrentTrack(null);
       setMashupSections(sections);
     });
-  }, [mashup]);
+  }, [mashup, spotifyAccessToken]);
 
   const tracks = mashupSections.map((track) => track.track);
 

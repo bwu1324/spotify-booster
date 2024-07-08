@@ -7,7 +7,7 @@
  * creating a mashup.
  */
 
-import React, { useContext, useState } from 'react';
+import { useContext, useState } from 'react';
 import Finder from './finder/Finder';
 import MashupTool from './mashupTool/MashupTool';
 import {

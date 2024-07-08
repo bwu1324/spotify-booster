@@ -1,5 +1,3 @@
-import axios from 'axios';
-import backend_config from '../../../config/backend_config';
 import { Result, ResultType, backendHTTP } from '../../util';
 
 export async function searchBackendForMashups(

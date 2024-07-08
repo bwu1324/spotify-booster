@@ -26,7 +26,6 @@ export const TrackListContainer = styled(Paper)((/*{ theme }*/) => ({
   // backgroundColor: theme.palette.background.paper,
   width: '100%',
   height: '100%',
-  padding: 10,
   display: 'flex',
   flexDirection: 'column',
   elevation: 5,

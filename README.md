@@ -23,10 +23,34 @@ The mashup will show up on the right and you can play it back from Spotfiy right
 * Node.js
 * React.js
 * Typescript
-* Jest
+* Mocha, Chai
 * SQLite
 
-## Getting Started
+## Running with Docker
+
+### Prerequisites
+
+* Docker
+* Spotify API access to Web Playback SDK and Web API
+
+### Building and Running Container
+
+1. Make a copy of `template.env` and name it `.env`
+2. Set the values in `.env` to match your Spotify API configuration
+3. Build the container
+    ```bash
+    docker build --tag spotify-booster .
+    ```
+4. Start the container
+    ```bash
+    docker run -p 8080:8080 --env-file .env -v ./data:/app/data  spotify-booster
+    ```
+    Change `8080:8080` to `8080:<Your Desired Port>` to have app listen on a different port
+5. App is now accessible at `http://localhost:8080`
+
+* Note: Music playback requires a Spotify Premium account
+
+## Developing Locally
 
 ### Prerequisites
 

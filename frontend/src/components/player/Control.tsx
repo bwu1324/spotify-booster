@@ -7,7 +7,7 @@
     - mash-up remake
     */
 
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { useState, useEffect, useRef } from 'react';
 
 import { Typography, Grid } from '@mui/material';
@@ -39,7 +39,7 @@ export default function Control({
 }: {
   mashupSections: Array<MashupSection>;
   currentTrack: number | null;
-  updateCurrentTrack: Function;
+  updateCurrentTrack: (track: number) => any;
 }) {
   // albumColPortion is the portion of the ControllerPaper container that is
   // allocated to the album art
@@ -50,7 +50,7 @@ export default function Control({
   const outerRef = useRef<any>();
 
   // Spotify player SDK
-  const [spotifyPlayer, setSpotifyPlayer] = useState<Spotify.Player | null>(
+  const [spotifyPlayer, setSpotifyPlayer] = useState<any | null>(
     null
   );
   // The Spotify ID for the web player. Null iff the web player is offline.
@@ -112,7 +112,7 @@ export default function Control({
       setTimeout(
         () => setShouldConsiderAutoplay(true),
         mashupSections[currentTrack].endMs -
-          mashupSections[currentTrack].startMs
+        mashupSections[currentTrack].startMs
       );
     } else {
       pauseSpotifyPlayback();
@@ -195,11 +195,10 @@ export default function Control({
           style={{
             // the following makes sure that the album art doesn't have correct
             // display when the parent container is not loaded yet
-            flex: `0 0 ${
-              albumColPortion == 0 || albumColPortion == 100
-                ? 0
-                : albumColPortion
-            }%`,
+            flex: `0 0 ${albumColPortion == 0 || albumColPortion == 100
+              ? 0
+              : albumColPortion
+              }%`,
           }}
           position="relative"
         >

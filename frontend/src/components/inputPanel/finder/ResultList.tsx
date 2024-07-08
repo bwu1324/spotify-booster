@@ -1,6 +1,6 @@
 // Component for the list shown in the finder.
 
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import {
   Divider,
   List,
@@ -16,7 +16,7 @@ function RenderedResult({
   updateMashupParam,
 }: {
   result: Result;
-  updateMashupParam: Function;
+  updateMashupParam: (result: Result) => any;
 }) {
   const setMashup = useContext(MashupContext).setMashup;
   return (
@@ -55,7 +55,7 @@ function ResultList({
   updateMashupParam,
 }: {
   results: Result[];
-  updateMashupParam: Function;
+  updateMashupParam: (result: Result) => any;
 }) {
   if (results.length === 0) {
     return <></>;

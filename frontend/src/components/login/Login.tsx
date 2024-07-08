@@ -3,10 +3,8 @@ import React, { useContext } from 'react';
 import { useState, useEffect } from 'react';
 import { Button, Typography } from '@mui/material';
 import { setCookie } from './Cookie';
-import { checkTokenExpiration } from './Requests';
 
 import SpotifyWebApi from 'spotify-web-api-js';
-import spotify_config from '../../config/spotify_config';
 import { AccessTokenContext } from '../util';
 
 const spotifyApi = new SpotifyWebApi();
@@ -20,27 +18,12 @@ const SpotifyLogin: React.FC = () => {
 
   // Handle login behavior
   const handleLogin = async () => {
-    // Detect whether the URL is local environment or on remove server (e.g., on Vercel)
-    const redirectUri =
-      window.location.hostname === 'localhost'
-        ? 'http://localhost:3000/callback'
-        : 'https://' + window.location.hostname + '/callback';
-
-    const scopes = spotify_config.scopes;
-    const state = Math.random().toString(36).substring(7);
-    const url = `${spotify_config.authorizeUrlPrefix}&client_id=${
-      spotify_config.clientId
-    }&scope=${encodeURIComponent(scopes)}&redirect_uri=${encodeURIComponent(
-      redirectUri
-    )}&state=${state}`;
-
-    // Redirect to the URL
-    window.location.href = url;
+    window.location.href = 'login';
   };
 
   // Handle logout behavior
   const handleLogout = () => {
-    setToken(null);
+    setToken(null as any);
     spotifyApi.setAccessToken(null);
 
     // Set the access token in a cookie that expires immediately
@@ -72,12 +55,12 @@ const SpotifyLogin: React.FC = () => {
     }
 
     // Check token expiration every 5 minutes
-    const intervalId = setInterval(checkTokenExpiration, 1 * 60 * 1000);
+    // const intervalId = setInterval(checkTokenExpiration, 1 * 60 * 1000);
 
     // Clear the interval when the component is unmounted or the user object changes
-    return () => {
-      clearInterval(intervalId);
-    };
+    // return () => {
+    //   clearInterval(intervalId);
+    // };
   }, [user]);
 
   /* Detects whether user has logged in or not */

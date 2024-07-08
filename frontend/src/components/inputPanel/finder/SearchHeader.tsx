@@ -1,7 +1,7 @@
 // Component for the header of the finder. Either a search bar or the title of
 // the current mashup.
 
-import React, { ReactElement } from 'react';
+import { ReactElement } from 'react';
 import CloseIcon from '@mui/icons-material/Close';
 import { IconButton, InputAdornment, TextField, Tooltip } from '@mui/material';
 
@@ -36,7 +36,7 @@ function SearchBar({
   updateQuery,
 }: {
   query: string;
-  updateQuery: Function;
+  updateQuery: (value: string) => any;
 }) {
   return (
     <TextField

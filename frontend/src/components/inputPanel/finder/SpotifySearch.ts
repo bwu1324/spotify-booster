@@ -1,6 +1,6 @@
 import axios from 'axios';
-import spotify_config from '../../../config/spotify_config.js';
 import { Result, ResultType, convertSpotifyItem } from '../../util';
+import { config } from '../../../config/config';
 
 // Given some search string, query the Spotify API for tracks, artists, albums,
 // and playlists.
@@ -19,7 +19,7 @@ export async function searchSpotifyFor(
   try {
     return await axios
       .get('/search', {
-        baseURL: spotify_config.baseURL,
+        baseURL: config.spotify_baseURL,
         // Get limit number of results of each given type.
         params: {
           q: query,

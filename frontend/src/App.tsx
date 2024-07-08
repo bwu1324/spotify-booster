@@ -1,10 +1,8 @@
 import React from 'react';
 
 import './App.scss';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 
 import Home from './components/Home';
-import Callback from './components/login/Callback';
 import { getCookie } from './components/login/Cookie';
 import { AccessTokenContext } from './components/util';
 
@@ -17,12 +15,7 @@ export default function App() {
     <AccessTokenContext.Provider
       value={{ token: spotifyAccessToken, setToken: setSpotifyAccessToken }}
     >
-      <Router>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/callback" element={<Callback />} />
-        </Routes>
-      </Router>
+      <Home />
     </AccessTokenContext.Provider>
   );
 }

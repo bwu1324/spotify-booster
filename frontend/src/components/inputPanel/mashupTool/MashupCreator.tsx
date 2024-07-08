@@ -79,9 +79,9 @@ function MashupCreator({
 }: {
   startSong: Result;
   songRepo: Result;
-  handleCancel: Function;
-  handleResetInputs: Function;
-  handleCreate: Function;
+  handleCancel: () => any;
+  handleResetInputs: () => any;
+  handleCreate: (name: string) => any;
 }) {
   // The currently set mashup name.
   const [name, setName] = React.useState<string | null>(null);
@@ -134,7 +134,7 @@ function MashupCreator({
         <Button
           variant="contained"
           color="secondary"
-          onClick={() => handleCreate(name)}
+          onClick={() => handleCreate(name ? name : '')}
           sx={{ width: '33.33333%' }}
           disabled={
             startSong === EmptyResult ||

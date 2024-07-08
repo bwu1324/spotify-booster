@@ -1,4 +1,3 @@
-import React from 'react';
 import {
   FormControl,
   FormControlLabel,
@@ -8,7 +7,7 @@ import {
 import { ResultType } from '../../util';
 
 // Return a radio button for filtering search results.
-function getFilterButton(type: ResultType, updateSearchType: Function) {
+function getFilterButton(type: ResultType, updateSearchType: (type: number) => any) {
   return (
     <FormControlLabel
       value={ResultType[type].toLowerCase()}
@@ -26,7 +25,7 @@ function SearchFilter({
   updateSearchType,
 }: {
   searchType: ResultType;
-  updateSearchType: Function;
+  updateSearchType: (type: number) => any;
 }) {
   return (
     <div style={{ padding: '6px' }}>

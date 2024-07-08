@@ -10,7 +10,7 @@
  * songs.
  */
 
-import React, { useContext } from 'react';
+import { useContext } from 'react';
 import { Paper } from '@mui/material';
 import { theme } from '../../../theme';
 import NoMashup from './NoMashup';
@@ -32,8 +32,8 @@ function MashupToolContent({
 }: {
   startSong: Result;
   songRepo: Result;
-  resetResults: Function;
-  resetMashupParams: Function;
+  resetResults: () => void;
+  resetMashupParams: () => void;
 }) {
   const { mashup, setMashup } = useContext(MashupContext);
 
@@ -138,8 +138,8 @@ function MashupTool({
 }: {
   startSong: Result;
   songRepo: Result;
-  resetResults: Function;
-  resetMashupParams: Function;
+  resetResults: () => any;
+  resetMashupParams: () => any;
 }) {
   return (
     <Paper
